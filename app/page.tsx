@@ -4,57 +4,48 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import {
   ArrowLeft,
   ArrowRight,
-  BarChart3,
+  BookOpenCheck,
   Building2,
   Check,
   ChevronRight,
-  CircuitBoard,
+  CircleHelp,
   Compass,
   Cpu,
   Download,
   Gauge,
+  Leaf,
   Lightbulb,
   Network,
   RefreshCw,
   Shapes,
   Sparkles,
+  Target,
   TimerReset,
-  Users,
   Wrench,
   Cog,
 } from 'lucide-react';
 import { PolarAngleAxis, PolarGrid, Radar, RadarChart } from 'recharts';
-
 import { Button } from '@/components/ui/button';
 import { ChartContainer, type ChartConfig } from '@/components/ui/chart';
 import { Progress } from '@/components/ui/progress';
+import { competencies, competencyOrder } from '@/lib/assessment/competencies';
+import { engineeringFields } from '@/lib/assessment/fields';
+import { interpretResults } from '@/lib/assessment/interpretation';
+import {
+  assessmentVersion,
+  behaviourScale,
+  questions,
+  technicalScale,
+} from '@/lib/assessment/questions';
+import { calculateResults } from '@/lib/assessment/scoring';
+import { toolkit } from '@/lib/assessment/toolkit';
+import type {
+  AssessmentAnswers,
+  AssessmentItem,
+  PhaseKey,
+} from '@/lib/assessment/types';
 
 type Step = 'welcome' | 'field' | 'assessment' | 'results';
-type CompetencyKey =
-  | 'problem'
-  | 'planning'
-  | 'collaboration'
-  | 'handsOn'
-  | 'design'
-  | 'pitch';
-type ToolkitKey =
-  | 'Mechanical Assembly'
-  | 'CAD & 3D Modelling'
-  | 'Digital Fabrication'
-  | 'Electronics'
-  | 'Programming'
-  | 'Embedded Systems'
-  | 'Sensors & Measurement'
-  | 'Data & Analysis';
-
-type Question = {
-  id: number;
-  competency: CompetencyKey;
-  prompt: string;
-  context: string;
-  toolkit?: ToolkitKey[];
-};
-
 declare global {
   interface Document {
     modelContext?: {
@@ -73,339 +64,64 @@ declare global {
   }
 }
 
-const competencies: Record<
-  CompetencyKey,
-  { label: string; short: string; description: string; color: string }
-> = {
-  problem: {
-    label: 'Problem Identification',
-    short: 'Problem',
-    description: 'Frame the right challenge before solving it.',
-    color: '#8d153a',
-  },
-  planning: {
-    label: 'Proposal with Plan',
-    short: 'Planning',
-    description: 'Turn ideas into a realistic route forward.',
-    color: '#c24856',
-  },
-  collaboration: {
-    label: 'Interdisciplinary Collaboration',
-    short: 'Teamwork',
-    description: 'Coordinate people, perspectives and dependencies.',
-    color: '#d98c53',
-  },
-  handsOn: {
-    label: 'Hands-on Skills',
-    short: 'Hands-on',
-    description: 'Use technical tools to build, test and learn.',
-    color: '#377c7a',
-  },
-  design: {
-    label: 'Design Thinking & Prototyping',
-    short: 'Design',
-    description: 'Prototype early and improve through evidence.',
-    color: '#426c9b',
-  },
-  pitch: {
-    label: 'Pitch for Engineering Solutions',
-    short: 'Pitch',
-    description: 'Explain value, evidence and trade-offs clearly.',
-    color: '#615685',
-  },
+const fieldIcons = {
+  building: Building2,
+  network: Network,
+  cpu: Cpu,
+  cog: Cog,
 };
-
-const questions: Question[] = [
-  {
-    id: 1,
-    competency: 'problem',
-    prompt:
-      'Before proposing a solution, I investigate what is actually happening.',
-    context:
-      'Think about projects where the initial brief may not have captured the real need.',
-  },
-  {
-    id: 2,
-    competency: 'problem',
-    prompt:
-      'I gather evidence from users, observations or measurements to validate a problem.',
-    context:
-      'Evidence can be simple: an interview, a count, a test or a direct observation.',
-  },
-  {
-    id: 3,
-    competency: 'problem',
-    prompt:
-      'I can narrow a broad challenge into a specific engineering problem.',
-    context: 'A strong problem is clear enough for a team to act on.',
-  },
-  {
-    id: 4,
-    competency: 'problem',
-    prompt:
-      'I distinguish visible symptoms from the underlying cause of a problem.',
-    context:
-      'Consider whether you ask “why” more than once before deciding what to fix.',
-  },
-  {
-    id: 5,
-    competency: 'problem',
-    prompt:
-      'I identify the people, constraints and conditions that define a problem.',
-    context:
-      'For example: users, safety, environment, space, time or available resources.',
-  },
-  {
-    id: 6,
-    competency: 'planning',
-    prompt: 'I translate an idea into clear requirements and success criteria.',
-    context:
-      'You should be able to tell whether the final outcome actually works.',
-  },
-  {
-    id: 7,
-    competency: 'planning',
-    prompt:
-      'I compare more than one solution direction before choosing an approach.',
-    context:
-      'This includes considering meaningful alternatives, not cosmetic variations.',
-  },
-  {
-    id: 8,
-    competency: 'planning',
-    prompt:
-      'I assess whether a solution is feasible with the time, budget and resources available.',
-    context:
-      'Base your answer on what you usually do, not what an ideal team would do.',
-  },
-  {
-    id: 9,
-    competency: 'planning',
-    prompt:
-      'I break a project into milestones, responsibilities and concrete next steps.',
-    context: 'A useful plan makes ownership and progress visible.',
-  },
-  {
-    id: 10,
-    competency: 'planning',
-    prompt:
-      'I identify important risks early and prepare a practical response.',
-    context:
-      'Risks may involve safety, performance, coordination, supply or schedule.',
-  },
-  {
-    id: 11,
-    competency: 'collaboration',
-    prompt: 'I take clear ownership of my responsibilities in a team project.',
-    context: 'Think about whether teammates can rely on your work and updates.',
-  },
-  {
-    id: 12,
-    competency: 'collaboration',
-    prompt:
-      'I actively connect ideas from teammates with different technical backgrounds.',
-    context:
-      'Interdisciplinary work often requires translating between ways of thinking.',
-  },
-  {
-    id: 13,
-    competency: 'collaboration',
-    prompt:
-      'I invite quieter or differing perspectives before the team commits to a decision.',
-    context:
-      'Consider what you do when one voice is dominating the discussion.',
-  },
-  {
-    id: 14,
-    competency: 'collaboration',
-    prompt:
-      'I address disagreement constructively and help the team move forward.',
-    context: 'The goal is not to avoid conflict, but to use it productively.',
-  },
-  {
-    id: 15,
-    competency: 'collaboration',
-    prompt:
-      'I coordinate dependencies so that one person’s delay does not surprise the whole team.',
-    context:
-      'This can include check-ins, shared files, interface decisions or contingency plans.',
-  },
-  {
-    id: 16,
-    competency: 'handsOn',
-    prompt:
-      'I can safely assemble, adjust and troubleshoot a basic mechanical system.',
-    context:
-      'Think about hand tools, fasteners, alignment, mechanisms and physical fit.',
-    toolkit: ['Mechanical Assembly'],
-  },
-  {
-    id: 17,
-    competency: 'handsOn',
-    prompt:
-      'I can turn a sketch or measurement into a manufacturable digital model.',
-    context:
-      'Consider both CAD modelling and preparing a part for 3D printing or laser cutting.',
-    toolkit: ['CAD & 3D Modelling', 'Digital Fabrication'],
-  },
-  {
-    id: 18,
-    competency: 'handsOn',
-    prompt: 'I can build and troubleshoot a basic electronic circuit.',
-    context:
-      'Think about breadboards, wiring, components, measurement and soldering.',
-    toolkit: ['Electronics'],
-  },
-  {
-    id: 19,
-    competency: 'handsOn',
-    prompt: 'I can write or adapt code to control a physical device.',
-    context:
-      'This may involve Python, C/C++, a microcontroller or another embedded platform.',
-    toolkit: ['Programming', 'Embedded Systems'],
-  },
-  {
-    id: 20,
-    competency: 'handsOn',
-    prompt:
-      'I can collect sensor data and use it to evaluate system performance.',
-    context:
-      'Consider calibration, measurement quality, plotting and interpreting results.',
-    toolkit: ['Sensors & Measurement', 'Data & Analysis'],
-  },
-  {
-    id: 21,
-    competency: 'design',
-    prompt:
-      'I build a simple prototype early enough for it to change the direction of the project.',
-    context:
-      'An early prototype can be rough, partial or made from low-cost materials.',
-  },
-  {
-    id: 22,
-    competency: 'design',
-    prompt: 'I plan tests around specific questions or success criteria.',
-    context:
-      'A useful test is designed to reduce uncertainty, not only demonstrate the idea.',
-  },
-  {
-    id: 23,
-    competency: 'design',
-    prompt: 'I use feedback and test evidence to decide what to change next.',
-    context:
-      'Think about whether evidence can override your original preference.',
-  },
-  {
-    id: 24,
-    competency: 'design',
-    prompt:
-      'When a prototype fails, I diagnose the cause before making changes.',
-    context:
-      'Systematic learning is more valuable than random trial and error.',
-  },
-  {
-    id: 25,
-    competency: 'design',
-    prompt:
-      'I document iterations so the team understands what improved and why.',
-    context:
-      'Documentation may include sketches, photos, measurements, versions or decisions.',
-  },
-  {
-    id: 26,
-    competency: 'pitch',
-    prompt:
-      'I can explain the problem and proposed solution in a clear, logical story.',
-    context:
-      'A listener should quickly understand what matters and what you are proposing.',
-  },
-  {
-    id: 27,
-    competency: 'pitch',
-    prompt:
-      'I explain the value of a solution from the user or stakeholder’s perspective.',
-    context:
-      'Value may involve experience, safety, efficiency, access, cost or impact.',
-  },
-  {
-    id: 28,
-    competency: 'pitch',
-    prompt: 'I support important claims with relevant evidence.',
-    context:
-      'Evidence can come from testing, calculations, research, comparison or user feedback.',
-  },
-  {
-    id: 29,
-    competency: 'pitch',
-    prompt:
-      'I can explain limitations and trade-offs without weakening the core proposal.',
-    context:
-      'Credible engineering communication is transparent about what a design cannot do.',
-  },
-  {
-    id: 30,
-    competency: 'pitch',
-    prompt:
-      'I adapt technical detail and language to the needs of my audience.',
-    context:
-      'Consider how you communicate differently with peers, users and decision-makers.',
-  },
+const phases: Array<{ key: PhaseKey; label: string; range: string }> = [
+  { key: 'behaviour', label: 'How you work', range: '01–15' },
+  { key: 'technical', label: 'Technical toolkit', range: '16–24' },
+  { key: 'context', label: 'Project context', range: '25–26' },
+  { key: 'priorities', label: 'Interests & growth', range: '27–28' },
+  { key: 'judgment', label: 'Engineering judgment', range: '29–30' },
 ];
-
-const scale = [
-  { value: 1, label: 'Not yet', hint: 'Rarely true' },
-  { value: 2, label: 'Emerging', hint: 'Sometimes, with help' },
-  { value: 3, label: 'Developing', hint: 'Often, in familiar work' },
-  { value: 4, label: 'Capable', hint: 'Usually, independently' },
-  { value: 5, label: 'Consistent', hint: 'Across varied projects' },
-];
-
-const fieldOptions = [
-  {
-    id: 'civil',
-    title: 'Civil Engineering',
-    subtitle: 'Structures, infrastructure & the built environment',
-    icon: Building2,
-  },
-  {
-    id: 'data',
-    title: 'Data & Systems Engineering',
-    subtitle: 'Data, decisions, logistics & complex systems',
-    icon: Network,
-  },
-  {
-    id: 'ece',
-    title: 'Electrical & Computer Engineering',
-    subtitle: 'Circuits, computing, control & communication',
-    icon: Cpu,
-  },
-  {
-    id: 'mechanical',
-    title: 'Mechanical Engineering',
-    subtitle: 'Machines, materials, energy & design',
-    icon: Cog,
-  },
-];
-
-const sectionIcons: Record<CompetencyKey, typeof Compass> = {
-  problem: Compass,
-  planning: BarChart3,
-  collaboration: Users,
-  handsOn: Wrench,
-  design: Lightbulb,
-  pitch: Sparkles,
-};
-
 const chartConfig = {
-  score: { label: 'Score', color: '#8d153a' },
+  score: { label: 'Profile', color: '#075b45' },
 } satisfies ChartConfig;
-const toPercent = (value: number) => Math.round(((value - 1) / 4) * 100);
+const phaseCopy: Record<
+  PhaseKey,
+  { eyebrow: string; note: string; icon: typeof Compass }
+> = {
+  behaviour: {
+    eyebrow: 'HOW YOU WORK',
+    note: 'Think of what you usually do in a real project. The competency behind each statement stays hidden.',
+    icon: Compass,
+  },
+  technical: {
+    eyebrow: 'TECHNICAL TOOLKIT',
+    note: 'Rate your current experience and independence—not how interested you are in learning the skill.',
+    icon: Wrench,
+  },
+  context: {
+    eyebrow: 'PROJECT CONTEXT',
+    note: 'These factual answers help frame your reflection. They never add points to your profile.',
+    icon: BookOpenCheck,
+  },
+  priorities: {
+    eyebrow: 'INTERESTS & GROWTH',
+    note: 'Your choices personalise the result. They do not change your radar or technical scores.',
+    icon: Target,
+  },
+  judgment: {
+    eyebrow: 'ENGINEERING JUDGMENT',
+    note: 'Choose the response closest to what you would genuinely do. These scenarios are interpreted, not graded.',
+    icon: Lightbulb,
+  },
+};
+function isComplete(item: AssessmentItem, answer: unknown) {
+  if (item.kind === 'interest') return Array.isArray(answer);
+  if (item.kind === 'growth')
+    return Array.isArray(answer) && answer.length >= item.min;
+  return typeof answer === 'number';
+}
 
 export default function Home() {
   const [step, setStep] = useState<Step>('welcome');
   const [field, setField] = useState<string | null>(null);
   const [current, setCurrent] = useState(0);
-  const [answers, setAnswers] = useState<Record<number, number>>({});
+  const [answers, setAnswers] = useState<AssessmentAnswers>({ I01: [] });
   const [responseMs, setResponseMs] = useState<number | null>(null);
   const [fastStreak, setFastStreak] = useState(0);
   const [lastNudgeAt, setLastNudgeAt] = useState(-10);
@@ -417,61 +133,48 @@ export default function Home() {
     if (!context?.registerTool) return;
     const lifecycle = new AbortController();
     const allowedFields = [
-      'civil',
-      'data',
-      'ece',
-      'mechanical',
+      ...engineeringFields.map((option) => option.id),
       'other',
       'skip',
     ];
-    void Promise.resolve(
+    Promise.resolve(
       context.registerTool(
         {
           name: 'start_engineering_assessment',
           title: 'Start Engineering Compass',
           description:
-            'Start a fresh 30-question Engineering Compass assessment, optionally setting the learner’s engineering field for background context only.',
+            'Start the Standard Engineering Compass reflection, optionally with an engineering field used only as background context.',
           inputSchema: {
             type: 'object',
-            properties: {
-              field: {
-                type: 'string',
-                enum: allowedFields,
-                description:
-                  'Optional background field. Use skip to leave it unset.',
-              },
-            },
+            properties: { field: { type: 'string', enum: allowedFields } },
             additionalProperties: false,
           },
           annotations: { readOnlyHint: false, untrustedContentHint: false },
           execute(input) {
-            if (typeof input !== 'object' || input === null) {
+            if (typeof input !== 'object' || input === null)
               throw new Error('Input must be an object.');
-            }
-            const requestedField = (input as { field?: unknown }).field;
+            const requested = (input as { field?: unknown }).field;
             if (
-              requestedField !== undefined &&
-              (typeof requestedField !== 'string' ||
-                !allowedFields.includes(requestedField))
-            ) {
-              throw new Error(
-                'Field must be one of the supported Engineering Compass options.',
-              );
-            }
+              requested !== undefined &&
+              (typeof requested !== 'string' ||
+                !allowedFields.includes(requested))
+            )
+              throw new Error('Unsupported engineering field.');
             setField(
-              requestedField === 'skip' || requestedField === undefined
+              requested === 'skip'
                 ? null
-                : requestedField,
+                : ((requested as string | undefined) ?? null),
             );
-            setAnswers({});
+            setAnswers({ I01: [] });
             setCurrent(0);
-            setFastStreak(0);
-            setLastNudgeAt(-10);
-            setShowNudge(false);
-            setResponseMs(null);
-            questionStarted.current = Date.now();
             setStep('assessment');
-            return { status: 'started', question: 1, totalQuestions: 30 };
+            questionStarted.current = Date.now();
+            return {
+              status: 'started',
+              version: assessmentVersion,
+              question: 1,
+              totalQuestions: questions.length,
+            };
           },
         },
         { signal: lifecycle.signal },
@@ -481,65 +184,61 @@ export default function Home() {
   }, []);
 
   const activeQuestion = questions[current];
-  const selected = answers[activeQuestion?.id];
-  const results = useMemo(() => {
-    const competencyScores = (Object.keys(competencies) as CompetencyKey[]).map(
-      (key) => {
-        const items = questions.filter(
-          (question) => question.competency === key,
-        );
-        const average =
-          items.reduce(
-            (sum, question) => sum + (answers[question.id] ?? 1),
-            0,
-          ) / items.length;
-        return {
-          key,
-          subject: competencies[key].short,
-          fullLabel: competencies[key].label,
-          score: toPercent(average),
-          description: competencies[key].description,
-          color: competencies[key].color,
-        };
-      },
-    );
-    const toolkitMap = new Map<ToolkitKey, number[]>();
-    questions.forEach((question) =>
-      question.toolkit?.forEach((tool) =>
-        toolkitMap.set(tool, [
-          ...(toolkitMap.get(tool) ?? []),
-          answers[question.id] ?? 1,
-        ]),
+  const selected = answers[activeQuestion.id];
+  const results = useMemo(() => calculateResults(answers), [answers]);
+  const interpretation = useMemo(
+    () =>
+      interpretResults(
+        answers,
+        results.competencyScores,
+        results.toolkitScores,
       ),
-    );
-    const toolkitScores = Array.from(toolkitMap.entries()).map(
-      ([name, values]) => ({
-        name,
-        score: toPercent(
-          values.reduce((sum, value) => sum + value, 0) / values.length,
-        ),
-      }),
-    );
-    return { competencyScores, toolkitScores };
-  }, [answers]);
+    [answers, results],
+  );
+  const activePhaseIndex = phases.findIndex(
+    (phase) => phase.key === activeQuestion.phase,
+  );
+  const canContinue = isComplete(activeQuestion, selected);
 
   function beginAssessment() {
     setCurrent(0);
+    setAnswers({ I01: [] });
+    setFastStreak(0);
+    setShowNudge(false);
     questionStarted.current = Date.now();
     setStep('assessment');
   }
-
-  function chooseAnswer(value: number) {
+  function chooseNumber(value: number) {
     setAnswers((previous) => ({ ...previous, [activeQuestion.id]: value }));
-    // oxlint-disable-next-line react/react-compiler -- timing is intentionally sampled in a user event handler.
     setResponseMs(Date.now() - questionStarted.current);
     setShowNudge(false);
   }
-
+  function toggleSelection(id: string) {
+    if (activeQuestion.kind !== 'interest' && activeQuestion.kind !== 'growth')
+      return;
+    const existing = Array.isArray(selected) ? selected : [];
+    let next: string[];
+    if (existing.includes(id)) next = existing.filter((item) => item !== id);
+    else if (activeQuestion.kind === 'growth' && id === 'not-sure')
+      next = ['not-sure'];
+    else {
+      const withoutNotSure = existing.filter((item) => item !== 'not-sure');
+      next =
+        withoutNotSure.length < activeQuestion.max
+          ? [...withoutNotSure, id]
+          : withoutNotSure;
+    }
+    setAnswers((previous) => ({ ...previous, [activeQuestion.id]: next }));
+    setResponseMs(Date.now() - questionStarted.current);
+    setShowNudge(false);
+  }
   function advance(force = false) {
-    if (!selected) return;
-    const wasFast = (responseMs ?? 99999) < 1800;
-    const nextStreak = wasFast ? fastStreak + 1 : 0;
+    if (!canContinue) return;
+    const reflective =
+      activeQuestion.kind === 'behaviour' ||
+      activeQuestion.kind === 'technical';
+    const nextStreak =
+      reflective && (responseMs ?? 99999) < 1800 ? fastStreak + 1 : 0;
     if (!force && nextStreak >= 2 && current - lastNudgeAt >= 6) {
       setFastStreak(nextStreak);
       setLastNudgeAt(current);
@@ -557,7 +256,6 @@ export default function Home() {
     setCurrent((value) => value + 1);
     questionStarted.current = Date.now();
   }
-
   function goBack() {
     if (current === 0) {
       setStep('field');
@@ -568,25 +266,22 @@ export default function Home() {
     setShowNudge(false);
     questionStarted.current = Date.now();
   }
-
   function restart() {
     setStep('welcome');
     setField(null);
     setCurrent(0);
-    setAnswers({});
+    setAnswers({ I01: [] });
     setFastStreak(0);
-    setLastNudgeAt(-10);
     setShowNudge(false);
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }
-
   function downloadSummary() {
     const fieldLabel =
-      fieldOptions.find((option) => option.id === field)?.title ??
+      engineeringFields.find((option) => option.id === field)?.title ??
       (field === 'other' ? 'Other / Interdisciplinary' : 'Not provided');
     const lines = [
-      'ENGINEERING COMPASS — PERSONAL PROFILE',
-      `Engineering field: ${fieldLabel}`,
+      'ENGINEERING COMPASS — STANDARD V1.1 PROFILE',
+      `Engineering field: ${fieldLabel} (context only)`,
       '',
       'SIX ENGINEERING COMPETENCIES',
       ...results.competencyScores.map(
@@ -596,13 +291,23 @@ export default function Home() {
       'TECHNICAL TOOLKIT',
       ...results.toolkitScores.map((item) => `${item.name}: ${item.score}/100`),
       '',
-      'A formative reflection profile — not a grade or selection test.',
+      'CHOSEN GROWTH PRIORITIES',
+      ...interpretation.growth.map((item) => item.label),
+      '',
+      'ENGINEERING INTERESTS',
+      ...(interpretation.interests.length
+        ? interpretation.interests
+        : ['Not provided']),
+      '',
+      `Evidence-practice reflection: ${interpretation.evidenceReflection}`,
+      '',
+      'A formative self-reflection — not a grade, type, ranking, or objective ability test.',
     ];
     const blob = new Blob([lines.join('\n')], { type: 'text/plain' });
     const url = URL.createObjectURL(blob);
     const anchor = document.createElement('a');
     anchor.href = url;
-    anchor.download = 'engineering-compass-profile.txt';
+    anchor.download = 'engineering-compass-standard-v1-1.txt';
     anchor.click();
     URL.revokeObjectURL(url);
   }
@@ -610,303 +315,40 @@ export default function Home() {
   return (
     <main className="min-h-screen bg-background text-foreground">
       <Header
-        progress={step === 'assessment' ? ((current + 1) / 30) * 100 : null}
+        progress={
+          step === 'assessment'
+            ? ((current + 1) / questions.length) * 100
+            : null
+        }
       />
-
-      {step === 'welcome' && (
-        <section className="relative overflow-hidden">
-          <div
-            className="compass-grid absolute inset-0 opacity-70"
-            aria-hidden="true"
-          />
-          <div className="relative mx-auto grid min-h-[calc(100vh-76px)] max-w-7xl items-center gap-12 px-6 py-16 lg:grid-cols-[1.08fr_.92fr] lg:px-12">
-            <div className="max-w-3xl">
-              <div className="eyebrow mb-6">
-                <Compass className="size-4" /> ENGG1101 · FORMATIVE REFLECTION
-              </div>
-              <h1 className="display-title text-[clamp(3.4rem,8vw,7.7rem)] leading-[.86] tracking-[-.065em]">
-                Find your<span className="block text-primary">engineering</span>
-                direction.
-              </h1>
-              <p className="mt-8 max-w-xl text-lg leading-8 text-muted-foreground sm:text-xl">
-                A practical self-assessment across six capabilities that help
-                engineers define, build, collaborate and communicate.
-              </p>
-              <div className="mt-10 flex flex-wrap gap-3">
-                <Button
-                  size="lg"
-                  className="h-13 rounded-full px-7 text-base shadow-[0_12px_34px_rgba(141,21,58,.22)]"
-                  onClick={() => setStep('field')}
-                >
-                  Begin assessment <ArrowRight className="ml-1 size-4" />
-                </Button>
-                <div className="flex items-center gap-2 px-3 text-sm text-muted-foreground">
-                  <Gauge className="size-4" /> About 8–10 minutes
-                </div>
-              </div>
-            </div>
-            <div className="relative mx-auto w-full max-w-lg">
-              <div className="profile-orbit" aria-hidden="true">
-                <div className="orbit-center">
-                  <Compass className="size-12" strokeWidth={1.4} />
-                  <span>YOUR PROFILE</span>
-                </div>
-                {(Object.keys(competencies) as CompetencyKey[]).map(
-                  (key, index) => {
-                    const Icon = sectionIcons[key];
-                    return (
-                      <div
-                        key={key}
-                        className={`orbit-point orbit-point-${index + 1}`}
-                        style={
-                          {
-                            '--point-color': competencies[key].color,
-                          } as React.CSSProperties
-                        }
-                      >
-                        <Icon className="size-5" />
-                      </div>
-                    );
-                  },
-                )}
-              </div>
-              <div className="mt-8 grid grid-cols-3 divide-x divide-border rounded-2xl border bg-card/90 py-4 shadow-sm backdrop-blur">
-                {[
-                  ['30', 'questions'],
-                  ['6', 'competencies'],
-                  ['8', 'toolkit areas'],
-                ].map(([value, label]) => (
-                  <div key={label} className="px-3 text-center">
-                    <div className="font-serif text-2xl font-semibold text-primary">
-                      {value}
-                    </div>
-                    <div className="mt-0.5 text-xs text-muted-foreground">
-                      {label}
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-          </div>
-        </section>
-      )}
-
+      {step === 'welcome' && <Welcome onBegin={() => setStep('field')} />}
       {step === 'field' && (
-        <section className="mx-auto max-w-6xl px-6 py-14 lg:px-12 lg:py-20">
-          <button
-            className="mb-10 inline-flex items-center gap-2 text-sm font-medium text-muted-foreground transition hover:text-foreground"
-            onClick={() => setStep('welcome')}
-          >
-            <ArrowLeft className="size-4" /> Back
-          </button>
-          <div className="max-w-2xl">
-            <div className="eyebrow mb-5">OPTIONAL BACKGROUND</div>
-            <h1 className="font-serif text-4xl font-semibold tracking-tight sm:text-5xl">
-              Which engineering field best describes you?
-            </h1>
-            <p className="mt-4 text-lg leading-7 text-muted-foreground">
-              Choose the field closest to your current programme. This helps
-              provide context only—it never affects your score.
-            </p>
-          </div>
-          <div className="mt-10 grid gap-4 md:grid-cols-2">
-            {fieldOptions.map((option) => {
-              const Icon = option.icon;
-              const isSelected = field === option.id;
-              return (
-                <button
-                  key={option.id}
-                  className={`field-card ${isSelected ? 'field-card-selected' : ''}`}
-                  onClick={() => setField(option.id)}
-                  aria-pressed={isSelected}
-                >
-                  <span className="field-icon">
-                    <Icon className="size-7" strokeWidth={1.6} />
-                  </span>
-                  <span className="min-w-0 text-left">
-                    <span className="block font-serif text-xl font-semibold">
-                      {option.title}
-                    </span>
-                    <span className="mt-1 block text-sm text-muted-foreground">
-                      {option.subtitle}
-                    </span>
-                  </span>
-                  <span className="ml-auto grid size-7 shrink-0 place-items-center rounded-full border">
-                    {isSelected ? (
-                      <Check className="size-4" />
-                    ) : (
-                      <ChevronRight className="size-4" />
-                    )}
-                  </span>
-                </button>
-              );
-            })}
-          </div>
-          <div className="mt-4 grid gap-4 sm:grid-cols-2">
-            <button
-              className={`compact-choice ${field === 'other' ? 'compact-choice-selected' : ''}`}
-              onClick={() => setField('other')}
-            >
-              <Shapes className="size-5" /> Other / Interdisciplinary
-            </button>
-            <button className="compact-choice" onClick={() => setField(null)}>
-              Skip for now
-            </button>
-          </div>
-          <div className="mt-10 flex justify-end">
-            <Button
-              size="lg"
-              className="h-12 rounded-full px-7"
-              onClick={beginAssessment}
-            >
-              Continue <ArrowRight className="ml-1 size-4" />
-            </Button>
-          </div>
-        </section>
+        <FieldSelection
+          field={field}
+          onChange={setField}
+          onBack={() => setStep('welcome')}
+          onContinue={beginAssessment}
+        />
       )}
-
-      {step === 'assessment' && activeQuestion && (
-        <section className="mx-auto grid max-w-7xl gap-10 px-6 py-10 lg:grid-cols-[260px_minmax(0,760px)] lg:px-12 lg:py-14">
-          <aside className="hidden lg:block">
-            <div className="sticky top-28">
-              <div className="text-xs font-semibold uppercase tracking-[.16em] text-muted-foreground">
-                Your progress
-              </div>
-              <div className="mt-4 space-y-1.5">
-                {(Object.keys(competencies) as CompetencyKey[]).map(
-                  (key, index) => {
-                    const Icon = sectionIcons[key];
-                    const sectionIndex = Math.floor(current / 5);
-                    const isActive = index === sectionIndex;
-                    const isComplete = index < sectionIndex;
-                    return (
-                      <div
-                        key={key}
-                        className={`section-row ${isActive ? 'section-row-active' : ''}`}
-                      >
-                        <span
-                          className={`section-dot ${isComplete ? 'section-dot-complete' : ''}`}
-                        >
-                          {isComplete ? (
-                            <Check className="size-3" />
-                          ) : (
-                            <Icon className="size-3.5" />
-                          )}
-                        </span>
-                        <span className="text-sm">
-                          {competencies[key].label}
-                        </span>
-                      </div>
-                    );
-                  },
-                )}
-              </div>
-              <div className="mt-8 rounded-xl border border-primary/10 bg-primary/[.035] p-4 text-xs leading-5 text-muted-foreground">
-                Answer for how you work now—not for the engineer you think you
-                should be.
-              </div>
-            </div>
-          </aside>
-          <div>
-            <div className="mb-7 flex items-center justify-between gap-4">
-              <div>
-                <div className="text-xs font-semibold uppercase tracking-[.16em] text-primary">
-                  {competencies[activeQuestion.competency].label}
-                </div>
-                <div className="mt-1 text-sm text-muted-foreground">
-                  Question {current + 1} of {questions.length}
-                </div>
-              </div>
-              <div className="rounded-full border bg-card px-3 py-1.5 text-sm font-semibold tabular-nums">
-                {Math.round(((current + 1) / questions.length) * 100)}%
-              </div>
-            </div>
-            <article className="question-card">
-              <div className="mb-7 flex size-11 items-center justify-center rounded-xl bg-primary/[.08] text-primary">
-                {(() => {
-                  const Icon = sectionIcons[activeQuestion.competency];
-                  return <Icon className="size-5" />;
-                })()}
-              </div>
-              <h1 className="font-serif text-3xl font-semibold leading-tight tracking-tight sm:text-[2.4rem]">
-                {activeQuestion.prompt}
-              </h1>
-              <p className="mt-4 max-w-2xl leading-7 text-muted-foreground">
-                {activeQuestion.context}
-              </p>
-              {activeQuestion.toolkit && (
-                <div className="mt-5 flex flex-wrap gap-2">
-                  {activeQuestion.toolkit.map((item) => (
-                    <span key={item} className="tool-chip">
-                      <CircuitBoard className="size-3" /> {item}
-                    </span>
-                  ))}
-                </div>
-              )}
-              <fieldset className="mt-9">
-                <legend className="mb-3 text-sm font-semibold">
-                  How consistently does this describe you?
-                </legend>
-                <div className="grid gap-2.5 sm:grid-cols-5">
-                  {scale.map((option) => (
-                    <button
-                      type="button"
-                      key={option.value}
-                      className={`scale-option ${selected === option.value ? 'scale-option-selected' : ''}`}
-                      onClick={() => chooseAnswer(option.value)}
-                      aria-pressed={selected === option.value}
-                    >
-                      <span className="scale-number">{option.value}</span>
-                      <span className="font-semibold">{option.label}</span>
-                      <span className="text-[11px] leading-4 text-muted-foreground">
-                        {option.hint}
-                      </span>
-                    </button>
-                  ))}
-                </div>
-              </fieldset>
-              {showNudge && (
-                <output className="mt-6 flex gap-3 rounded-xl border border-amber-300/70 bg-amber-50 p-4 text-sm text-amber-950">
-                  <TimerReset className="mt-0.5 size-5 shrink-0" />
-                  <div>
-                    <div className="font-semibold">
-                      A quick reflection check
-                    </div>
-                    <p className="mt-1 leading-5 text-amber-900/80">
-                      You answered the last few questions unusually quickly.
-                      Take a moment to picture a real project example, then keep
-                      or change this answer.
-                    </p>
-                  </div>
-                </output>
-              )}
-              <div className="mt-8 flex items-center justify-between border-t pt-6">
-                <Button variant="ghost" size="lg" onClick={goBack}>
-                  <ArrowLeft className="mr-1 size-4" /> Previous
-                </Button>
-                <Button
-                  size="lg"
-                  className="h-11 rounded-full px-6"
-                  disabled={!selected}
-                  onClick={() => advance(showNudge)}
-                >
-                  {current === questions.length - 1
-                    ? 'View my profile'
-                    : showNudge
-                      ? 'Keep answer & continue'
-                      : 'Next'}
-                  <ArrowRight className="ml-1 size-4" />
-                </Button>
-              </div>
-            </article>
-          </div>
-        </section>
+      {step === 'assessment' && (
+        <Assessment
+          question={activeQuestion}
+          current={current}
+          selected={selected}
+          activePhaseIndex={activePhaseIndex}
+          canContinue={canContinue}
+          showNudge={showNudge}
+          onChooseNumber={chooseNumber}
+          onToggle={toggleSelection}
+          onBack={goBack}
+          onAdvance={() => advance(showNudge)}
+        />
       )}
-
       {step === 'results' && (
         <Results
-          scores={results.competencyScores}
-          toolkit={results.toolkitScores}
+          competencyScores={results.competencyScores}
+          toolkitScores={results.toolkitScores}
+          interpretation={interpretation}
           field={field}
           onRestart={restart}
           onDownload={downloadSummary}
@@ -918,10 +360,10 @@ export default function Home() {
 
 function Header({ progress }: { progress: number | null }) {
   return (
-    <header className="sticky top-0 z-30 border-b bg-background/90 backdrop-blur-xl">
-      <div className="mx-auto flex h-[75px] max-w-7xl items-center justify-between px-6 lg:px-12">
+    <header className="sticky top-0 z-30 border-b bg-background/92 backdrop-blur-xl">
+      <div className="mx-auto flex h-[74px] max-w-7xl items-center justify-between px-5 lg:px-12">
         <div className="flex items-center gap-3">
-          <div className="grid size-9 place-items-center rounded-xl bg-primary text-primary-foreground">
+          <div className="brand-mark">
             <Compass className="size-5" />
           </div>
           <div>
@@ -934,7 +376,7 @@ function Header({ progress }: { progress: number | null }) {
           </div>
         </div>
         <div className="hidden items-center gap-2 text-xs text-muted-foreground sm:flex">
-          <span className="size-2 rounded-full bg-emerald-500" /> Responses stay
+          <span className="size-2 rounded-full bg-emerald-600" /> Responses stay
           in this browser
         </div>
       </div>
@@ -948,45 +390,475 @@ function Header({ progress }: { progress: number | null }) {
   );
 }
 
+function Welcome({ onBegin }: { onBegin: () => void }) {
+  return (
+    <section className="relative overflow-hidden">
+      <div className="compass-grid absolute inset-0" aria-hidden="true" />
+      <div className="relative mx-auto grid min-h-[calc(100vh-74px)] max-w-7xl items-center gap-12 px-6 py-14 lg:grid-cols-[1.04fr_.96fr] lg:px-12">
+        <div className="max-w-3xl">
+          <div className="eyebrow mb-6">
+            <Compass className="size-4" /> STANDARD · FORMATIVE SELF-REFLECTION
+          </div>
+          <h1 className="display-title text-[clamp(3.2rem,7.6vw,7.4rem)] leading-[.88] tracking-[-.06em]">
+            See how you<span className="block text-primary">think, build</span>
+            <span className="block">and grow.</span>
+          </h1>
+          <p className="mt-7 max-w-xl text-lg leading-8 text-muted-foreground sm:text-xl">
+            A practical profile of six engineering competencies, nine technical
+            toolkit areas, and the directions you want to develop next.
+          </p>
+          <div className="mt-9 flex flex-wrap items-center gap-3">
+            <Button
+              size="lg"
+              className="h-13 rounded-full px-7 text-base shadow-[0_14px_34px_rgba(7,91,69,.2)]"
+              onClick={onBegin}
+            >
+              Begin assessment <ArrowRight className="ml-1 size-4" />
+            </Button>
+            <div className="flex items-center gap-2 px-3 text-sm text-muted-foreground">
+              <Gauge className="size-4" /> About 8–10 minutes
+            </div>
+          </div>
+          <p className="mt-5 max-w-lg text-xs leading-5 text-muted-foreground">
+            Not a grade, engineering type, or selection test. Your responses
+            remain in this browser session.
+          </p>
+        </div>
+        <div className="mx-auto w-full max-w-lg">
+          <div className="profile-orbit" aria-hidden="true">
+            <div className="orbit-axis orbit-axis-x" />
+            <div className="orbit-axis orbit-axis-y" />
+            <div className="orbit-center">
+              <Compass className="size-11" strokeWidth={1.5} />
+              <span>YOUR PROFILE</span>
+            </div>
+            {competencyOrder.map((key, index) => (
+              <div
+                key={key}
+                className={`orbit-point orbit-point-${index + 1}`}
+                style={
+                  {
+                    '--point-color': competencies[key].color,
+                  } as React.CSSProperties
+                }
+              >
+                <span>{String(index + 1).padStart(2, '0')}</span>
+              </div>
+            ))}
+          </div>
+          <div className="mt-7 grid grid-cols-3 divide-x divide-border rounded-2xl border bg-card/95 py-4 shadow-sm">
+            {[
+              ['30', 'questions'],
+              ['6', 'competencies'],
+              ['9', 'toolkit areas'],
+            ].map(([value, label]) => (
+              <div key={label} className="px-3 text-center">
+                <div className="font-serif text-2xl font-semibold text-primary">
+                  {value}
+                </div>
+                <div className="mt-0.5 text-xs text-muted-foreground">
+                  {label}
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+function FieldSelection({
+  field,
+  onChange,
+  onBack,
+  onContinue,
+}: {
+  field: string | null;
+  onChange: (field: string | null) => void;
+  onBack: () => void;
+  onContinue: () => void;
+}) {
+  return (
+    <section className="mx-auto max-w-6xl px-6 py-12 lg:px-12 lg:py-18">
+      <button className="back-link" onClick={onBack}>
+        <ArrowLeft className="size-4" /> Back
+      </button>
+      <div className="max-w-2xl">
+        <div className="eyebrow mb-5">OPTIONAL BACKGROUND</div>
+        <h1 className="font-serif text-4xl font-semibold tracking-tight sm:text-5xl">
+          Which engineering field is closest to you?
+        </h1>
+        <p className="mt-4 text-lg leading-7 text-muted-foreground">
+          This adds context only. It never changes your questions, scores, or
+          result interpretation.
+        </p>
+      </div>
+      <div className="mt-9 grid gap-4 md:grid-cols-2">
+        {engineeringFields.map((option) => {
+          const Icon = fieldIcons[option.icon];
+          const isSelected = field === option.id;
+          return (
+            <button
+              key={option.id}
+              className={`field-card ${isSelected ? 'field-card-selected' : ''}`}
+              onClick={() => onChange(option.id)}
+              aria-pressed={isSelected}
+            >
+              <span className="field-icon">
+                <Icon className="size-7" strokeWidth={1.6} />
+              </span>
+              <span className="min-w-0 text-left">
+                <span className="block font-serif text-xl font-semibold">
+                  {option.title}
+                </span>
+                <span className="mt-1 block text-sm text-muted-foreground">
+                  {option.subtitle}
+                </span>
+              </span>
+              <span className="choice-check">
+                {isSelected ? (
+                  <Check className="size-4" />
+                ) : (
+                  <ChevronRight className="size-4" />
+                )}
+              </span>
+            </button>
+          );
+        })}
+      </div>
+      <div className="mt-4 grid gap-4 sm:grid-cols-2">
+        <button
+          className={`compact-choice ${field === 'other' ? 'compact-choice-selected' : ''}`}
+          onClick={() => onChange('other')}
+        >
+          <Shapes className="size-5" /> Other / Interdisciplinary
+        </button>
+        <button
+          className="compact-choice"
+          onClick={() => {
+            onChange(null);
+            onContinue();
+          }}
+        >
+          Skip this step
+        </button>
+      </div>
+      <div className="mt-9 flex justify-end">
+        <Button
+          size="lg"
+          className="h-12 rounded-full px-7"
+          onClick={onContinue}
+        >
+          Continue <ArrowRight className="ml-1 size-4" />
+        </Button>
+      </div>
+    </section>
+  );
+}
+
+function Assessment({
+  question,
+  current,
+  selected,
+  activePhaseIndex,
+  canContinue,
+  showNudge,
+  onChooseNumber,
+  onToggle,
+  onBack,
+  onAdvance,
+}: {
+  question: AssessmentItem;
+  current: number;
+  selected: number | string[] | undefined;
+  activePhaseIndex: number;
+  canContinue: boolean;
+  showNudge: boolean;
+  onChooseNumber: (value: number) => void;
+  onToggle: (id: string) => void;
+  onBack: () => void;
+  onAdvance: () => void;
+}) {
+  const phase = phaseCopy[question.phase];
+  const PhaseIcon = phase.icon;
+  const scale = question.kind === 'behaviour' ? behaviourScale : technicalScale;
+  return (
+    <section className="mx-auto grid max-w-7xl gap-10 px-6 py-9 lg:grid-cols-[250px_minmax(0,780px)] lg:px-12 lg:py-13">
+      <aside className="hidden lg:block">
+        <div className="sticky top-27">
+          <div className="text-xs font-semibold uppercase tracking-[.16em] text-muted-foreground">
+            Assessment path
+          </div>
+          <div className="mt-4 space-y-1.5">
+            {phases.map((item, index) => (
+              <div
+                key={item.key}
+                className={`section-row ${index === activePhaseIndex ? 'section-row-active' : ''}`}
+              >
+                <span
+                  className={`section-dot ${index < activePhaseIndex ? 'section-dot-complete' : ''}`}
+                >
+                  {index < activePhaseIndex ? (
+                    <Check className="size-3" />
+                  ) : (
+                    index + 1
+                  )}
+                </span>
+                <span className="min-w-0 flex-1 text-sm">{item.label}</span>
+                <span className="text-[10px] tabular-nums text-muted-foreground">
+                  {item.range}
+                </span>
+              </div>
+            ))}
+          </div>
+          <div className="reflection-note mt-7">
+            <Leaf className="mt-0.5 size-4 shrink-0 text-primary" />
+            <span>{phase.note}</span>
+          </div>
+        </div>
+      </aside>
+      <div>
+        <div className="mb-6 flex items-center justify-between gap-4">
+          <div>
+            <div className="text-xs font-semibold uppercase tracking-[.16em] text-primary">
+              {phase.eyebrow}
+            </div>
+            <div className="mt-1 text-sm text-muted-foreground">
+              Question {current + 1} of {questions.length}
+            </div>
+          </div>
+          <div className="rounded-full border bg-card px-3 py-1.5 text-sm font-semibold tabular-nums text-primary">
+            {Math.round(((current + 1) / questions.length) * 100)}%
+          </div>
+        </div>
+        <article className="question-card">
+          <div className="question-kicker">
+            <PhaseIcon className="size-5" />
+            {question.kind === 'technical'
+              ? toolkit[question.toolkit].label
+              : phase.eyebrow}
+          </div>
+          <h1 className="mt-6 font-serif text-3xl font-semibold leading-tight tracking-tight sm:text-[2.35rem]">
+            {question.prompt}
+          </h1>
+          {question.helper && (
+            <p className="mt-4 max-w-2xl leading-7 text-muted-foreground">
+              {question.helper}
+            </p>
+          )}
+          {(question.kind === 'behaviour' || question.kind === 'technical') && (
+            <ScaleQuestion
+              selected={typeof selected === 'number' ? selected : undefined}
+              prompt={scale.prompt}
+              low={scale.low}
+              high={scale.high}
+              onChoose={onChooseNumber}
+            />
+          )}
+          {(question.kind === 'context' || question.kind === 'judgment') && (
+            <OrderedChoices
+              options={question.options}
+              selected={typeof selected === 'number' ? selected : undefined}
+              onChoose={onChooseNumber}
+              scenario={question.kind === 'judgment'}
+            />
+          )}
+          {(question.kind === 'interest' || question.kind === 'growth') && (
+            <MultiChoices
+              options={question.options}
+              selected={Array.isArray(selected) ? selected : []}
+              max={question.max}
+              onToggle={onToggle}
+            />
+          )}
+          {showNudge && (
+            <output className="nudge">
+              <TimerReset className="mt-0.5 size-5 shrink-0" />
+              <div>
+                <div className="font-semibold">A quick reflection check</div>
+                <p className="mt-1 leading-5 text-amber-900/80">
+                  You answered the last few statements unusually quickly.
+                  Picture a real project example, then keep or change this
+                  answer.
+                </p>
+              </div>
+            </output>
+          )}
+          <div className="mt-8 flex items-center justify-between border-t pt-6">
+            <Button variant="ghost" size="lg" onClick={onBack}>
+              <ArrowLeft className="mr-1 size-4" /> Previous
+            </Button>
+            <Button
+              size="lg"
+              className="h-11 rounded-full px-6"
+              disabled={!canContinue}
+              onClick={onAdvance}
+            >
+              {current === questions.length - 1
+                ? 'View my profile'
+                : showNudge
+                  ? 'Keep answer & continue'
+                  : 'Next'}
+              <ArrowRight className="ml-1 size-4" />
+            </Button>
+          </div>
+        </article>
+      </div>
+    </section>
+  );
+}
+
+function ScaleQuestion({
+  selected,
+  prompt,
+  low,
+  high,
+  onChoose,
+}: {
+  selected?: number;
+  prompt: string;
+  low: string;
+  high: string;
+  onChoose: (value: number) => void;
+}) {
+  return (
+    <fieldset className="mt-9">
+      <legend className="text-sm font-semibold">{prompt}</legend>
+      <div className="mt-4 grid grid-cols-5 gap-2.5">
+        {[1, 2, 3, 4, 5].map((value) => (
+          <button
+            type="button"
+            key={value}
+            className={`scale-position ${selected === value ? 'scale-position-selected' : ''}`}
+            onClick={() => onChoose(value)}
+            aria-label={`${value} of 5`}
+            aria-pressed={selected === value}
+          >
+            {value}
+          </button>
+        ))}
+      </div>
+      <div className="mt-2 flex justify-between gap-4 text-xs text-muted-foreground">
+        <span>{low}</span>
+        <span className="text-right">{high}</span>
+      </div>
+    </fieldset>
+  );
+}
+
+function OrderedChoices({
+  options,
+  selected,
+  onChoose,
+  scenario,
+}: {
+  options: Array<{ id: string; label: string; value: number }>;
+  selected?: number;
+  onChoose: (value: number) => void;
+  scenario: boolean;
+}) {
+  return (
+    <fieldset className="mt-8">
+      <legend className="sr-only">Choose one response</legend>
+      <div className="grid gap-2.5">
+        {options.map((option) => (
+          <button
+            type="button"
+            key={option.id}
+            className={`ordered-choice ${selected === option.value ? 'ordered-choice-selected' : ''}`}
+            onClick={() => onChoose(option.value)}
+            aria-pressed={selected === option.value}
+          >
+            <span className="choice-radio">
+              {selected === option.value && <Check className="size-3.5" />}
+            </span>
+            <span>{option.label}</span>
+            {!scenario && (
+              <ChevronRight className="ml-auto size-4 shrink-0 text-muted-foreground" />
+            )}
+          </button>
+        ))}
+      </div>
+    </fieldset>
+  );
+}
+
+function MultiChoices({
+  options,
+  selected,
+  max,
+  onToggle,
+}: {
+  options: Array<{ id: string; label: string }>;
+  selected: string[];
+  max: number;
+  onToggle: (id: string) => void;
+}) {
+  return (
+    <fieldset className="mt-8">
+      <legend className="sr-only">Select up to {max}</legend>
+      <div className="grid gap-2.5 sm:grid-cols-2">
+        {options.map((option) => {
+          const checked = selected.includes(option.id);
+          const disabled =
+            !checked && selected.length >= max && option.id !== 'not-sure';
+          return (
+            <button
+              type="button"
+              key={option.id}
+              className={`multi-choice ${checked ? 'multi-choice-selected' : ''}`}
+              onClick={() => onToggle(option.id)}
+              aria-pressed={checked}
+              disabled={disabled}
+            >
+              <span className="multi-check">
+                {checked && <Check className="size-3.5" />}
+              </span>
+              <span>{option.label}</span>
+            </button>
+          );
+        })}
+      </div>
+      <div className="mt-3 text-right text-xs font-medium text-muted-foreground">
+        {selected.length} / {max} selected
+      </div>
+    </fieldset>
+  );
+}
+
 function Results({
-  scores,
-  toolkit,
+  competencyScores,
+  toolkitScores,
+  interpretation,
   field,
   onRestart,
   onDownload,
 }: {
-  scores: Array<{
-    key: CompetencyKey;
-    subject: string;
-    fullLabel: string;
-    score: number;
-    description: string;
-    color: string;
-  }>;
-  toolkit: Array<{ name: string; score: number }>;
+  competencyScores: ReturnType<typeof calculateResults>['competencyScores'];
+  toolkitScores: ReturnType<typeof calculateResults>['toolkitScores'];
+  interpretation: ReturnType<typeof interpretResults>;
   field: string | null;
   onRestart: () => void;
   onDownload: () => void;
 }) {
-  const sorted = [...scores].sort((a, b) => b.score - a.score);
-  const strength = sorted[0];
-  const growth = sorted[sorted.length - 1];
-  const fieldLabel = fieldOptions.find((option) => option.id === field)?.title;
+  const fieldLabel =
+    engineeringFields.find((option) => option.id === field)?.title ??
+    (field === 'other' ? 'Other / Interdisciplinary' : null);
   return (
-    <section className="mx-auto max-w-7xl px-6 py-12 lg:px-12 lg:py-16">
+    <section className="mx-auto max-w-7xl px-6 py-11 lg:px-12 lg:py-15">
       <div className="results-hero">
         <div>
           <div className="eyebrow mb-5">
-            <Sparkles className="size-4" /> YOUR ENGINEERING PROFILE
+            <Sparkles className="size-4" /> YOUR CURRENT PROFILE
           </div>
           <h1 className="font-serif text-4xl font-semibold tracking-tight sm:text-6xl">
-            Your compass points to{' '}
-            <span className="text-primary">{strength.subject}</span>.
+            A clearer view of where you are—and where you want to grow.
           </h1>
-          <p className="mt-5 max-w-2xl text-lg leading-7 text-muted-foreground">
-            You show your strongest current confidence in{' '}
-            {strength.fullLabel.toLowerCase()}. Your clearest next development
-            opportunity is {growth.fullLabel.toLowerCase()}.
+          <p className="mt-5 max-w-3xl text-lg leading-7 text-muted-foreground">
+            This profile reflects your current self-reported ways of working and
+            technical experience. It is not a fixed engineering type, grade, or
+            cross-department ranking.
           </p>
           {fieldLabel && (
             <div className="mt-5 inline-flex items-center gap-2 rounded-full border bg-card px-3 py-1.5 text-xs font-medium">
@@ -1014,58 +886,59 @@ function Results({
           </Button>
         </div>
       </div>
-      <div className="mt-10 grid gap-6 lg:grid-cols-[1.05fr_.95fr]">
+      <div className="mt-9 grid gap-6 lg:grid-cols-[1.04fr_.96fr]">
         <article className="result-panel min-w-0">
           <div className="panel-heading">
             <div>
-              <div className="text-xs font-semibold uppercase tracking-[.16em] text-primary">
-                Six competencies
-              </div>
+              <div className="panel-eyebrow">SIX COMPETENCIES</div>
               <h2 className="mt-1 font-serif text-2xl font-semibold">
-                Your engineering profile
+                How you currently work
               </h2>
             </div>
             <span className="text-xs text-muted-foreground">
-              0–100 confidence scale
+              0–100 profile scale
             </span>
           </div>
           <ChartContainer
             config={chartConfig}
             className="mx-auto mt-3 aspect-square max-h-[470px] w-full"
           >
-            <RadarChart data={scores} outerRadius="72%">
-              <PolarGrid stroke="#ded8d2" />
+            <RadarChart data={competencyScores} outerRadius="70%">
+              <PolarGrid stroke="#d8e2dc" />
               <PolarAngleAxis
                 dataKey="subject"
-                tick={{ fill: '#5e5855', fontSize: 12, fontWeight: 600 }}
+                tick={{ fill: '#496158', fontSize: 11, fontWeight: 650 }}
               />
               <Radar
                 dataKey="score"
                 stroke="var(--color-score)"
                 fill="var(--color-score)"
-                fillOpacity={0.18}
+                fillOpacity={0.16}
                 strokeWidth={2.5}
-                dot={{ r: 4, fill: '#8d153a', strokeWidth: 0 }}
+                dot={{ r: 4, fill: '#075b45', strokeWidth: 0 }}
               />
             </RadarChart>
           </ChartContainer>
+          <p className="result-footnote">
+            Hands-on represents your current technical breadth, experience, and
+            independence across all nine toolkit areas—not an objective ability
+            score.
+          </p>
         </article>
         <article className="result-panel">
           <div className="panel-heading">
             <div>
-              <div className="text-xs font-semibold uppercase tracking-[.16em] text-primary">
-                Technical toolkit
-              </div>
+              <div className="panel-eyebrow">TECHNICAL TOOLKIT</div>
               <h2 className="mt-1 font-serif text-2xl font-semibold">
-                Hands-on confidence
+                Experience & independence
               </h2>
             </div>
             <Wrench className="size-5 text-primary" />
           </div>
-          <div className="mt-8 space-y-5">
-            {toolkit.map((item) => (
-              <div key={item.name}>
-                <div className="mb-2 flex items-center justify-between gap-4 text-sm">
+          <div className="mt-7 space-y-4">
+            {toolkitScores.map((item) => (
+              <div key={item.key}>
+                <div className="mb-1.5 flex items-end justify-between gap-4 text-sm">
                   <span className="font-medium">{item.name}</span>
                   <span className="font-semibold tabular-nums text-primary">
                     {item.score}
@@ -1080,53 +953,104 @@ function Results({
               </div>
             ))}
           </div>
+          <p className="result-footnote mt-6">
+            Each bar comes from its own Standard self-report item. Use it as a
+            starting point for reflection, not proof of mastery.
+          </p>
         </article>
       </div>
-      <div className="mt-6 grid gap-4 md:grid-cols-2">
-        <article className="insight-card border-t-[3px] border-t-emerald-600">
-          <div className="flex items-start gap-4">
-            <span className="grid size-10 shrink-0 place-items-center rounded-xl bg-emerald-50 text-emerald-700">
-              <Sparkles className="size-5" />
-            </span>
-            <div>
-              <div className="text-xs font-semibold uppercase tracking-[.14em] text-emerald-700">
-                Build on this strength
+      <div className="mt-6 grid gap-6 lg:grid-cols-2">
+        <article className="result-panel">
+          <div className="panel-eyebrow">CURRENT STRENGTHS</div>
+          <h2 className="mt-1 font-serif text-2xl font-semibold">
+            Capabilities to build on
+          </h2>
+          <div className="mt-6 grid gap-3 sm:grid-cols-2">
+            {interpretation.strengths.map((item) => (
+              <div className="insight-tile" key={item.key}>
+                <span className="score-pill">{item.score}</span>
+                <h3 className="mt-4 font-serif text-lg font-semibold">
+                  {item.fullLabel}
+                </h3>
+                <p className="mt-2 text-sm leading-6 text-muted-foreground">
+                  {item.description}
+                </p>
               </div>
-              <h3 className="mt-1 font-serif text-xl font-semibold">
-                {strength.fullLabel}
-              </h3>
-              <p className="mt-2 text-sm leading-6 text-muted-foreground">
-                {strength.description} Look for a project role where you can
-                model this capability for teammates.
+            ))}
+          </div>
+        </article>
+        <article className="result-panel">
+          <div className="panel-eyebrow">CHOSEN GROWTH PRIORITIES</div>
+          <h2 className="mt-1 font-serif text-2xl font-semibold">
+            What you want to develop next
+          </h2>
+          <div className="mt-6 space-y-3">
+            {interpretation.growth.map((item) => (
+              <div className="growth-row" key={item.id}>
+                <Target className="mt-0.5 size-4 shrink-0 text-primary" />
+                <div className="min-w-0 flex-1">
+                  <div className="font-semibold">{item.label}</div>
+                  <p className="mt-1 text-sm text-muted-foreground">
+                    {item.id === 'not-sure'
+                      ? 'Try one unfamiliar project role, then revisit this reflection with new evidence.'
+                      : 'Choose one small project action that gives you direct practice and feedback.'}
+                  </p>
+                </div>
+                {item.score !== undefined && (
+                  <span className="score-pill">{item.score}</span>
+                )}
+              </div>
+            ))}
+          </div>
+        </article>
+      </div>
+      <div className="mt-6 grid gap-4 md:grid-cols-3">
+        <article className="context-card md:col-span-2">
+          <div className="flex items-start gap-3">
+            <Lightbulb className="mt-0.5 size-5 shrink-0 text-primary" />
+            <div>
+              <div className="panel-eyebrow">EVIDENCE PRACTICE</div>
+              <p className="mt-2 leading-7">
+                {interpretation.evidenceReflection}
+              </p>
+              <p className="mt-2 text-xs text-muted-foreground">
+                Based on two scenarios; interpreted qualitatively and never
+                shown as a numerical score.
               </p>
             </div>
           </div>
         </article>
-        <article className="insight-card border-t-[3px] border-t-amber-500">
-          <div className="flex items-start gap-4">
-            <span className="grid size-10 shrink-0 place-items-center rounded-xl bg-amber-50 text-amber-700">
-              <Lightbulb className="size-5" />
-            </span>
-            <div>
-              <div className="text-xs font-semibold uppercase tracking-[.14em] text-amber-700">
-                Try next
-              </div>
-              <h3 className="mt-1 font-serif text-xl font-semibold">
-                {growth.fullLabel}
-              </h3>
-              <p className="mt-2 text-sm leading-6 text-muted-foreground">
-                {growth.description} Choose one small, observable behaviour to
-                practise in your next team milestone.
-              </p>
-            </div>
+        <article className="context-card">
+          <div className="panel-eyebrow">PROJECT CONTEXT</div>
+          <div className="mt-3 font-semibold">
+            {interpretation.projectLabel}
           </div>
+          <p className="mt-1 text-sm leading-5 text-muted-foreground">
+            {interpretation.responsibilityLabel}
+          </p>
         </article>
       </div>
-      <div className="mt-10 border-t pt-6 text-sm leading-6 text-muted-foreground">
-        This profile is a formative reflection, not a grade, diagnosis or
-        selection test. Scores reflect your self-reported confidence today and
-        can change with experience.
+      {interpretation.interests.length > 0 && (
+        <div className="mt-4 flex flex-wrap items-center gap-2 rounded-2xl border bg-card p-4">
+          <span className="mr-1 text-xs font-semibold uppercase tracking-[.13em] text-muted-foreground">
+            Interested in
+          </span>
+          {interpretation.interests.map((item) => (
+            <span className="interest-chip" key={item}>
+              {item}
+            </span>
+          ))}
+        </div>
+      )}
+      <div className="mt-7 flex items-start gap-3 rounded-2xl bg-secondary/70 p-5 text-sm leading-6 text-muted-foreground">
+        <CircleHelp className="mt-0.5 size-5 shrink-0 text-primary" />
+        <p>
+          Use this profile to choose a project role, learning activity, or
+          conversation—not to compare students across fields. A future Pro
+          version will add deeper scenario and evidence checks.
+        </p>
       </div>
     </section>
   );
 }
+

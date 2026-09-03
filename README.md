@@ -1,6 +1,6 @@
 # Engineering Compass
 
-Engineering Compass is a formative self-assessment for ENGG1101 learners. It helps students reflect on six engineering competencies and eight hands-on toolkit areas, then turns their responses into an actionable personal profile.
+Engineering Compass is a standalone formative self-assessment for engineering learners. It helps students reflect on six engineering competencies, nine technical toolkit areas, and the directions they want to develop next.
 
 **Live site:** <https://active-learning-kyle.github.io/engineering-compass/>
 
@@ -9,12 +9,14 @@ The public site is hosted directly from this repository with GitHub Pages.
 ## MVP flow
 
 - Optional engineering-field context (four primary fields, Other, or Skip)
-- 30 questions: five for each competency
-- Five-level behaviour-based response scale
+- 15 mixed behavioural statements across five non-hands-on competencies
+- Nine independent Technical Toolkit items
+- Project calibration, interests, selected growth areas, and two engineering-judgment scenarios
+- Separate five-level behaviour and technical-independence scales
 - Reflection nudge after unusually fast response patterns
 - Integer scores on a 0–100 scale
 - Six-competency radar profile
-- Eight-area technical toolkit profile
+- Nine-area technical toolkit profile
 - Downloadable plain-text summary
 
 Engineering-field selection is never included in scoring. Answers remain in the current browser session and are not submitted to a server.
@@ -30,11 +32,11 @@ Engineering-field selection is never included in scoring. Answers remain in the 
 
 ## Scoring
 
-Each item is answered from 1 (`Not yet`) to 5 (`Consistent`). For each competency, the mean of its five questions is converted to an integer confidence score:
+Each non-hands-on competency uses the mean of three mixed behavioural items. Hands-on Skills uses the simple mean of all nine Technical Toolkit items and is interpreted as current technical breadth, experience, and independence. Means are converted to an integer profile value:
 
 `score = round(((mean - 1) / 4) × 100)`
 
-Technical toolkit scores use the same conversion for the relevant hands-on item. The output is a formative reflection, not a grade, diagnosis, or selection test.
+Every toolkit area has its own direct item. Project context, interests, growth choices, and judgment scenarios never change radar scores. The output is a formative reflection, not a grade, objective ability score, engineering type, or cross-department ranking.
 
 ## Local development
 

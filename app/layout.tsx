@@ -16,29 +16,29 @@ export const metadata: Metadata = {
   metadataBase: new URL(
     'https://active-learning-kyle.github.io/engineering-compass/',
   ),
-  title: 'Engineering Compass | ENGG1101',
+  title: 'Engineering Compass | Standard Assessment',
   description:
-    'A formative 30-question assessment across six engineering competencies and eight hands-on toolkit areas.',
+    'A formative 30-question reflection across six engineering competencies and nine technical toolkit areas.',
   openGraph: {
     title: 'Engineering Compass',
-    description:
-      'Find your engineering direction across six practical competencies.',
+    description: 'Reflect on how you think, build and grow as an engineer.',
     type: 'website',
     images: [
       {
-        url: 'https://engineering-compass.heqihao522828.chatgpt.site/og.png',
+        url: 'https://active-learning-kyle.github.io/engineering-compass/og.png',
         width: 1200,
         height: 630,
-        alt: 'Engineering Compass — Find your engineering direction.',
+        alt: 'Engineering Compass — reflect on how you think, build and grow as an engineer.',
       },
     ],
   },
   twitter: {
     card: 'summary_large_image',
     title: 'Engineering Compass',
-    description:
-      'Find your engineering direction across six practical competencies.',
-    images: ['https://engineering-compass.heqihao522828.chatgpt.site/og.png'],
+    description: 'Reflect on how you think, build and grow as an engineer.',
+    images: [
+      'https://active-learning-kyle.github.io/engineering-compass/og.png',
+    ],
   },
 };
 
@@ -57,3 +57,4 @@ export default function RootLayout({
     </html>
   );
 }
+

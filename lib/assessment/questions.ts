@@ -1,6 +1,6 @@
 import type { AssessmentItem, AssessmentVersion } from './types';
 
-export const assessmentVersion: AssessmentVersion = 'standard-v1.3';
+export const assessmentVersion: AssessmentVersion = 'standard-v1.4';
 
 export const behaviourScale = {
   prompt: 'How well does this describe how you usually work?',
@@ -364,10 +364,9 @@ export const questions: AssessmentItem[] = [
     kind: 'interest',
     prompt:
       'Which kinds of engineering work would you most like to explore next?',
-    helper: 'Optional · select up to three.',
+    helper: 'Optional · select any that interest you.',
     options: interestOptions,
     min: 0,
-    max: 3,
   },
   {
     id: 'G01',
@@ -375,10 +374,9 @@ export const questions: AssessmentItem[] = [
     phase: 'priorities',
     kind: 'growth',
     prompt: 'What would you most like to become better at next?',
-    helper: 'Select one to three, or choose Not sure yet.',
+    helper: 'Select any that matter to you, or choose Not sure yet.',
     options: growthOptions,
     min: 1,
-    max: 3,
     activeLearningEssentialTags: ['lifelongLearning'],
   },
   {

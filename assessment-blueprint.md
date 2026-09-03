@@ -1,6 +1,6 @@
 # Engineering Compass — Standard Assessment Blueprint
 
-Version: Standard V1.3
+Version: Standard V1.4
 Status: approved and implemented
 
 ## Purpose
@@ -32,8 +32,8 @@ No overall engineering score and no seventh competency will be created.
 | 1–15               | Mixed behavioural statements for the five non-hands-on competencies |     15 | Five-point self-description/agreement | Three items per competency form five radar axes                                    |
 | 16–24              | Technical Toolkit                                                   |      9 | Five-point experience/independence    | One direct score per toolkit area; their mean forms the Hands-on Skills radar axis |
 | 25–26              | Project-experience calibration                                      |      2 | Factual ordered choices               | Context and result-confidence interpretation only                                  |
-| 27                 | Engineering interests                                               |      1 | Optional multi-select, up to three    | Personalisation only; not scored                                                   |
-| 28                 | Desired growth areas                                                |      1 | Select 1–3, or Not sure yet           | Drives growth guidance; not scored                                                 |
+| 27                 | Engineering interests                                               |      1 | Optional, unrestricted multi-select   | Personalisation only; not scored                                                   |
+| 28                 | Desired growth areas                                                |      1 | Select one or more, or Not sure yet   | Drives growth guidance; not scored                                                 |
 | 29–30              | Cross-cutting engineering-judgment checks                           |      2 | Ordered scenario choices              | Evidence-orientation/context indicator only; no new radar axis                     |
 |                    | **Total**                                                           | **30** |                                       |                                                                                    |
 
@@ -158,10 +158,10 @@ Display T01–T09 separately. Because each area has one direct self-report item 
 
 ### Formative result identity
 
-- **Current Engineering Mode** is a non-scoring interpretive layer derived from the relative six-competency profile. Six modes correspond to a leading axis; Systems Integrator is reserved for a sufficiently developed, balanced profile. It never creates a seventh competency or changes a score.
-- The seven visual themes are deliberately distinct and non-hierarchical: red, orange, yellow, green, cyan, blue, and purple.
+- **Current Engineering Role** is a non-scoring interpretive layer derived from the leading axis in the relative six-competency profile. The six roles map one-to-one to the six measured competencies. It never creates a seventh competency or changes a score.
+- Role presentation uses the common HKU-inspired green/white visual system. Icons and language distinguish roles; colour is not used to imply different categories or hierarchy.
 - **Growth Stage** uses C01, C02, and current Technical Toolkit experience to describe present scope as Exploring, Building, Practising, or Integrating. It is not a professional title, employability claim, grade, or engineer rank.
-- Two character-presentation variants are available for every Mode. One is selected randomly at the start and stored with the browser draft. The system never infers gender, and the illustration is explicitly described as decorative rather than a representation of the learner's gender.
+- Two character-presentation variants are available for every Role. One is selected randomly at the start and stored with the browser draft. Character illustrations appear only after completion. The system never infers gender, and the illustration is explicitly described as decorative rather than a representation of the learner's gender.
 
 ## Results-page contract
 
@@ -174,13 +174,13 @@ The Standard results page should contain:
 - optional contextual note about project experience;
 - a light evidence-practice reflection from J01/J02;
 - explicit statement that results are formative self-report, not a grade or fixed engineering type.
-- a current Engineering Mode identity card and compact Growth Stage label, with the limitations above stated visibly.
+- a current Engineering Role identity card and compact Growth Stage label, with the limitations above stated visibly.
 
 Do not display:
 
 - an overall engineering score;
 - a junior/mid/senior engineer level or professional rank;
-- a fixed personality type or claim that a Mode exhaustively describes the learner;
+- a fixed personality type or claim that a Role exhaustively describes the learner;
 - a claim that the learner’s lowest score is automatically their required growth area.
 
 ## Learner-facing sequence
@@ -200,7 +200,7 @@ Competency names may appear on the welcome and results pages, but not while B01�
 
 Keep the current gentle speed nudge. The nudge should ask the learner to picture a real project example and reconsider if needed. It must not block completion or alter scores automatically.
 
-For Standard V1.3, response-quality signals should be transparent and limited to:
+For Standard V1.4, response-quality signals should be transparent and limited to:
 
 - repeated unusually fast answers;
 - unanswered required items;

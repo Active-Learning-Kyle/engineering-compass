@@ -4,6 +4,7 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import {
   ArrowLeft,
   ArrowRight,
+  Boxes,
   BookOpenCheck,
   Check,
   ChevronRight,
@@ -15,17 +16,19 @@ import {
   House,
   Leaf,
   Lightbulb,
+  MessageCircle,
   RefreshCw,
   Sparkles,
   Target,
   TimerReset,
+  UsersRound,
   Wrench,
 } from 'lucide-react';
 import { PolarAngleAxis, PolarGrid, Radar, RadarChart } from 'recharts';
 import { Button } from '@/components/ui/button';
 import { ChartContainer, type ChartConfig } from '@/components/ui/chart';
 import { Progress } from '@/components/ui/progress';
-import { competencies, competencyOrder } from '@/lib/assessment/competencies';
+import { competencyOrder } from '@/lib/assessment/competencies';
 import { interpretResults } from '@/lib/assessment/interpretation';
 import {
   deriveEngineeringMode,
@@ -43,7 +46,7 @@ import {
   technicalScale,
 } from '@/lib/assessment/questions';
 import { calculateResults } from '@/lib/assessment/scoring';
-import { toolkit } from '@/lib/assessment/toolkit';
+import { toolkit, toolkitOrder } from '@/lib/assessment/toolkit';
 import { getStudyYearLabel, studyYears } from '@/lib/assessment/years';
 import type {
   AssessmentAnswers,
@@ -70,7 +73,7 @@ declare global {
   }
 }
 
-const progressStorageKey = 'engineering-compass-progress-v1.3';
+const progressStorageKey = 'engineering-compass-progress-v1.4';
 const assetPath = (path: string) => `${import.meta.env.BASE_URL}${path}`;
 const phases: Array<{ key: PhaseKey; label: string; range: string }> = [
   { key: 'behaviour', label: 'How you work', range: '01–15' },
@@ -82,6 +85,14 @@ const phases: Array<{ key: PhaseKey; label: string; range: string }> = [
 const chartConfig = {
   score: { label: 'Profile', color: '#075b45' },
 } satisfies ChartConfig;
+const roleIcons: Record<EngineeringModeKey, typeof Compass> = {
+  problem: CircleHelp,
+  planning: Target,
+  collaboration: UsersRound,
+  handsOn: Wrench,
+  design: Boxes,
+  pitch: MessageCircle,
+};
 const phaseCopy: Record<
   PhaseKey,
   { eyebrow: string; note: string; icon: typeof Compass }
@@ -307,10 +318,7 @@ export default function Home() {
       next = ['not-sure'];
     else {
       const withoutNotSure = existing.filter((item) => item !== 'not-sure');
-      next =
-        withoutNotSure.length < activeQuestion.max
-          ? [...withoutNotSure, id]
-          : withoutNotSure;
+      next = [...withoutNotSure, id];
     }
     setAnswers((previous) => ({ ...previous, [activeQuestion.id]: next }));
     setResponseMs(Date.now() - questionStarted.current);
@@ -389,9 +397,9 @@ export default function Home() {
   function downloadSummary() {
     const yearLabel = getStudyYearLabel(year) ?? 'Not provided';
     const lines = [
-      'ENGINEERING COMPASS — STANDARD V1.3 PROFILE',
+      'ENGINEERING COMPASS — STANDARD V1.4 PROFILE',
       `Study year: ${yearLabel} (context only)`,
-      `Current Engineering Mode: ${engineeringModes[modeKey].name}`,
+      `Current Engineering Role: ${engineeringModes[modeKey].name}`,
       `Growth stage: ${growthStages[growthStageKey].name}`,
       '',
       'SIX ENGINEERING COMPETENCIES',
@@ -418,7 +426,7 @@ export default function Home() {
     const url = URL.createObjectURL(blob);
     const anchor = document.createElement('a');
     anchor.href = url;
-    anchor.download = 'engineering-compass-standard-v1-3.txt';
+    anchor.download = 'engineering-compass-standard-v1-4.txt';
     anchor.click();
     URL.revokeObjectURL(url);
   }
@@ -431,6 +439,8 @@ export default function Home() {
             ? ((current + 1) / questions.length) * 100
             : null
         }
+        showNavigation={step === 'welcome'}
+        onBegin={() => setStep('year')}
       />
       {step === 'welcome' && (
         <Welcome
@@ -479,7 +489,15 @@ export default function Home() {
   );
 }
 
-function Header({ progress }: { progress: number | null }) {
+function Header({
+  progress,
+  showNavigation,
+  onBegin,
+}: {
+  progress: number | null;
+  showNavigation: boolean;
+  onBegin: () => void;
+}) {
   return (
     <header className="sticky top-0 z-30 border-b bg-background/92 backdrop-blur-xl">
       <div className="mx-auto flex h-[74px] max-w-7xl items-center justify-between px-5 lg:px-12">
@@ -496,10 +514,29 @@ function Header({ progress }: { progress: number | null }) {
             </div>
           </div>
         </div>
-        <div className="hidden items-center gap-2 text-xs text-muted-foreground sm:flex">
-          <span className="size-2 rounded-full bg-emerald-600" /> Responses stay
-          in this browser
-        </div>
+        {showNavigation ? (
+          <div className="home-nav">
+            <nav aria-label="Homepage sections">
+              <a href="#about">About</a>
+              <a href="#how-it-works">How it works</a>
+              <a href="#roles">Roles</a>
+              <a href="#toolkit">Toolkit areas</a>
+              <a href="#faq">FAQ</a>
+            </nav>
+            <Button
+              variant="outline"
+              className="rounded-full"
+              onClick={onBegin}
+            >
+              Take the assessment <ArrowRight className="ml-1 size-4" />
+            </Button>
+          </div>
+        ) : (
+          <div className="hidden items-center gap-2 text-xs text-muted-foreground sm:flex">
+            <span className="size-2 rounded-full bg-emerald-600" /> Responses
+            stay in this browser
+          </div>
+        )}
       </div>
       {progress !== null && (
         <Progress
@@ -523,18 +560,17 @@ function Welcome({
   return (
     <section className="relative overflow-hidden">
       <div className="compass-grid absolute inset-0" aria-hidden="true" />
-      <div className="relative mx-auto grid min-h-[calc(100vh-74px)] max-w-7xl items-center gap-12 px-6 py-14 lg:grid-cols-[1.04fr_.96fr] lg:px-12">
+      <div className="relative mx-auto grid max-w-7xl items-center gap-12 px-6 py-14 lg:min-h-[610px] lg:grid-cols-[1.04fr_.96fr] lg:px-12">
         <div className="max-w-3xl">
           <div className="eyebrow mb-6">
-            <Compass className="size-4" /> STANDARD · FORMATIVE SELF-REFLECTION
+            <Compass className="size-4" /> STANDARD · FORMATIVE SELF-ASSESSMENT
           </div>
-          <h1 className="display-title text-[clamp(3.2rem,7.6vw,7.4rem)] leading-[.88] tracking-[-.06em]">
-            See how you<span className="block text-primary">think, build</span>
-            <span className="block">and grow.</span>
+          <h1 className="display-title text-[clamp(3.2rem,6vw,6.3rem)] leading-[.94] tracking-[-.055em]">
+            Find Your Role in an Engineering Team
           </h1>
           <p className="mt-7 max-w-xl text-lg leading-8 text-muted-foreground sm:text-xl">
-            A practical profile of six engineering competencies, nine technical
-            toolkit areas, and the directions you want to develop next.
+            A short self-assessment to explore your engineering strengths,
+            hands-on experience, and growth directions.
           </p>
           <div className="mt-9 flex flex-wrap items-center gap-3">
             <Button
@@ -559,8 +595,8 @@ function Welcome({
             </div>
           </div>
           <p className="mt-5 max-w-lg text-xs leading-5 text-muted-foreground">
-            Not a grade, engineering type, or selection test. Your responses
-            remain on this browser and device.
+            Your responses are private and stay on this device. The role is a
+            reflection prompt—not a grade, selection test, or fixed type.
           </p>
         </div>
         <div className="mx-auto w-full max-w-lg">
@@ -575,13 +611,12 @@ function Welcome({
               <div
                 key={key}
                 className={`orbit-point orbit-point-${index + 1}`}
-                style={
-                  {
-                    '--point-color': competencies[key].color,
-                  } as React.CSSProperties
-                }
+                style={{ '--point-color': '#075b45' } as React.CSSProperties}
               >
-                <span>{String(index + 1).padStart(2, '0')}</span>
+                {(() => {
+                  const RoleIcon = roleIcons[key];
+                  return <RoleIcon className="size-6" strokeWidth={1.7} />;
+                })()}
               </div>
             ))}
           </div>
@@ -603,25 +638,28 @@ function Welcome({
           </div>
         </div>
       </div>
-      <div className="relative mx-auto max-w-7xl px-6 pb-20 lg:px-12">
-        <div className="method-strip">
+      <div className="relative mx-auto max-w-7xl px-6 pb-14 lg:px-12">
+        <div id="how-it-works" className="method-strip scroll-mt-24">
           <div>
             <div className="panel-eyebrow">HOW THE COMPASS WORKS</div>
             <h2>One profile, two useful lenses.</h2>
           </div>
           <p>
             Thirty responses form your six-competency radar and nine-area
-            toolkit. Your relative profile suggests a current Engineering Mode;
-            project context and toolkit experience provide a small Growth Stage
-            label. Neither is a grade, personality type, or professional rank.
+            toolkit. Your leading competency suggests one of six current team
+            roles; project context and toolkit experience provide a small Growth
+            Stage label. Neither is a grade, personality type, or professional
+            rank.
           </p>
         </div>
-        <div className="modes-preview-heading">
+        <div id="roles" className="modes-preview-heading scroll-mt-24">
           <div>
-            <div className="panel-eyebrow">SEVEN ENGINEERING MODES</div>
-            <h2>Different ways to contribute to an engineering team.</h2>
+            <div className="panel-eyebrow">SIX ENGINEERING ROLES</div>
+            <h2>Explore how you may currently contribute to a team.</h2>
           </div>
-          <span>Each colour is distinct—not higher or lower.</span>
+          <span>
+            Different roles are useful in different moments—not higher or lower.
+          </span>
         </div>
         <div className="modes-preview-grid">
           {(
@@ -632,38 +670,63 @@ function Welcome({
               ]
             >
           ).map(([key, mode]) => (
-            <article
-              className="mode-preview-card"
-              key={key}
-              style={
-                {
-                  '--mode-accent': mode.accent,
-                  '--mode-tint': mode.tint,
-                } as React.CSSProperties
-              }
-            >
-              <div className="mode-preview-art">
-                {/* oxlint-disable-next-line next/no-img-element */}
-                <img
-                  src={assetPath(mode.image.a)}
-                  alt=""
-                  width={320}
-                  height={320}
-                />
+            <article className="role-preview-card" key={key}>
+              <div className="role-preview-icon" aria-hidden="true">
+                {(() => {
+                  const RoleIcon = roleIcons[key];
+                  return <RoleIcon className="size-7" strokeWidth={1.65} />;
+                })()}
               </div>
               <div className="mode-preview-copy">
-                <span>
-                  {String(
-                    Object.keys(engineeringModes).indexOf(key) + 1,
-                  ).padStart(2, '0')}
-                </span>
                 <h3>{mode.name}</h3>
                 <p>{mode.shortDescription}</p>
               </div>
             </article>
           ))}
         </div>
+        <div id="toolkit" className="home-toolkit scroll-mt-24">
+          <div>
+            <div className="panel-eyebrow">NINE TECHNICAL TOOLKIT AREAS</div>
+            <h2>See where your experience is growing.</h2>
+            <p>
+              Each area is reflected separately, so the result shows both
+              breadth and the tools you may want to practise next.
+            </p>
+          </div>
+          <div className="toolkit-chip-grid">
+            {toolkitOrder.map((key) => (
+              <span key={key}>
+                <Wrench className="size-4" /> {toolkit[key].label}
+              </span>
+            ))}
+          </div>
+        </div>
+        <div id="about" className="home-info-grid scroll-mt-24">
+          <article>
+            <div className="panel-eyebrow">ABOUT</div>
+            <h2>A practical reflection for engineering learners.</h2>
+            <p>
+              Use it at different points in your undergraduate journey to notice
+              changing strengths, experience, and priorities.
+            </p>
+          </article>
+          <article id="faq" className="scroll-mt-24">
+            <div className="panel-eyebrow">FAQ</div>
+            <h2>Will this decide my team role?</h2>
+            <p>
+              No. Your result offers one useful role lens based on your current
+              responses. If several scores are close, your team contribution may
+              shift with the project.
+            </p>
+          </article>
+        </div>
       </div>
+      <footer className="home-footer">
+        <span>Faculty of Engineering · The University of Hong Kong</span>
+        <a href="https://activelearning.engg.hku.hk/#about">
+          Learn about Active Learning <ArrowRight className="size-4" />
+        </a>
+      </footer>
     </section>
   );
 }
@@ -880,7 +943,6 @@ function Assessment({
             <MultiChoices
               options={question.options}
               selected={Array.isArray(selected) ? selected : []}
-              max={question.max}
               onToggle={onToggle}
             />
           )}
@@ -986,22 +1048,18 @@ function OrderedChoices({
 function MultiChoices({
   options,
   selected,
-  max,
   onToggle,
 }: {
   options: Array<{ id: string; label: string }>;
   selected: string[];
-  max: number;
   onToggle: (id: string) => void;
 }) {
   return (
     <fieldset className="mt-8">
-      <legend className="sr-only">Select up to {max}</legend>
+      <legend className="sr-only">Select any that apply</legend>
       <div className="grid gap-2.5 sm:grid-cols-2">
         {options.map((option) => {
           const checked = selected.includes(option.id);
-          const disabled =
-            !checked && selected.length >= max && option.id !== 'not-sure';
           return (
             <button
               type="button"
@@ -1009,7 +1067,6 @@ function MultiChoices({
               className={`multi-choice ${checked ? 'multi-choice-selected' : ''}`}
               onClick={() => onToggle(option.id)}
               aria-pressed={checked}
-              disabled={disabled}
             >
               <span className="multi-check">
                 {checked && <Check className="size-3.5" />}
@@ -1020,7 +1077,7 @@ function MultiChoices({
         })}
       </div>
       <div className="mt-3 text-right text-xs font-medium text-muted-foreground">
-        {selected.length} / {max} selected
+        {selected.length} selected
       </div>
     </fieldset>
   );
@@ -1063,7 +1120,7 @@ function Results({
       >
         <div className="mode-copy">
           <div className="mode-eyebrow">
-            <Sparkles className="size-4" /> CURRENT ENGINEERING MODE
+            <Sparkles className="size-4" /> CURRENT ENGINEERING ROLE
           </div>
           <div className="mode-stage-row">
             <span className="growth-stage-pill">
@@ -1084,8 +1141,9 @@ function Results({
             <p>{mode.contribution}</p>
           </div>
           <p className="mode-disclaimer">
-            A current reflection, not a fixed personality type or professional
-            rank. The illustration is selected at random and does not represent
+            A current role lens, not a fixed personality type or professional
+            rank. If several scores are close, another role may fit just as
+            well. The illustration is selected at random and does not represent
             your gender.
           </p>
           <div className="mode-actions">

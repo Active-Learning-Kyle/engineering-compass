@@ -1,7 +1,7 @@
 import type { AssessmentAnswers, CompetencyKey } from './types';
 import type { CompetencyResult, ToolkitResult } from './scoring';
 
-export type EngineeringModeKey = CompetencyKey | 'integrator';
+export type EngineeringModeKey = CompetencyKey;
 export type CharacterVariant = 'a' | 'b';
 export type GrowthStageKey =
   | 'exploring'
@@ -26,8 +26,8 @@ export const engineeringModes: Record<
       'You look closely at what is happening before deciding what should be solved.',
     contribution:
       'Help the team define the real need, gather evidence, and turn a broad concern into an actionable problem.',
-    accent: '#c9444b',
-    tint: '#f8e5e5',
+    accent: '#075b45',
+    tint: '#e8f1ec',
     image: {
       a: 'modes/problem-framer-a.webp',
       b: 'modes/problem-framer-b.webp',
@@ -39,8 +39,8 @@ export const engineeringModes: Record<
       'You turn a promising direction into a route that people can realistically follow.',
     contribution:
       'Clarify requirements, milestones, ownership, resources, and important risks before work accelerates.',
-    accent: '#d66a17',
-    tint: '#faeadf',
+    accent: '#075b45',
+    tint: '#e8f1ec',
     image: {
       a: 'modes/project-navigator-a.webp',
       b: 'modes/project-navigator-b.webp',
@@ -52,8 +52,8 @@ export const engineeringModes: Record<
       'You help different people, ideas, and technical contributions work together.',
     contribution:
       'Translate between specialisms, make ownership clear, and surface disagreements early enough to resolve them.',
-    accent: '#a77700',
-    tint: '#f8efc9',
+    accent: '#075b45',
+    tint: '#e8f1ec',
     image: {
       a: 'modes/team-connector-a.webp',
       b: 'modes/team-connector-b.webp',
@@ -65,8 +65,8 @@ export const engineeringModes: Record<
       'You learn quickly when an idea becomes something you can assemble, test, and improve.',
     contribution:
       'Turn discussion into a working prototype, troubleshoot common failures, and make practical constraints visible.',
-    accent: '#147a50',
-    tint: '#dff0e7',
+    accent: '#075b45',
+    tint: '#e8f1ec',
     image: {
       a: 'modes/practical-builder-a.webp',
       b: 'modes/practical-builder-b.webp',
@@ -78,8 +78,8 @@ export const engineeringModes: Record<
       'You use prototypes and tests to learn what should change next.',
     contribution:
       'Create an early version, design a useful test, diagnose failures, and turn feedback into a focused iteration.',
-    accent: '#087f89',
-    tint: '#dff1f1',
+    accent: '#075b45',
+    tint: '#e8f1ec',
     image: {
       a: 'modes/prototype-explorer-a.webp',
       b: 'modes/prototype-explorer-b.webp',
@@ -91,24 +91,11 @@ export const engineeringModes: Record<
       'You make an engineering solution understandable, credible, and relevant to its audience.',
     contribution:
       'Explain the problem and value clearly, support claims with evidence, and communicate limitations honestly.',
-    accent: '#3567b3',
-    tint: '#e3eaf7',
+    accent: '#075b45',
+    tint: '#e8f1ec',
     image: {
       a: 'modes/solution-storyteller-a.webp',
       b: 'modes/solution-storyteller-b.webp',
-    },
-  },
-  integrator: {
-    name: 'Systems Integrator',
-    shortDescription:
-      'You connect parts, people, and evidence into a coherent working whole.',
-    contribution:
-      'Bridge specialist work, coordinate interfaces, and help the team see how technical and human decisions affect one another.',
-    accent: '#7751a8',
-    tint: '#ede5f5',
-    image: {
-      a: 'modes/systems-integrator-a.webp',
-      b: 'modes/systems-integrator-b.webp',
     },
   },
 };
@@ -143,15 +130,6 @@ export function deriveEngineeringMode(
   competencyScores: CompetencyResult[],
 ): EngineeringModeKey {
   const sorted = [...competencyScores].sort((a, b) => b.score - a.score);
-  const highest = sorted[0]?.score ?? 0;
-  const lowest = sorted.at(-1)?.score ?? 0;
-  const mean =
-    sorted.reduce((sum, item) => sum + item.score, 0) /
-    Math.max(sorted.length, 1);
-
-  // A genuinely even profile receives the seventh, balanced mode. The
-  // threshold avoids labelling a uniformly low-response profile as integrated.
-  if (highest - lowest <= 12 && mean >= 50) return 'integrator';
   return sorted[0]?.key ?? 'problem';
 }
 

@@ -1,6 +1,6 @@
 # Engineering Compass — Standard Question Bank
 
-Version: Standard V1.3
+Version: Standard V1.4
 Status: approved and implemented
 
 ## Learner instructions
@@ -83,7 +83,7 @@ Add a short note: course, competition, personal, internship, research, and commu
 
 ### 27 — I01
 
-**Which kinds of engineering work would you most like to explore next? Select up to three.**
+**Which kinds of engineering work would you most like to explore next? Select any that interest you.**
 
 - Built environment and infrastructure
 - Robotics and automation
@@ -102,7 +102,7 @@ This item personalises examples and suggested opportunities. It is not scored an
 
 ### 28 — G01
 
-**What would you most like to become better at next? Select up to three.**
+**What would you most like to become better at next? Select any that matter to you, or choose Not sure yet.**
 
 Competency options:
 

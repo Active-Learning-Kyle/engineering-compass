@@ -12,23 +12,17 @@ Engineering Compass is a standalone formative engineering self-reflection produc
 - Display typography: editorial serif for identity and report headings
 - Interface typography: readable sans serif for controls, questions, and explanatory text
 
-## V1.3 identity layer
+## V1.4 identity layer
 
-The formal report remains green/white. Current Engineering Mode cards add one mode-specific accent:
+The full experience uses one consistent HKU-inspired green/white system. Six Current Engineering Roles are distinguished by icon, name, and description rather than separate colour themes. This keeps the roles visibly related and avoids implying that colour represents a score, status, or personality category.
 
-- Problem Framer — red
-- Project Navigator — orange
-- Team Connector — yellow
-- Practical Builder — green
-- Prototype Explorer — cyan
-- Solution Storyteller — blue
-- Systems Integrator — purple
+Character illustrations are not shown on the homepage. They appear only in the completed result, where they add an approachable identity layer to the otherwise professional report.
 
 Generated editorial character illustrations must share the same paper texture, line-work, composition quality, and academic tone. They must not use hard-hat, lab-coat, or gender stereotypes. Character presentation is randomly selected and never treated as learner identity data.
 
 ## Prohibited interpretations
 
 - Do not call Growth Stage a professional qualification, grade, seniority, or engineering licence.
-- Do not call Current Engineering Mode a fixed personality type.
+- Do not call Current Engineering Role a fixed personality type or a validated team-role assignment.
 - Do not infer a learner's gender from answers, year, field, scores, or interests.
-- Do not use mode colour as a score or hierarchy.
+- Do not use role colour as a score, category, or hierarchy.

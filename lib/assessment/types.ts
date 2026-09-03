@@ -1,6 +1,7 @@
 export type AssessmentVersion =
   | 'standard-v1.2'
   | 'standard-v1.3'
+  | 'standard-v1.4'
   | 'pro-future';
 
 export type ActiveLearningEssentialTag =
@@ -72,7 +73,6 @@ export type MultiSelectItem = BaseItem & {
   kind: 'interest' | 'growth';
   options: Array<{ id: string; label: string }>;
   min: number;
-  max: number;
 };
 
 export type AssessmentItem =

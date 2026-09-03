@@ -19,15 +19,17 @@ The public site is hosted directly from this repository with GitHub Pages.
 - Six-competency radar profile
 - Nine-area technical toolkit profile
 - Downloadable plain-text summary
-- A seven-mode current Engineering Mode card with a compact four-stage Growth Stage label
+- A six-role current Engineering Role card with a compact four-stage Growth Stage label
 
 Study year is never included in scoring. Answers and an unfinished draft remain on the current browser/device and are not submitted to a server.
 
-## Standard V1.3 identity and pedagogical alignment
+## Standard V1.4 identity and pedagogical alignment
 
-The results layer adds seven current Engineering Modes: Problem Framer, Project Navigator, Team Connector, Practical Builder, Prototype Explorer, Solution Storyteller, and Systems Integrator. Each has its own non-hierarchical red, orange, yellow, green, cyan, blue, or purple visual theme. The current mode is a formative summary of the six-axis profile—not a personality type, grade, professional rank, or seventh competency.
+The results layer adds six current Engineering Roles: Problem Framer, Project Navigator, Team Connector, Practical Builder, Prototype Explorer, and Solution Storyteller. Each maps directly to one of the six measured competencies and uses the shared HKU-inspired green/white visual system. The current role is a formative lens on the six-axis profile—not a personality type, grade, professional rank, or team assignment.
 
-The compact Growth Stage label (Exploring, Building, Practising, or Integrating) uses project context and current Technical Toolkit experience to describe the learner's present scope of experience. It is not a junior/mid/senior engineer designation. Character artwork is randomly selected between two presentation variants, remains stable for a saved/completed attempt, and never infers the learner's gender.
+The homepage uses role icons rather than character previews. One of two character-presentation variants appears only after completion, remains stable for a saved/completed attempt, and never infers the learner's gender.
+
+The compact Growth Stage label (Exploring, Building, Practising, or Integrating) uses project context and current Technical Toolkit experience to describe the learner's present scope of experience. It is not a junior/mid/senior engineer designation.
 
 The six Engineering Compass competencies are the observable engineering behaviours being assessed and reported. Relevant questions also carry hidden alignment metadata for the six [HKU Active Learning Essentials](https://activelearning.engg.hku.hk/#about). These Essentials are a higher-level pedagogical mapping only: they create no additional scores, never change the radar or toolkit calculations, and are not shown as a second learner-facing framework.
 

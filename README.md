@@ -4,6 +4,8 @@ Engineering Compass is a formative self-assessment for ENGG1101 learners. It hel
 
 **Live site:** <https://active-learning-kyle.github.io/engineering-compass/>
 
+The public site is hosted directly from this repository with GitHub Pages.
+
 ## MVP flow
 
 - Optional engineering-field context (four primary fields, Other, or Skip)
@@ -50,3 +52,4 @@ npm run build
 The project exports a static site to `dist/client` for deployment.
 
 Pushes to `main` are automatically built and deployed with GitHub Pages.
+

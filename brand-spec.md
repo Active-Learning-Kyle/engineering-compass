@@ -17,6 +17,8 @@ The full experience uses one consistent HKU-inspired green/white system. Six Cur
 
 Character illustrations are not shown in the homepage hero. The role overview reveals a role illustration and fuller description only on hover or keyboard focus; a larger illustration appears in the completed result.
 
+Each role-card preview contains both character variants. While the learner keeps the card hovered or keyboard-focused, the two natural-colour illustrations crossfade continuously in a calm seven-second cycle. The cycle stops and returns to the first illustration when the card is no longer active, and it is disabled when reduced motion is requested.
+
 Generated editorial character illustrations must share the same paper texture, line-work, composition quality, and academic tone. They must not use hard-hat, lab-coat, or gender stereotypes. Character presentation is randomly selected and never treated as learner identity data.
 
 Illustrations must retain their original natural colour. Do not apply a green overlay, colour blend, or role-specific colour filter. Deep forest green (`#102f1d` / `#163f27`) anchors key surfaces; lime (`#d7f43c`) is reserved for primary actions and the compact experience-level marker.

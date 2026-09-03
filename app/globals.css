@@ -857,11 +857,33 @@
     rgba(16, 47, 29, 0.12) 100%
   );
 }
-.role-hover-preview img {
+.role-preview-character {
+  position: absolute;
+  inset: 0;
   width: 100%;
   height: 100%;
   object-fit: cover;
   object-position: center 22%;
+}
+.role-preview-character-a {
+  opacity: 1;
+}
+.role-preview-character-b {
+  opacity: 0;
+}
+@keyframes role-character-crossfade {
+  0%,
+  12% {
+    opacity: 0;
+  }
+  42%,
+  58% {
+    opacity: 1;
+  }
+  88%,
+  100% {
+    opacity: 0;
+  }
 }
 .role-hover-copy {
   position: absolute;
@@ -898,6 +920,10 @@
 .role-preview-card:hover .role-hover-preview,
 .role-preview-card:focus-visible .role-hover-preview {
   opacity: 1;
+}
+.role-preview-card:hover .role-preview-character-b,
+.role-preview-card:focus-visible .role-preview-character-b {
+  animation: role-character-crossfade 7s ease-in-out infinite;
 }
 .home-toolkit {
   display: grid;
@@ -1123,5 +1149,9 @@
     scroll-behavior: auto !important;
     transition-duration: 0.01ms !important;
     animation-duration: 0.01ms !important;
+  }
+  .role-preview-card:hover .role-preview-character-b,
+  .role-preview-card:focus-visible .role-preview-character-b {
+    animation: none;
   }
 }

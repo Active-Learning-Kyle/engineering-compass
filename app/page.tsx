@@ -704,7 +704,17 @@ function Welcome({
               </div>
               <div className="role-hover-preview" aria-hidden="true">
                 {/* oxlint-disable-next-line next/no-img-element */}
-                <img src={assetPath(mode.image.a)} alt="" />
+                <img
+                  className="role-preview-character role-preview-character-a"
+                  src={assetPath(mode.image.a)}
+                  alt=""
+                />
+                {/* oxlint-disable-next-line next/no-img-element */}
+                <img
+                  className="role-preview-character role-preview-character-b"
+                  src={assetPath(mode.image.b)}
+                  alt=""
+                />
                 <div className="role-hover-copy">
                   <span>ENGINEERING ROLE</span>
                   <h3>{mode.name}</h3>

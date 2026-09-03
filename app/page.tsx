@@ -25,6 +25,7 @@ import {
   Wrench,
 } from 'lucide-react';
 import { PolarAngleAxis, PolarGrid, Radar, RadarChart } from 'recharts';
+import { toPng } from 'html-to-image';
 import { Button } from '@/components/ui/button';
 import { ChartContainer, type ChartConfig } from '@/components/ui/chart';
 import { Progress } from '@/components/ui/progress';
@@ -73,7 +74,7 @@ declare global {
   }
 }
 
-const progressStorageKey = 'engineering-compass-progress-v1.5';
+const progressStorageKey = 'engineering-compass-progress-v1.6';
 const assetPath = (path: string) => `${import.meta.env.BASE_URL}${path}`;
 const phases: Array<{ key: PhaseKey; label: string; range: string }> = [
   { key: 'behaviour', label: 'How you work', range: '01–15' },
@@ -93,6 +94,53 @@ const roleIcons: Record<EngineeringModeKey, typeof Compass> = {
   design: Boxes,
   pitch: MessageCircle,
 };
+const compassTargets = [0, 60, 120, 180, 240, 300];
+
+function shuffledCompassTargets() {
+  const targets = [...compassTargets];
+  for (let index = targets.length - 1; index > 0; index -= 1) {
+    const swapWith = Math.floor(Math.random() * (index + 1));
+    [targets[index], targets[swapWith]] = [targets[swapWith], targets[index]];
+  }
+  return targets;
+}
+
+function AnimatedCompassNeedle() {
+  const [rotation, setRotation] = useState(0);
+
+  useEffect(() => {
+    let targets = shuffledCompassTargets();
+    let index = 0;
+    const pointToNextRole = () => {
+      if (index >= targets.length) {
+        targets = shuffledCompassTargets();
+        index = 0;
+      }
+      const target = targets[index];
+      index += 1;
+      setRotation((previous) => {
+        const current = ((previous % 360) + 360) % 360;
+        let change = target - current;
+        if (change > 180) change -= 360;
+        if (change < -180) change += 360;
+        return previous + change;
+      });
+    };
+    pointToNextRole();
+    const interval = window.setInterval(pointToNextRole, 1900);
+    return () => window.clearInterval(interval);
+  }, []);
+
+  return (
+    <div
+      className="animated-compass-needle"
+      style={{ '--needle-rotation': `${rotation}deg` } as React.CSSProperties}
+    >
+      <span className="needle-north" />
+      <span className="needle-south" />
+    </div>
+  );
+}
 
 const toolkitExperienceLevels = [
   'New to this',
@@ -157,11 +205,10 @@ export default function Home() {
     characterVariant: CharacterVariant;
   } | null>(null);
   const [responseMs, setResponseMs] = useState<number | null>(null);
-  const [fastStreak, setFastStreak] = useState(0);
-  const [lastNudgeAt, setLastNudgeAt] = useState(-10);
   const [showNudge, setShowNudge] = useState(false);
   const questionStarted = useRef(0);
-  const autoAdvanceTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const fastStreak = useRef(0);
+  const lastNudgeAt = useRef(-10);
 
   useEffect(() => {
     try {
@@ -283,18 +330,12 @@ export default function Home() {
     [answers, results.toolkitScores],
   );
 
-  useEffect(
-    () => () => {
-      if (autoAdvanceTimer.current) clearTimeout(autoAdvanceTimer.current);
-    },
-    [],
-  );
-
   function beginAssessment() {
     setCurrent(0);
     setAnswers({ I01: [] });
     setCharacterVariant(Math.random() < 0.5 ? 'a' : 'b');
-    setFastStreak(0);
+    fastStreak.current = 0;
+    lastNudgeAt.current = -10;
     setShowNudge(false);
     questionStarted.current = Date.now();
     setStep('assessment');
@@ -305,21 +346,18 @@ export default function Home() {
     setCurrent(savedDraft.current);
     setAnswers(savedDraft.answers);
     setCharacterVariant(savedDraft.characterVariant);
-    setFastStreak(0);
+    fastStreak.current = 0;
+    lastNudgeAt.current = -10;
     setShowNudge(false);
     questionStarted.current = Date.now();
     setStep('assessment');
   }
   function chooseNumber(value: number) {
-    if (autoAdvanceTimer.current) clearTimeout(autoAdvanceTimer.current);
     const elapsed = Date.now() - questionStarted.current;
     setAnswers((previous) => ({ ...previous, [activeQuestion.id]: value }));
     setResponseMs(elapsed);
     setShowNudge(false);
-    autoAdvanceTimer.current = setTimeout(
-      () => advance(false, elapsed, true),
-      520,
-    );
+    advance(false, elapsed, true);
   }
   function toggleSelection(id: string) {
     if (activeQuestion.kind !== 'interest' && activeQuestion.kind !== 'growth')
@@ -343,24 +381,20 @@ export default function Home() {
     answerJustSelected = false,
   ) {
     if (!canContinue && !answerJustSelected) return;
-    if (autoAdvanceTimer.current) {
-      clearTimeout(autoAdvanceTimer.current);
-      autoAdvanceTimer.current = null;
-    }
     const reflective =
       activeQuestion.kind === 'behaviour' ||
       activeQuestion.kind === 'technical';
     const nextStreak =
-      reflective && (timingOverride ?? responseMs ?? 99999) < 1800
-        ? fastStreak + 1
+      reflective && (timingOverride ?? responseMs ?? 99999) < 4000
+        ? fastStreak.current + 1
         : 0;
-    if (!force && nextStreak >= 2 && current - lastNudgeAt >= 6) {
-      setFastStreak(nextStreak);
-      setLastNudgeAt(current);
+    if (!force && nextStreak >= 2 && current - lastNudgeAt.current >= 6) {
+      fastStreak.current = nextStreak;
+      lastNudgeAt.current = current;
       setShowNudge(true);
       return;
     }
-    setFastStreak(force ? 0 : nextStreak);
+    fastStreak.current = force ? 0 : nextStreak;
     setShowNudge(false);
     setResponseMs(null);
     if (current === questions.length - 1) {
@@ -374,7 +408,6 @@ export default function Home() {
     questionStarted.current = Date.now();
   }
   function goBack() {
-    if (autoAdvanceTimer.current) clearTimeout(autoAdvanceTimer.current);
     if (current === 0) {
       setStep('year');
       return;
@@ -385,7 +418,6 @@ export default function Home() {
     questionStarted.current = Date.now();
   }
   function returnHome() {
-    if (autoAdvanceTimer.current) clearTimeout(autoAdvanceTimer.current);
     const draft = { year, current, answers, characterVariant };
     setSavedDraft(draft);
     window.localStorage.setItem(
@@ -396,52 +428,45 @@ export default function Home() {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }
   function restart() {
-    if (autoAdvanceTimer.current) clearTimeout(autoAdvanceTimer.current);
     setStep('welcome');
     setYear(null);
     setCurrent(0);
     setAnswers({ I01: [] });
-    setFastStreak(0);
+    fastStreak.current = 0;
+    lastNudgeAt.current = -10;
     setShowNudge(false);
     setSavedDraft(null);
     window.localStorage.removeItem(progressStorageKey);
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }
-  function downloadSummary() {
-    const yearLabel = getStudyYearLabel(year) ?? 'Not provided';
-    const lines = [
-      'ENGINEERING COMPASS — STANDARD V1.5 PROFILE',
-      `Study year: ${yearLabel}`,
-      `Current Engineering Role: ${engineeringModes[modeKey].name}`,
-      `Engineering experience level: ${growthStages[growthStageKey].name}`,
-      '',
-      'SIX ENGINEERING COMPETENCIES',
-      ...results.competencyScores.map(
-        (item) => `${item.fullLabel}: ${item.score}/100`,
+  async function downloadProfileImage() {
+    const resultPage = document.getElementById('engineering-compass-results');
+    if (!resultPage) return;
+    await Promise.all(
+      Array.from(resultPage.querySelectorAll('img')).map(
+        (image) =>
+          new Promise<void>((resolve) => {
+            if (image.complete) resolve();
+            else {
+              image.addEventListener('load', () => resolve(), { once: true });
+              image.addEventListener('error', () => resolve(), { once: true });
+            }
+          }),
       ),
-      '',
-      'TECHNICAL TOOLKIT',
-      ...results.toolkitScores.map((item) => `${item.name}: ${item.score}/100`),
-      '',
-      'CHOSEN GROWTH PRIORITIES',
-      ...interpretation.growth.map((item) => item.label),
-      '',
-      'ENGINEERING INTERESTS',
-      ...(interpretation.interests.length
-        ? interpretation.interests
-        : ['Not provided']),
-      '',
-      `Evidence-practice reflection: ${interpretation.evidenceReflection}`,
-      '',
-      'A formative self-reflection — not a grade, type, ranking, or objective ability test.',
-    ];
-    const blob = new Blob([lines.join('\n')], { type: 'text/plain' });
-    const url = URL.createObjectURL(blob);
+    );
+    const url = await toPng(resultPage, {
+      backgroundColor: '#f7faf6',
+      cacheBust: true,
+      pixelRatio: Math.min(window.devicePixelRatio || 1, 2),
+      filter: (node) =>
+        !(
+          node instanceof HTMLElement && node.dataset.captureExclude === 'true'
+        ),
+    });
     const anchor = document.createElement('a');
     anchor.href = url;
-    anchor.download = 'engineering-compass-standard-v1-5.txt';
+    anchor.download = `engineering-compass-${modeKey}-profile.png`;
     anchor.click();
-    URL.revokeObjectURL(url);
   }
 
   return (
@@ -495,7 +520,7 @@ export default function Home() {
           modeKey={modeKey}
           growthStageKey={growthStageKey}
           onRestart={restart}
-          onDownload={downloadSummary}
+          onDownload={downloadProfileImage}
         />
       )}
     </main>
@@ -561,14 +586,33 @@ function Welcome({
             A short self-assessment to explore your engineering strengths,
             hands-on experience, and growth directions.
           </p>
-          <div className="mt-9 flex flex-wrap items-center gap-3">
-            <Button
-              size="lg"
-              className="home-primary-action h-13 rounded-full px-7 text-base"
+          <div className="assessment-version-grid mt-8">
+            <button
+              className="assessment-version-card is-available"
               onClick={onBegin}
             >
-              Begin assessment <ArrowRight className="ml-1 size-4" />
-            </Button>
+              <span className="version-status">AVAILABLE NOW</span>
+              <span className="version-title">Standard</span>
+              <span className="version-meta">30 questions · 8–10 minutes</span>
+              <span className="version-action">
+                Begin Standard <ArrowRight className="size-4" />
+              </span>
+            </button>
+            <div
+              className="assessment-version-card is-coming"
+              aria-disabled="true"
+            >
+              <span className="version-status">COMING LATER</span>
+              <span className="version-title">Pro</span>
+              <span className="version-meta">
+                50–60 questions · deeper diagnosis
+              </span>
+              <span className="version-action">
+                Scenario and evidence checks
+              </span>
+            </div>
+          </div>
+          <div className="mt-4 flex flex-wrap items-center gap-3">
             {hasSavedProgress && (
               <Button
                 variant="outline"
@@ -580,7 +624,8 @@ function Welcome({
               </Button>
             )}
             <div className="flex items-center gap-2 px-3 text-sm text-muted-foreground">
-              <Gauge className="size-4" /> About 8–10 minutes
+              <Gauge className="size-4" /> Choose Standard now; Pro is not yet
+              available
             </div>
           </div>
           <p className="mt-5 max-w-lg text-xs leading-5 text-muted-foreground">
@@ -593,6 +638,11 @@ function Welcome({
             <div className="orbit-axis orbit-axis-x" />
             <div className="orbit-axis orbit-axis-y" />
             <div className="orbit-compass-rose" />
+            <span className="compass-cardinal compass-cardinal-n">N</span>
+            <span className="compass-cardinal compass-cardinal-e">E</span>
+            <span className="compass-cardinal compass-cardinal-s">S</span>
+            <span className="compass-cardinal compass-cardinal-w">W</span>
+            <AnimatedCompassNeedle />
             <span className="orbit-dot orbit-dot-1" />
             <span className="orbit-dot orbit-dot-2" />
             <span className="orbit-dot orbit-dot-3" />
@@ -615,7 +665,7 @@ function Welcome({
           </div>
           <div className="mt-7 grid grid-cols-3 divide-x divide-border rounded-2xl border bg-card/95 py-4 shadow-sm">
             {[
-              ['30', 'questions'],
+              ['30', 'Standard questions'],
               ['6', 'competencies'],
               ['9', 'toolkit areas'],
             ].map(([value, label]) => (
@@ -678,7 +728,7 @@ function Welcome({
                 </div>
                 <div className="mode-preview-copy">
                   <h3>{mode.name}</h3>
-                  <p>{mode.shortDescription}</p>
+                  <p>{mode.contribution}</p>
                 </div>
               </div>
               <div className="role-hover-preview" aria-hidden="true">
@@ -711,6 +761,20 @@ function Welcome({
               Each area is reflected separately, so the result shows both
               breadth and the tools you may want to practise next.
             </p>
+            <div className="toolkit-reading-guide">
+              <div>
+                <strong>Breadth</strong>
+                <span>Which kinds of tools you have already encountered.</span>
+              </div>
+              <div>
+                <strong>Independence</strong>
+                <span>Where you can work with less step-by-step support.</span>
+              </div>
+              <div>
+                <strong>Next practice</strong>
+                <span>One useful area to try in your next project.</span>
+              </div>
+            </div>
           </div>
           <div className="toolkit-chip-grid">
             {toolkitOrder.map((key) => (
@@ -735,7 +799,16 @@ function Welcome({
         </div>
       </div>
       <footer className="home-footer">
-        <span>Faculty of Engineering · The University of Hong Kong</span>
+        <div className="home-footer-brand">
+          <Compass className="size-5" />
+          <span>
+            <strong>Engineering Compass</strong>
+            <small>Reflect on how you think, build, and contribute.</small>
+          </span>
+        </div>
+        <span className="home-footer-privacy">
+          Private by design · responses stay on your device
+        </span>
         <a href="https://activelearning.engg.hku.hk/#about">
           Learn about Active Learning <ArrowRight className="size-4" />
         </a>
@@ -909,16 +982,30 @@ function Assessment({
           </div>
         </div>
         {showNudge && (
-          <output className="nudge nudge-top">
-            <TimerReset className="mt-0.5 size-5 shrink-0" />
-            <div>
-              <div className="font-semibold">A quick reflection check</div>
-              <p className="mt-1 leading-5 text-amber-900/80">
-                You answered the last few statements unusually quickly. Picture
-                a real project example, then keep or change this answer.
-              </p>
+          <div className="nudge-backdrop">
+            <div
+              className="nudge-modal"
+              role="alertdialog"
+              aria-modal="true"
+              aria-labelledby="nudge-title"
+              aria-describedby="nudge-description"
+            >
+              <div className="nudge-icon">
+                <TimerReset className="size-7" />
+              </div>
+              <div>
+                <h2 id="nudge-title">You&apos;re answering a little quickly</h2>
+                <p id="nudge-description">
+                  Take a moment to read each question before choosing. A more
+                  considered response is more likely to give you a result that
+                  reflects your current experience.
+                </p>
+              </div>
+              <Button className="nudge-continue" size="lg" onClick={onAdvance}>
+                Skip Answer and Continue <ArrowRight className="ml-1 size-4" />
+              </Button>
             </div>
-          </output>
+          </div>
         )}
         <article className="question-card">
           <div className="question-kicker">
@@ -969,11 +1056,7 @@ function Assessment({
               disabled={!canContinue}
               onClick={onAdvance}
             >
-              {current === questions.length - 1
-                ? 'View my profile'
-                : showNudge
-                  ? 'Keep answer & continue'
-                  : 'Next'}
+              {current === questions.length - 1 ? 'View my profile' : 'Next'}
               <ArrowRight className="ml-1 size-4" />
             </Button>
           </div>
@@ -1115,8 +1198,9 @@ function Results({
   modeKey: EngineeringModeKey;
   growthStageKey: GrowthStageKey;
   onRestart: () => void;
-  onDownload: () => void;
+  onDownload: () => Promise<void>;
 }) {
+  const [isSaving, setIsSaving] = useState(false);
   const yearLabel = getStudyYearLabel(year);
   const mode = engineeringModes[modeKey];
   const stage = growthStages[growthStageKey];
@@ -1138,7 +1222,10 @@ function Results({
       }`
     : 'Your profile shows how you currently approach engineering work.';
   return (
-    <section className="mx-auto max-w-7xl px-6 py-11 lg:px-12 lg:py-15">
+    <section
+      id="engineering-compass-results"
+      className="results-capture mx-auto max-w-7xl px-6 py-11 lg:px-12 lg:py-15"
+    >
       <div
         className="mode-hero"
         style={
@@ -1174,13 +1261,22 @@ function Results({
             rank. If several scores are close, another role may fit just as
             well.
           </p>
-          <div className="mode-actions">
+          <div className="mode-actions" data-capture-exclude="true">
             <Button
               variant="outline"
               className="rounded-full"
-              onClick={onDownload}
+              disabled={isSaving}
+              onClick={async () => {
+                setIsSaving(true);
+                try {
+                  await onDownload();
+                } finally {
+                  setIsSaving(false);
+                }
+              }}
             >
-              <Download className="mr-1 size-4" /> Download summary
+              <Download className="mr-1 size-4" />
+              {isSaving ? 'Preparing image…' : 'Save profile as image'}
             </Button>
             <Button
               variant="ghost"

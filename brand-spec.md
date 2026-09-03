@@ -11,7 +11,7 @@ Engineering Compass is a standalone formative engineering self-reflection produc
 - Global colours: deep forest green, white, pale botanical neutrals, and a restrained lime action accent
 - Display and interface typography: modern system sans serif, consistent with the ENGG2202 teaching site
 
-## V1.5 identity layer
+## V1.6 identity layer
 
 The full experience uses one consistent HKU-inspired green/white system. Six Current Engineering Roles are distinguished by icon, name, and description rather than separate colour themes. This keeps the roles visibly related and avoids implying that colour represents a score, status, or personality category.
 

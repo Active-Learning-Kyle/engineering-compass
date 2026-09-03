@@ -1,6 +1,6 @@
 # Engineering Compass â€” Standard Assessment Blueprint
 
-Version: Standard V1.5
+Version: Standard V1.6
 Status: approved and implemented
 
 ## Purpose
@@ -202,7 +202,7 @@ Competency names may appear on the welcome and results pages, but not while B01â
 
 Keep the current gentle speed nudge. The nudge should ask the learner to picture a real project example and reconsider if needed. It must not block completion or alter scores automatically.
 
-For Standard V1.5, response-quality signals should be transparent and limited to:
+For Standard V1.6, response-quality signals should be transparent and limited to:
 
 - repeated unusually fast answers;
 - unanswered required items;

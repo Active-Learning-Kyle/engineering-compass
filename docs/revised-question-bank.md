@@ -1,6 +1,6 @@
 # Engineering Compass — Standard Question Bank
 
-Version: Standard V1.5
+Version: Standard V1.6
 Status: approved and implemented
 
 ## Learner instructions

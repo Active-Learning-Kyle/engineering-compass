@@ -1,4 +1,4 @@
-# Approved visual direction and V1.5 refinement
+# Approved visual direction and V1.6 refinement
 
 ## Directions shown
 
@@ -22,7 +22,13 @@ V1.4 refinement, 3 September 2026:
 
 > “另外我这里其实也想让你去验证一下是否要分成七个角色。然后，就是真的最后是七个角色吗？可能我目前第一张截图的六个就可以了吧。另外你看看能不能去掉每个model不同颜色的设定，都用原本的颜色就行。”
 
-V1.5 refinement, 3 September 2026:
+V1.6 refinement, 3 September 2026:
+
+- the compass needle moves with a damped, compass-like swing and visits all six role directions in a new random order each cycle;
+- the homepage distinguishes the available Standard assessment from a clearly disabled future Pro route;
+- role contribution copy uses a consistent “In a team, you are especially good at…” formulation;
+- unusually fast responses trigger a blocking centred reflection dialog;
+- the results page can be saved as a long PNG image.
 
 > “首先能不能不要加上绿色的滤镜，用回正常的照片就行。”
 

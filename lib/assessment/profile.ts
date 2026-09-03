@@ -25,7 +25,7 @@ export const engineeringModes: Record<
     shortDescription:
       'You look closely at what is happening before deciding what should be solved.',
     contribution:
-      'Help the team define the real need, gather evidence, and turn a broad concern into an actionable problem.',
+      'In a team, you are especially good at defining the real need, gathering evidence, and turning a broad concern into an actionable problem.',
     accent: '#163f27',
     tint: '#edf4ed',
     image: {
@@ -38,7 +38,7 @@ export const engineeringModes: Record<
     shortDescription:
       'You turn a promising direction into a route that people can realistically follow.',
     contribution:
-      'Clarify requirements, milestones, ownership, resources, and important risks before work accelerates.',
+      'In a team, you are especially good at turning a promising direction into clear requirements, milestones, ownership, and a realistic plan.',
     accent: '#163f27',
     tint: '#edf4ed',
     image: {
@@ -51,7 +51,7 @@ export const engineeringModes: Record<
     shortDescription:
       'You help different people, ideas, and technical contributions work together.',
     contribution:
-      'Translate between specialisms, make ownership clear, and surface disagreements early enough to resolve them.',
+      'In a team, you are especially good at connecting specialisms, clarifying ownership, and helping people resolve disagreements and dependencies.',
     accent: '#163f27',
     tint: '#edf4ed',
     image: {
@@ -64,7 +64,7 @@ export const engineeringModes: Record<
     shortDescription:
       'You learn quickly when an idea becomes something you can assemble, test, and improve.',
     contribution:
-      'Turn discussion into a working prototype, troubleshoot common failures, and make practical constraints visible.',
+      'In a team, you are especially good at turning discussion into a working prototype, troubleshooting failures, and making practical constraints visible.',
     accent: '#163f27',
     tint: '#edf4ed',
     image: {
@@ -77,7 +77,7 @@ export const engineeringModes: Record<
     shortDescription:
       'You use prototypes and tests to learn what should change next.',
     contribution:
-      'Create an early version, design a useful test, diagnose failures, and turn feedback into a focused iteration.',
+      'In a team, you are especially good at creating early prototypes, designing useful tests, and turning evidence into focused improvements.',
     accent: '#163f27',
     tint: '#edf4ed',
     image: {
@@ -90,7 +90,7 @@ export const engineeringModes: Record<
     shortDescription:
       'You make an engineering solution understandable, credible, and relevant to its audience.',
     contribution:
-      'Explain the problem and value clearly, support claims with evidence, and communicate limitations honestly.',
+      'In a team, you are especially good at explaining the problem and value clearly, supporting claims with evidence, and communicating limitations honestly.',
     accent: '#163f27',
     tint: '#edf4ed',
     image: {

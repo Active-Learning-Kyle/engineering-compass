@@ -13,22 +13,24 @@ The public site is hosted directly from this repository with GitHub Pages.
 - Nine independent Technical Toolkit items
 - Project calibration, interests, selected growth areas, and two engineering-judgment scenarios
 - Separate five-level behaviour and technical-independence scales
-- Reflection nudge after unusually fast response patterns
-- Single-choice auto-advance, Previous, Return Home, and browser-only resume
+- Blocking reflection nudge after unusually fast response patterns
+- Instant single-choice auto-advance, Previous, Return Home, and browser-only resume
 - Integer scores on a 0–100 scale
 - Six-competency radar profile
 - Nine-area technical toolkit profile
-- Downloadable plain-text summary
+- Downloadable long-image profile
 - A six-role current Engineering Role card with a compact four-stage Engineering Experience Level
 - Five-level experience descriptors for every Technical Toolkit result
 
 Study year is never included in scoring. Answers and an unfinished draft remain on the current browser/device and are not submitted to a server.
 
-## Standard V1.5 identity and pedagogical alignment
+## Standard V1.6 identity and pedagogical alignment
 
 The results layer adds six current Engineering Roles: Problem Framer, Project Navigator, Team Connector, Practical Builder, Prototype Explorer, and Solution Storyteller. Each maps directly to one of the six measured competencies and uses the shared HKU-inspired green/white visual system. The current role is a formative lens on the six-axis profile—not a personality type, grade, professional rank, or team assignment.
 
 The homepage hero uses role icons rather than character portraits. Role cards reveal a natural-colour illustration and fuller explanation on hover or keyboard focus. One of two character-presentation variants appears after completion and remains stable for a saved/completed attempt; the visual choice never affects results.
+
+The homepage makes the available 30-question Standard route and the future 50–60-question Pro route explicit. Pro is a labelled architecture and content placeholder only; no Pro questions or scoring are implemented. The animated compass points to all six role directions once per shuffled cycle.
 
 The compact Engineering Experience Level (Exploring, Building, Practising, or Integrating) uses project context and current Technical Toolkit experience to describe the learner's present scope of experience. It is not a junior/mid/senior engineer designation. Each toolkit bar also shows the learner's selected five-level experience descriptor.
 

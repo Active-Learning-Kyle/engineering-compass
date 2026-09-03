@@ -63,4 +63,3 @@ Do not rewrite the production assessment until the following are approved:
 3. the proposed question wording and options;
 4. which contextual items affect interpretation but not competency scoring;
 5. the nine Technical Toolkit labels.
-

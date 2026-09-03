@@ -1,4 +1,4 @@
-# Engineering Compass Standard V1.2 — Pilot Plan
+# Engineering Compass Standard V1.3 — Pilot Plan
 
 ## Pilot purpose
 
@@ -12,7 +12,7 @@ Run a small formative pilot to check usability, wording, response flow, and whet
 
 ## Suggested session
 
-1. Ask each participant to complete the public Standard V1.2 assessment on their usual device without coaching.
+1. Ask each participant to complete the public Standard V1.3 assessment on their usual device without coaching.
 2. Observe completion time and note where a participant pauses, rereads, goes back, or asks for clarification.
 3. Ask the participant to review the radar, Technical Toolkit, strengths, growth priorities, and evidence-practice reflection.
 4. Collect short post-assessment feedback immediately while the experience is fresh.
@@ -89,4 +89,3 @@ After 8–15 sessions, group feedback by issue rather than by participant. Prior
 4. make result interpretation misleading.
 
 Standard V1.3 should remain a wording and usability refinement unless the pilot reveals a clear structural problem. Do not begin Pro, a teacher dashboard, database collection, grouping, or course integration as part of this pilot round.
-

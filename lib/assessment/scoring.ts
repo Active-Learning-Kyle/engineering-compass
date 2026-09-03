@@ -67,4 +67,3 @@ export function findProfileValue(
     toolkitScores.find((item) => item.key === (id as ToolkitKey))?.score
   );
 }
-

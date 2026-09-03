@@ -529,6 +529,258 @@
   color: #713f12;
   font-size: 0.875rem;
 }
+.nudge-top {
+  margin: 0 0 1rem;
+  box-shadow: 0 10px 30px rgba(113, 63, 18, 0.08);
+}
+.assessment-home {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  min-height: 34px;
+  border-radius: 999px;
+  padding: 0.35rem 0.75rem;
+  color: var(--muted-foreground);
+  font-size: 0.75rem;
+  font-weight: 650;
+  transition: all 0.16s ease;
+}
+.assessment-home:hover {
+  background: var(--secondary);
+  color: var(--primary);
+}
+.mode-hero {
+  position: relative;
+  display: grid;
+  min-height: 520px;
+  overflow: hidden;
+  border: 1px solid color-mix(in srgb, var(--mode-accent) 36%, white);
+  border-radius: 1.65rem;
+  background: linear-gradient(
+    135deg,
+    white 0%,
+    white 52%,
+    var(--mode-tint) 100%
+  );
+  box-shadow: 0 24px 70px
+    color-mix(in srgb, var(--mode-accent) 13%, transparent);
+}
+.mode-hero::before {
+  content: '';
+  position: absolute;
+  inset: 0 auto 0 0;
+  width: 7px;
+  background: var(--mode-accent);
+}
+.mode-copy {
+  position: relative;
+  z-index: 2;
+  padding: clamp(1.6rem, 5vw, 4rem);
+}
+.mode-eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: var(--mode-accent);
+  font-size: 0.7rem;
+  font-weight: 800;
+  letter-spacing: 0.16em;
+}
+.mode-stage-row,
+.mode-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.6rem;
+}
+.mode-stage-row {
+  margin-top: 1.35rem;
+}
+.growth-stage-pill,
+.year-context-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  border-radius: 999px;
+  padding: 0.45rem 0.75rem;
+  font-size: 0.7rem;
+  font-weight: 750;
+}
+.growth-stage-pill {
+  background: var(--mode-accent);
+  color: white;
+  letter-spacing: 0.06em;
+}
+.year-context-pill {
+  border: 1px solid color-mix(in srgb, var(--mode-accent) 28%, white);
+  background: rgba(255, 255, 255, 0.78);
+  color: var(--muted-foreground);
+}
+.mode-copy h1 {
+  margin-top: 1.25rem;
+  max-width: 710px;
+  color: var(--mode-accent);
+  font-family: Georgia, 'Times New Roman', serif;
+  font-size: clamp(3rem, 7vw, 6.4rem);
+  font-weight: 700;
+  line-height: 0.92;
+  letter-spacing: -0.055em;
+}
+.mode-lead {
+  max-width: 650px;
+  margin-top: 1.25rem;
+  color: var(--foreground);
+  font-family: Georgia, 'Times New Roman', serif;
+  font-size: clamp(1.2rem, 2vw, 1.55rem);
+  line-height: 1.45;
+}
+.mode-contribution {
+  max-width: 640px;
+  margin-top: 1.6rem;
+  border-left: 3px solid var(--mode-accent);
+  padding-left: 1rem;
+}
+.mode-contribution span {
+  color: var(--mode-accent);
+  font-size: 0.66rem;
+  font-weight: 800;
+  letter-spacing: 0.14em;
+}
+.mode-contribution p {
+  margin-top: 0.35rem;
+  color: var(--muted-foreground);
+  font-size: 0.9rem;
+  line-height: 1.55;
+}
+.mode-disclaimer {
+  max-width: 620px;
+  margin-top: 1.4rem;
+  color: var(--muted-foreground);
+  font-size: 0.72rem;
+  line-height: 1.5;
+}
+.mode-actions {
+  margin-top: 1.35rem;
+}
+.mode-art {
+  position: relative;
+  min-height: 420px;
+  overflow: hidden;
+  background: var(--mode-tint);
+}
+.mode-art::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: var(--mode-accent);
+  mix-blend-mode: color;
+  opacity: 0.3;
+  pointer-events: none;
+}
+.mode-art img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center 24%;
+}
+.method-strip {
+  display: grid;
+  gap: 1.2rem;
+  align-items: start;
+  border-top: 1px solid var(--border);
+  border-bottom: 1px solid var(--border);
+  padding: clamp(1.5rem, 4vw, 2.7rem) 0;
+}
+.method-strip h2,
+.modes-preview-heading h2 {
+  margin-top: 0.45rem;
+  font-family: Georgia, 'Times New Roman', serif;
+  font-size: clamp(1.55rem, 3vw, 2.25rem);
+  font-weight: 650;
+  line-height: 1.15;
+  letter-spacing: -0.025em;
+}
+.method-strip p {
+  max-width: 760px;
+  color: var(--muted-foreground);
+  font-size: 0.95rem;
+  line-height: 1.7;
+}
+.modes-preview-heading {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: end;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-top: 3.5rem;
+}
+.modes-preview-heading > span {
+  color: var(--muted-foreground);
+  font-size: 0.75rem;
+}
+.modes-preview-grid {
+  display: grid;
+  gap: 1rem;
+  margin-top: 1.5rem;
+}
+.mode-preview-card {
+  display: grid;
+  grid-template-columns: 108px minmax(0, 1fr);
+  min-height: 150px;
+  overflow: hidden;
+  border: 1px solid color-mix(in srgb, var(--mode-accent) 28%, white);
+  border-top: 4px solid var(--mode-accent);
+  border-radius: 1.1rem;
+  background: linear-gradient(145deg, white, var(--mode-tint));
+  transition:
+    transform 0.18s ease,
+    box-shadow 0.18s ease;
+}
+.mode-preview-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 16px 38px
+    color-mix(in srgb, var(--mode-accent) 12%, transparent);
+}
+.mode-preview-art {
+  position: relative;
+  overflow: hidden;
+  background: var(--mode-tint);
+}
+.mode-preview-art::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: var(--mode-accent);
+  mix-blend-mode: color;
+  opacity: 0.28;
+}
+.mode-preview-art img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center 28%;
+}
+.mode-preview-copy {
+  padding: 1.1rem;
+}
+.mode-preview-copy > span {
+  color: var(--mode-accent);
+  font-size: 0.65rem;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+}
+.mode-preview-copy h3 {
+  margin-top: 0.3rem;
+  color: var(--mode-accent);
+  font-family: Georgia, 'Times New Roman', serif;
+  font-size: 1.15rem;
+  font-weight: 700;
+}
+.mode-preview-copy p {
+  margin-top: 0.45rem;
+  color: var(--muted-foreground);
+  font-size: 0.76rem;
+  line-height: 1.35rem;
+}
 .panel-eyebrow {
   color: var(--primary);
   font-size: 0.68rem;
@@ -604,6 +856,26 @@
   .results-hero {
     grid-template-columns: minmax(0, 1fr) auto;
   }
+  .mode-hero {
+    grid-template-columns: minmax(0, 1.18fr) minmax(360px, 0.82fr);
+  }
+  .mode-art {
+    min-height: 100%;
+  }
+  .method-strip {
+    grid-template-columns: minmax(260px, 0.75fr) minmax(0, 1.25fr);
+  }
+  .modes-preview-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+  .mode-preview-card:last-child {
+    grid-column: 2;
+  }
+}
+@media (min-width: 640px) and (max-width: 1023px) {
+  .modes-preview-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
 }
 @media (max-width: 639px) {
   .profile-orbit {
@@ -645,4 +917,3 @@
     animation-duration: 0.01ms !important;
   }
 }
-

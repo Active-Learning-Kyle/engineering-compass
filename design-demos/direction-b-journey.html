@@ -1,0 +1,316 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Engineering Compass — Direction B</title>
+    <!-- Direction B: a visible engineering growth journey with a premium 3D character. Visual concept only. -->
+    <style>
+      :root {
+        --ink: #09291f;
+        --green: #006b4e;
+        --pale: #edf5ef;
+        --line: #c9ddd2;
+        --orange: #db8a22;
+      }
+      * {
+        box-sizing: border-box;
+      }
+      body {
+        margin: 0;
+        background: #f9fbf8;
+        color: var(--ink);
+        font-family: Arial, sans-serif;
+      }
+      .page {
+        min-height: 900px;
+        padding: 22px 46px 42px;
+      }
+      header {
+        display: flex;
+        height: 60px;
+        align-items: center;
+        justify-content: space-between;
+      }
+      .brand {
+        font:
+          700 20px Georgia,
+          serif;
+      }
+      .brand:before {
+        content: '◉';
+        color: var(--green);
+        margin-right: 10px;
+      }
+      .top {
+        font-size: 12px;
+        color: #61736c;
+      }
+      .top b {
+        color: var(--green);
+      }
+      main {
+        max-width: 1348px;
+        margin: auto;
+      }
+      .stagebar {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 10px;
+        margin-top: 18px;
+      }
+      .stage {
+        height: 62px;
+        border: 1px solid var(--line);
+        border-radius: 14px;
+        padding: 12px 15px;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        background: white;
+        color: #61736c;
+      }
+      .stage i {
+        width: 28px;
+        height: 28px;
+        border-radius: 50%;
+        display: grid;
+        place-items: center;
+        background: var(--pale);
+        font-style: normal;
+        font-weight: 700;
+      }
+      .stage.active {
+        background: var(--green);
+        color: white;
+        border-color: var(--green);
+        transform: translateY(-3px);
+        box-shadow: 0 13px 30px #006b4e26;
+      }
+      .stage.active i {
+        background: white;
+        color: var(--green);
+      }
+      .stage b {
+        display: block;
+        font-size: 13px;
+      }
+      .stage small {
+        font-size: 10px;
+        opacity: 0.8;
+      }
+      .hero {
+        display: grid;
+        grid-template-columns: 0.84fr 1.16fr;
+        margin-top: 18px;
+        min-height: 585px;
+        border-radius: 26px;
+        overflow: hidden;
+        background: var(--pale);
+        border: 1px solid var(--line);
+      }
+      .figure {
+        position: relative;
+        background: #e8e5df;
+      }
+      .figure img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+      }
+      .badge {
+        position: absolute;
+        top: 24px;
+        left: 24px;
+        background: white;
+        border-radius: 16px;
+        padding: 12px 15px;
+        box-shadow: 0 12px 30px #193c2b1f;
+      }
+      .badge span {
+        font-size: 10px;
+        letter-spacing: 0.15em;
+        color: #65786f;
+      }
+      .badge b {
+        display: block;
+        margin-top: 4px;
+        font:
+          700 19px Georgia,
+          serif;
+        color: var(--green);
+      }
+      .copy {
+        padding: 52px 58px;
+        background: white;
+      }
+      .eyebrow {
+        font-size: 11px;
+        letter-spacing: 0.18em;
+        color: var(--green);
+        font-weight: 800;
+      }
+      .copy h1 {
+        font:
+          700 62px/1 Georgia,
+          serif;
+        margin: 16px 0 12px;
+        letter-spacing: -0.03em;
+      }
+      .lead {
+        font:
+          italic 20px/1.4 Georgia,
+          serif;
+        color: #315e50;
+        max-width: 590px;
+      }
+      .copy p {
+        font-size: 15px;
+        line-height: 1.7;
+        color: #5b7168;
+        max-width: 620px;
+      }
+      .signal {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 10px;
+        margin-top: 26px;
+      }
+      .signal div {
+        padding: 15px;
+        border: 1px solid var(--line);
+        border-radius: 14px;
+        background: #fbfdfb;
+      }
+      .signal strong {
+        display: block;
+        font:
+          700 24px Georgia,
+          serif;
+        color: var(--green);
+      }
+      .signal span {
+        font-size: 11px;
+        color: #65786f;
+      }
+      .action {
+        display: flex;
+        gap: 14px;
+        align-items: flex-start;
+        margin-top: 24px;
+        padding: 20px;
+        border-radius: 16px;
+        background: #0b3027;
+        color: white;
+      }
+      .action i {
+        width: 32px;
+        height: 32px;
+        border-radius: 50%;
+        background: var(--orange);
+        display: grid;
+        place-items: center;
+        font-style: normal;
+        font-weight: 800;
+      }
+      .action b {
+        font:
+          700 18px Georgia,
+          serif;
+      }
+      .action p {
+        color: #d4e1dc;
+        font-size: 12px;
+        line-height: 1.5;
+        margin: 5px 0 0;
+      }
+      .foot {
+        display: flex;
+        justify-content: space-between;
+        margin-top: 16px;
+        font-size: 11px;
+        color: #71817b;
+      }
+      .foot strong {
+        color: var(--green);
+      }
+    </style>
+  </head>
+  <body>
+    <div class="page">
+      <header>
+        <div class="brand">Engineering Compass</div>
+        <div class="top"><b>Year 2</b> · Your current learning stage</div>
+      </header>
+      <main>
+        <section class="stagebar">
+          <div class="stage">
+            <i>1</i>
+            <div><b>Exploring</b><small>Trying unfamiliar tools</small></div>
+          </div>
+          <div class="stage">
+            <i>2</i>
+            <div><b>Building</b><small>Completing familiar tasks</small></div>
+          </div>
+          <div class="stage active">
+            <i>3</i>
+            <div><b>Practising</b><small>Working independently</small></div>
+          </div>
+          <div class="stage">
+            <i>4</i>
+            <div>
+              <b>Integrating</b><small>Connecting systems & people</small>
+            </div>
+          </div>
+        </section>
+        <section class="hero">
+          <div class="figure">
+            <img
+              src="assets/builder-3d.png"
+              alt="3D illustration of a student engineer with prototypes"
+            />
+            <div class="badge">
+              <span>CURRENT ENGINEERING MODE</span><b>Practical Builder</b>
+            </div>
+          </div>
+          <div class="copy">
+            <div class="eyebrow">YOUR ENGINEERING SNAPSHOT</div>
+            <h1>Practising Builder</h1>
+            <div class="lead">
+              You learn fastest when an idea becomes something you can assemble,
+              test, and improve.
+            </div>
+            <p>
+              Your strongest signal is hands-on technical breadth. You are
+              increasingly able to handle familiar engineering tasks
+              independently and troubleshoot common problems. Your next step is
+              to connect that practical confidence to planning and
+              evidence-based decisions.
+            </p>
+            <div class="signal">
+              <div><strong>86</strong><span>Hands-on breadth</span></div>
+              <div><strong>79</strong><span>Design & prototyping</span></div>
+              <div><strong>72</strong><span>Proposal with plan</span></div>
+            </div>
+            <div class="action">
+              <i>→</i>
+              <div>
+                <b>Your next useful stretch</b>
+                <p>
+                  Take ownership of one interface between two subsystems,
+                  document what fails, and explain the trade-off to your team.
+                </p>
+              </div>
+            </div>
+            <div class="foot">
+              <span
+                >Formative self-reflection · not a professional
+                qualification</span
+              ><strong>View full profile ↓</strong>
+            </div>
+          </div>
+        </section>
+      </main>
+    </div>
+  </body>
+</html>

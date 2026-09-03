@@ -1,6 +1,6 @@
 import type { AssessmentItem, AssessmentVersion } from './types';
 
-export const assessmentVersion: AssessmentVersion = 'standard-v1.2';
+export const assessmentVersion: AssessmentVersion = 'standard-v1.3';
 
 export const behaviourScale = {
   prompt: 'How well does this describe how you usually work?',
@@ -9,7 +9,7 @@ export const behaviourScale = {
 };
 
 export const technicalScale = {
-  prompt: 'What best describes your current experience?',
+  prompt: 'Choose the description closest to your current experience.',
   low: 'No direct experience yet',
   high: 'Independent and adaptable',
   details: [
@@ -118,7 +118,7 @@ export const questions: AssessmentItem[] = [
     kind: 'behaviour',
     competency: 'pitch',
     prompt:
-      'I adjust how I explain a problem and proposed solution so a particular audience can follow why it matters.',
+      'I adapt my explanation of an engineering problem and solution to the needs of a particular audience.',
     activeLearningEssentialTags: ['communication'],
   },
   {
@@ -128,7 +128,7 @@ export const questions: AssessmentItem[] = [
     kind: 'behaviour',
     competency: 'planning',
     prompt:
-      "I compare meaningful solution approaches against the project's requirements before committing to one.",
+      "I compare alternative solutions against the project's requirements before choosing one.",
     activeLearningEssentialTags: ['problemSolving', 'designAndInnovation'],
   },
   {
@@ -148,7 +148,7 @@ export const questions: AssessmentItem[] = [
     kind: 'behaviour',
     competency: 'collaboration',
     prompt:
-      'I connect ideas and methods from people with different technical backgrounds when solving a problem.',
+      'I combine relevant ideas and methods from people with different technical backgrounds.',
     activeLearningEssentialTags: ['interdisciplinaryThinking'],
   },
   {
@@ -158,7 +158,7 @@ export const questions: AssessmentItem[] = [
     kind: 'behaviour',
     competency: 'problem',
     prompt:
-      'I use evidence to check whether an engineering problem is real and important.',
+      'I use evidence to check whether a proposed engineering problem is worth solving.',
     helper:
       'Evidence might include observation, user input, measurements, or research.',
     activeLearningEssentialTags: ['problemSolving', 'valueAndAttitude'],
@@ -255,7 +255,7 @@ export const questions: AssessmentItem[] = [
     kind: 'technical',
     toolkit: 'mechanical',
     prompt:
-      'Assemble, adjust, and troubleshoot a basic mechanical system using suitable tools and mechanism checks.',
+      'How independently can you assemble, adjust, and troubleshoot a basic mechanical system using suitable tools?',
   },
   {
     id: 'T02',
@@ -264,7 +264,7 @@ export const questions: AssessmentItem[] = [
     kind: 'technical',
     toolkit: 'cad',
     prompt:
-      'Turn measurements or a sketch into an editable 3D model that accounts for fit and manufacture.',
+      'How independently can you turn measurements or a sketch into an editable 3D model that accounts for fit and manufacture?',
   },
   {
     id: 'T03',
@@ -273,7 +273,7 @@ export const questions: AssessmentItem[] = [
     kind: 'technical',
     toolkit: 'fabrication',
     prompt:
-      'Prepare and produce a part using a process such as 3D printing or laser cutting.',
+      'How independently can you prepare and produce a part using a process such as 3D printing or laser cutting?',
   },
   {
     id: 'T04',
@@ -282,7 +282,7 @@ export const questions: AssessmentItem[] = [
     kind: 'technical',
     toolkit: 'electronics',
     prompt:
-      'Build, measure, and troubleshoot a basic electronic circuit using breadboards or soldered connections.',
+      'How independently can you build, measure, and troubleshoot a basic electronic circuit using breadboards or soldered connections?',
   },
   {
     id: 'T05',
@@ -291,7 +291,7 @@ export const questions: AssessmentItem[] = [
     kind: 'technical',
     toolkit: 'programming',
     prompt:
-      'Read, modify, write, and debug code to achieve a defined behaviour.',
+      'How independently can you develop and debug code to achieve a defined behaviour?',
     activeLearningEssentialTags: ['lifelongLearning'],
   },
   {
@@ -301,7 +301,7 @@ export const questions: AssessmentItem[] = [
     kind: 'technical',
     toolkit: 'physicalComputing',
     prompt:
-      'Use a Raspberry Pi, Arduino, ESP32, or similar platform to read inputs and control outputs.',
+      'How independently can you use a Raspberry Pi, Arduino, ESP32, or similar platform to read inputs and control outputs?',
   },
   {
     id: 'T07',
@@ -310,7 +310,7 @@ export const questions: AssessmentItem[] = [
     kind: 'technical',
     toolkit: 'sensorsIot',
     prompt:
-      'Connect and calibrate sensors, then collect or transmit useful data reliably.',
+      'How independently can you connect and calibrate sensors, then collect or transmit data reliably?',
   },
   {
     id: 'T08',
@@ -319,7 +319,7 @@ export const questions: AssessmentItem[] = [
     kind: 'technical',
     toolkit: 'aiVision',
     prompt:
-      'Apply or adapt an AI or computer-vision workflow and evaluate whether its output is useful.',
+      'How independently can you apply or adapt an AI or computer-vision workflow and evaluate whether its output is useful?',
     activeLearningEssentialTags: ['designAndInnovation', 'lifelongLearning'],
   },
   {
@@ -329,7 +329,7 @@ export const questions: AssessmentItem[] = [
     kind: 'technical',
     toolkit: 'integration',
     prompt:
-      'Connect subsystems into a reliable end-to-end or automated behaviour.',
+      'How independently can you connect subsystems into a reliable end-to-end or automated system?',
     helper:
       'Think about mechanical, electronic, sensing, and software interfaces.',
     activeLearningEssentialTags: [
@@ -391,17 +391,20 @@ export const questions: AssessmentItem[] = [
     options: [
       {
         id: 'adjust',
-        label: 'Keep adjusting different parts until the readings look better.',
+        label:
+          'Adjust several parts of the setup at once and see whether the readings improve.',
         value: 1,
       },
       {
         id: 'replace',
-        label: 'Replace the sensor immediately because it is probably faulty.',
+        label:
+          'Restart the system or replace the sensor before checking the rest of the setup.',
         value: 2,
       },
       {
         id: 'repeat',
-        label: 'Repeat the same test to see whether the issue disappears.',
+        label:
+          'Repeat the same test to see whether the inconsistent pattern continues.',
         value: 3,
       },
       {
@@ -429,18 +432,20 @@ export const questions: AssessmentItem[] = [
     options: [
       {
         id: 'hide',
-        label: 'Keep the design and avoid emphasising the failed result.',
+        label:
+          'Keep the current design because the schedule is fixed and treat the result as an anomaly.',
         value: 1,
       },
       {
         id: 'repeat-win',
-        label: 'Repeat the test until the team gets a result it can present.',
+        label:
+          'Repeat the test with small adjustments until the design reaches the criterion.',
         value: 2,
       },
       {
         id: 'continue',
         label:
-          'Mention the result but continue because changing direction would be inconvenient.',
+          'Continue with the current design but report that it did not meet this criterion.',
         value: 3,
       },
       {
@@ -459,4 +464,3 @@ export const questions: AssessmentItem[] = [
     activeLearningEssentialTags: ['valueAndAttitude', 'designAndInnovation'],
   },
 ];
-

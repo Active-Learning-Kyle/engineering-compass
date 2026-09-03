@@ -5,32 +5,38 @@ import {
   ArrowLeft,
   ArrowRight,
   BookOpenCheck,
-  Building2,
   Check,
   ChevronRight,
   CircleHelp,
   Compass,
-  Cpu,
   Download,
   Gauge,
+  GraduationCap,
+  House,
   Leaf,
   Lightbulb,
-  Network,
   RefreshCw,
-  Shapes,
   Sparkles,
   Target,
   TimerReset,
   Wrench,
-  Cog,
 } from 'lucide-react';
 import { PolarAngleAxis, PolarGrid, Radar, RadarChart } from 'recharts';
+import Image from 'next/image';
 import { Button } from '@/components/ui/button';
 import { ChartContainer, type ChartConfig } from '@/components/ui/chart';
 import { Progress } from '@/components/ui/progress';
 import { competencies, competencyOrder } from '@/lib/assessment/competencies';
-import { engineeringFields } from '@/lib/assessment/fields';
 import { interpretResults } from '@/lib/assessment/interpretation';
+import {
+  deriveEngineeringMode,
+  deriveGrowthStage,
+  engineeringModes,
+  growthStages,
+  type CharacterVariant,
+  type EngineeringModeKey,
+  type GrowthStageKey,
+} from '@/lib/assessment/profile';
 import {
   assessmentVersion,
   behaviourScale,
@@ -39,13 +45,14 @@ import {
 } from '@/lib/assessment/questions';
 import { calculateResults } from '@/lib/assessment/scoring';
 import { toolkit } from '@/lib/assessment/toolkit';
+import { getStudyYearLabel, studyYears } from '@/lib/assessment/years';
 import type {
   AssessmentAnswers,
   AssessmentItem,
   PhaseKey,
 } from '@/lib/assessment/types';
 
-type Step = 'welcome' | 'field' | 'assessment' | 'results';
+type Step = 'welcome' | 'year' | 'assessment' | 'results';
 declare global {
   interface Document {
     modelContext?: {
@@ -64,12 +71,7 @@ declare global {
   }
 }
 
-const fieldIcons = {
-  building: Building2,
-  network: Network,
-  cpu: Cpu,
-  cog: Cog,
-};
+const progressStorageKey = 'engineering-compass-progress-v1.3';
 const phases: Array<{ key: PhaseKey; label: string; range: string }> = [
   { key: 'behaviour', label: 'How you work', range: '01–15' },
   { key: 'technical', label: 'Technical toolkit', range: '16–24' },
@@ -119,53 +121,102 @@ function isComplete(item: AssessmentItem, answer: unknown) {
 
 export default function Home() {
   const [step, setStep] = useState<Step>('welcome');
-  const [field, setField] = useState<string | null>(null);
+  const [year, setYear] = useState<string | null>(null);
   const [current, setCurrent] = useState(0);
   const [answers, setAnswers] = useState<AssessmentAnswers>({ I01: [] });
+  const [characterVariant, setCharacterVariant] =
+    useState<CharacterVariant>('a');
+  const [savedDraft, setSavedDraft] = useState<{
+    year: string | null;
+    current: number;
+    answers: AssessmentAnswers;
+    characterVariant: CharacterVariant;
+  } | null>(null);
   const [responseMs, setResponseMs] = useState<number | null>(null);
   const [fastStreak, setFastStreak] = useState(0);
   const [lastNudgeAt, setLastNudgeAt] = useState(-10);
   const [showNudge, setShowNudge] = useState(false);
   const questionStarted = useRef(0);
+  const autoAdvanceTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  useEffect(() => {
+    try {
+      const raw = window.localStorage.getItem(progressStorageKey);
+      if (!raw) return;
+      const parsed = JSON.parse(raw) as {
+        version?: string;
+        year?: string | null;
+        current?: number;
+        answers?: AssessmentAnswers;
+        characterVariant?: CharacterVariant;
+      };
+      if (
+        parsed.version === assessmentVersion &&
+        typeof parsed.current === 'number' &&
+        parsed.answers &&
+        (parsed.characterVariant === 'a' || parsed.characterVariant === 'b')
+      ) {
+        queueMicrotask(() =>
+          setSavedDraft({
+            year: typeof parsed.year === 'string' ? parsed.year : null,
+            current: Math.min(
+              Math.max(parsed.current ?? 0, 0),
+              questions.length - 1,
+            ),
+            answers: parsed.answers ?? { I01: [] },
+            characterVariant: parsed.characterVariant ?? 'a',
+          }),
+        );
+      }
+    } catch {
+      window.localStorage.removeItem(progressStorageKey);
+    }
+  }, []);
+
+  useEffect(() => {
+    if (step !== 'assessment') return;
+    const draft = { year, current, answers, characterVariant };
+    window.localStorage.setItem(
+      progressStorageKey,
+      JSON.stringify({ version: assessmentVersion, ...draft }),
+    );
+  }, [answers, characterVariant, current, step, year]);
 
   useEffect(() => {
     const context = document.modelContext;
     if (!context?.registerTool) return;
     const lifecycle = new AbortController();
-    const allowedFields = [
-      ...engineeringFields.map((option) => option.id),
-      'other',
-      'skip',
-    ];
+    const allowedYears = [...studyYears.map((option) => option.id), 'skip'];
     Promise.resolve(
       context.registerTool(
         {
           name: 'start_engineering_assessment',
           title: 'Start Engineering Compass',
           description:
-            'Start the Standard Engineering Compass reflection, optionally with an engineering field used only as background context.',
+            'Start the Standard Engineering Compass reflection, optionally with a study year used only as background context.',
           inputSchema: {
             type: 'object',
-            properties: { field: { type: 'string', enum: allowedFields } },
+            properties: { year: { type: 'string', enum: allowedYears } },
             additionalProperties: false,
           },
           annotations: { readOnlyHint: false, untrustedContentHint: false },
           execute(input) {
             if (typeof input !== 'object' || input === null)
               throw new Error('Input must be an object.');
-            const requested = (input as { field?: unknown }).field;
+            const requested = (input as { year?: unknown }).year;
             if (
               requested !== undefined &&
               (typeof requested !== 'string' ||
-                !allowedFields.includes(requested))
+                !allowedYears.includes(requested))
             )
-              throw new Error('Unsupported engineering field.');
-            setField(
+              throw new Error('Unsupported study year.');
+            setYear(
               requested === 'skip'
                 ? null
                 : ((requested as string | undefined) ?? null),
             );
             setAnswers({ I01: [] });
+            setCharacterVariant(Math.random() < 0.5 ? 'a' : 'b');
             setCurrent(0);
             setStep('assessment');
             questionStarted.current = Date.now();
@@ -199,19 +250,52 @@ export default function Home() {
     (phase) => phase.key === activeQuestion.phase,
   );
   const canContinue = isComplete(activeQuestion, selected);
+  const modeKey = useMemo(
+    () => deriveEngineeringMode(results.competencyScores),
+    [results.competencyScores],
+  );
+  const growthStageKey = useMemo(
+    () => deriveGrowthStage(answers, results.toolkitScores),
+    [answers, results.toolkitScores],
+  );
+
+  useEffect(
+    () => () => {
+      if (autoAdvanceTimer.current) clearTimeout(autoAdvanceTimer.current);
+    },
+    [],
+  );
 
   function beginAssessment() {
     setCurrent(0);
     setAnswers({ I01: [] });
+    setCharacterVariant(Math.random() < 0.5 ? 'a' : 'b');
+    setFastStreak(0);
+    setShowNudge(false);
+    questionStarted.current = Date.now();
+    setStep('assessment');
+  }
+  function resumeAssessment() {
+    if (!savedDraft) return;
+    setYear(savedDraft.year);
+    setCurrent(savedDraft.current);
+    setAnswers(savedDraft.answers);
+    setCharacterVariant(savedDraft.characterVariant);
     setFastStreak(0);
     setShowNudge(false);
     questionStarted.current = Date.now();
     setStep('assessment');
   }
   function chooseNumber(value: number) {
+    if (autoAdvanceTimer.current) clearTimeout(autoAdvanceTimer.current);
+    const elapsed = Date.now() - questionStarted.current;
     setAnswers((previous) => ({ ...previous, [activeQuestion.id]: value }));
-    setResponseMs(Date.now() - questionStarted.current);
+    setResponseMs(elapsed);
     setShowNudge(false);
+    autoAdvanceTimer.current = setTimeout(
+      () => advance(false, elapsed, true),
+      520,
+    );
   }
   function toggleSelection(id: string) {
     if (activeQuestion.kind !== 'interest' && activeQuestion.kind !== 'growth')
@@ -232,13 +316,23 @@ export default function Home() {
     setResponseMs(Date.now() - questionStarted.current);
     setShowNudge(false);
   }
-  function advance(force = false) {
-    if (!canContinue) return;
+  function advance(
+    force = false,
+    timingOverride: number | null = null,
+    answerJustSelected = false,
+  ) {
+    if (!canContinue && !answerJustSelected) return;
+    if (autoAdvanceTimer.current) {
+      clearTimeout(autoAdvanceTimer.current);
+      autoAdvanceTimer.current = null;
+    }
     const reflective =
       activeQuestion.kind === 'behaviour' ||
       activeQuestion.kind === 'technical';
     const nextStreak =
-      reflective && (responseMs ?? 99999) < 1800 ? fastStreak + 1 : 0;
+      reflective && (timingOverride ?? responseMs ?? 99999) < 1800
+        ? fastStreak + 1
+        : 0;
     if (!force && nextStreak >= 2 && current - lastNudgeAt >= 6) {
       setFastStreak(nextStreak);
       setLastNudgeAt(current);
@@ -250,6 +344,8 @@ export default function Home() {
     setResponseMs(null);
     if (current === questions.length - 1) {
       setStep('results');
+      setSavedDraft(null);
+      window.localStorage.removeItem(progressStorageKey);
       window.scrollTo({ top: 0, behavior: 'smooth' });
       return;
     }
@@ -257,8 +353,9 @@ export default function Home() {
     questionStarted.current = Date.now();
   }
   function goBack() {
+    if (autoAdvanceTimer.current) clearTimeout(autoAdvanceTimer.current);
     if (current === 0) {
-      setStep('field');
+      setStep('year');
       return;
     }
     setCurrent((value) => value - 1);
@@ -266,22 +363,36 @@ export default function Home() {
     setShowNudge(false);
     questionStarted.current = Date.now();
   }
-  function restart() {
+  function returnHome() {
+    if (autoAdvanceTimer.current) clearTimeout(autoAdvanceTimer.current);
+    const draft = { year, current, answers, characterVariant };
+    setSavedDraft(draft);
+    window.localStorage.setItem(
+      progressStorageKey,
+      JSON.stringify({ version: assessmentVersion, ...draft }),
+    );
     setStep('welcome');
-    setField(null);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+  function restart() {
+    if (autoAdvanceTimer.current) clearTimeout(autoAdvanceTimer.current);
+    setStep('welcome');
+    setYear(null);
     setCurrent(0);
     setAnswers({ I01: [] });
     setFastStreak(0);
     setShowNudge(false);
+    setSavedDraft(null);
+    window.localStorage.removeItem(progressStorageKey);
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }
   function downloadSummary() {
-    const fieldLabel =
-      engineeringFields.find((option) => option.id === field)?.title ??
-      (field === 'other' ? 'Other / Interdisciplinary' : 'Not provided');
+    const yearLabel = getStudyYearLabel(year) ?? 'Not provided';
     const lines = [
-      'ENGINEERING COMPASS — STANDARD V1.2 PROFILE',
-      `Engineering field: ${fieldLabel} (context only)`,
+      'ENGINEERING COMPASS — STANDARD V1.3 PROFILE',
+      `Study year: ${yearLabel} (context only)`,
+      `Current Engineering Mode: ${engineeringModes[modeKey].name}`,
+      `Growth stage: ${growthStages[growthStageKey].name}`,
       '',
       'SIX ENGINEERING COMPETENCIES',
       ...results.competencyScores.map(
@@ -307,7 +418,7 @@ export default function Home() {
     const url = URL.createObjectURL(blob);
     const anchor = document.createElement('a');
     anchor.href = url;
-    anchor.download = 'engineering-compass-standard-v1-2.txt';
+    anchor.download = 'engineering-compass-standard-v1-3.txt';
     anchor.click();
     URL.revokeObjectURL(url);
   }
@@ -321,11 +432,17 @@ export default function Home() {
             : null
         }
       />
-      {step === 'welcome' && <Welcome onBegin={() => setStep('field')} />}
-      {step === 'field' && (
-        <FieldSelection
-          field={field}
-          onChange={setField}
+      {step === 'welcome' && (
+        <Welcome
+          onBegin={() => setStep('year')}
+          onResume={resumeAssessment}
+          hasSavedProgress={Boolean(savedDraft)}
+        />
+      )}
+      {step === 'year' && (
+        <YearSelection
+          year={year}
+          onChange={setYear}
           onBack={() => setStep('welcome')}
           onContinue={beginAssessment}
         />
@@ -341,6 +458,7 @@ export default function Home() {
           onChooseNumber={chooseNumber}
           onToggle={toggleSelection}
           onBack={goBack}
+          onHome={returnHome}
           onAdvance={() => advance(showNudge)}
         />
       )}
@@ -349,7 +467,10 @@ export default function Home() {
           competencyScores={results.competencyScores}
           toolkitScores={results.toolkitScores}
           interpretation={interpretation}
-          field={field}
+          year={year}
+          characterVariant={characterVariant}
+          modeKey={modeKey}
+          growthStageKey={growthStageKey}
           onRestart={restart}
           onDownload={downloadSummary}
         />
@@ -390,7 +511,15 @@ function Header({ progress }: { progress: number | null }) {
   );
 }
 
-function Welcome({ onBegin }: { onBegin: () => void }) {
+function Welcome({
+  onBegin,
+  onResume,
+  hasSavedProgress,
+}: {
+  onBegin: () => void;
+  onResume: () => void;
+  hasSavedProgress: boolean;
+}) {
   return (
     <section className="relative overflow-hidden">
       <div className="compass-grid absolute inset-0" aria-hidden="true" />
@@ -415,13 +544,23 @@ function Welcome({ onBegin }: { onBegin: () => void }) {
             >
               Begin assessment <ArrowRight className="ml-1 size-4" />
             </Button>
+            {hasSavedProgress && (
+              <Button
+                variant="outline"
+                size="lg"
+                className="h-13 rounded-full px-6"
+                onClick={onResume}
+              >
+                Resume saved progress
+              </Button>
+            )}
             <div className="flex items-center gap-2 px-3 text-sm text-muted-foreground">
               <Gauge className="size-4" /> About 8–10 minutes
             </div>
           </div>
           <p className="mt-5 max-w-lg text-xs leading-5 text-muted-foreground">
             Not a grade, engineering type, or selection test. Your responses
-            remain in this browser session.
+            remain on this browser and device.
           </p>
         </div>
         <div className="mx-auto w-full max-w-lg">
@@ -464,18 +603,73 @@ function Welcome({ onBegin }: { onBegin: () => void }) {
           </div>
         </div>
       </div>
+      <div className="relative mx-auto max-w-7xl px-6 pb-20 lg:px-12">
+        <div className="method-strip">
+          <div>
+            <div className="panel-eyebrow">HOW THE COMPASS WORKS</div>
+            <h2>One profile, two useful lenses.</h2>
+          </div>
+          <p>
+            Thirty responses form your six-competency radar and nine-area
+            toolkit. Your relative profile suggests a current Engineering Mode;
+            project context and toolkit experience provide a small Growth Stage
+            label. Neither is a grade, personality type, or professional rank.
+          </p>
+        </div>
+        <div className="modes-preview-heading">
+          <div>
+            <div className="panel-eyebrow">SEVEN ENGINEERING MODES</div>
+            <h2>Different ways to contribute to an engineering team.</h2>
+          </div>
+          <span>Each colour is distinct—not higher or lower.</span>
+        </div>
+        <div className="modes-preview-grid">
+          {(
+            Object.entries(engineeringModes) as Array<
+              [
+                EngineeringModeKey,
+                (typeof engineeringModes)[EngineeringModeKey],
+              ]
+            >
+          ).map(([key, mode]) => (
+            <article
+              className="mode-preview-card"
+              key={key}
+              style={
+                {
+                  '--mode-accent': mode.accent,
+                  '--mode-tint': mode.tint,
+                } as React.CSSProperties
+              }
+            >
+              <div className="mode-preview-art">
+                <Image src={mode.image.a} alt="" width={320} height={320} />
+              </div>
+              <div className="mode-preview-copy">
+                <span>
+                  {String(
+                    Object.keys(engineeringModes).indexOf(key) + 1,
+                  ).padStart(2, '0')}
+                </span>
+                <h3>{mode.name}</h3>
+                <p>{mode.shortDescription}</p>
+              </div>
+            </article>
+          ))}
+        </div>
+      </div>
     </section>
   );
 }
 
-function FieldSelection({
-  field,
+function YearSelection({
+  year,
   onChange,
   onBack,
   onContinue,
 }: {
-  field: string | null;
-  onChange: (field: string | null) => void;
+  year: string | null;
+  onChange: (year: string | null) => void;
   onBack: () => void;
   onContinue: () => void;
 }) {
@@ -487,17 +681,16 @@ function FieldSelection({
       <div className="max-w-2xl">
         <div className="eyebrow mb-5">OPTIONAL BACKGROUND</div>
         <h1 className="font-serif text-4xl font-semibold tracking-tight sm:text-5xl">
-          Which engineering field is closest to you?
+          What year of undergraduate study are you in?
         </h1>
         <p className="mt-4 text-lg leading-7 text-muted-foreground">
-          This adds context only. It never changes your questions, scores, or
-          result interpretation.
+          This helps you revisit the Compass across different years. It is
+          optional and never changes your scores.
         </p>
       </div>
       <div className="mt-9 grid gap-4 md:grid-cols-2">
-        {engineeringFields.map((option) => {
-          const Icon = fieldIcons[option.icon];
-          const isSelected = field === option.id;
+        {studyYears.map((option) => {
+          const isSelected = year === option.id;
           return (
             <button
               key={option.id}
@@ -506,14 +699,14 @@ function FieldSelection({
               aria-pressed={isSelected}
             >
               <span className="field-icon">
-                <Icon className="size-7" strokeWidth={1.6} />
+                <GraduationCap className="size-7" strokeWidth={1.6} />
               </span>
               <span className="min-w-0 text-left">
                 <span className="block font-serif text-xl font-semibold">
-                  {option.title}
+                  {option.label}
                 </span>
                 <span className="mt-1 block text-sm text-muted-foreground">
-                  {option.subtitle}
+                  {option.note}
                 </span>
               </span>
               <span className="choice-check">
@@ -527,15 +720,9 @@ function FieldSelection({
           );
         })}
       </div>
-      <div className="mt-4 grid gap-4 sm:grid-cols-2">
+      <div className="mt-4">
         <button
-          className={`compact-choice ${field === 'other' ? 'compact-choice-selected' : ''}`}
-          onClick={() => onChange('other')}
-        >
-          <Shapes className="size-5" /> Other / Interdisciplinary
-        </button>
-        <button
-          className="compact-choice"
+          className="compact-choice w-full"
           onClick={() => {
             onChange(null);
             onContinue();
@@ -567,6 +754,7 @@ function Assessment({
   onChooseNumber,
   onToggle,
   onBack,
+  onHome,
   onAdvance,
 }: {
   question: AssessmentItem;
@@ -578,6 +766,7 @@ function Assessment({
   onChooseNumber: (value: number) => void;
   onToggle: (id: string) => void;
   onBack: () => void;
+  onHome: () => void;
   onAdvance: () => void;
 }) {
   const phase = phaseCopy[question.phase];
@@ -619,7 +808,7 @@ function Assessment({
         </div>
       </aside>
       <div>
-        <div className="mb-6 flex items-center justify-between gap-4">
+        <div className="mb-6 flex flex-wrap items-center justify-between gap-4">
           <div>
             <div className="text-xs font-semibold uppercase tracking-[.16em] text-primary">
               {phase.eyebrow}
@@ -628,10 +817,27 @@ function Assessment({
               Question {current + 1} of {questions.length}
             </div>
           </div>
-          <div className="rounded-full border bg-card px-3 py-1.5 text-sm font-semibold tabular-nums text-primary">
-            {Math.round(((current + 1) / questions.length) * 100)}%
+          <div className="flex items-center gap-2">
+            <button className="assessment-home" onClick={onHome}>
+              <House className="size-4" /> Return home
+            </button>
+            <div className="rounded-full border bg-card px-3 py-1.5 text-sm font-semibold tabular-nums text-primary">
+              {Math.round(((current + 1) / questions.length) * 100)}%
+            </div>
           </div>
         </div>
+        {showNudge && (
+          <output className="nudge nudge-top">
+            <TimerReset className="mt-0.5 size-5 shrink-0" />
+            <div>
+              <div className="font-semibold">A quick reflection check</div>
+              <p className="mt-1 leading-5 text-amber-900/80">
+                You answered the last few statements unusually quickly. Picture
+                a real project example, then keep or change this answer.
+              </p>
+            </div>
+          </output>
+        )}
         <article className="question-card">
           <div className="question-kicker">
             <PhaseIcon className="size-5" />
@@ -671,19 +877,6 @@ function Assessment({
               max={question.max}
               onToggle={onToggle}
             />
-          )}
-          {showNudge && (
-            <output className="nudge">
-              <TimerReset className="mt-0.5 size-5 shrink-0" />
-              <div>
-                <div className="font-semibold">A quick reflection check</div>
-                <p className="mt-1 leading-5 text-amber-900/80">
-                  You answered the last few statements unusually quickly.
-                  Picture a real project example, then keep or change this
-                  answer.
-                </p>
-              </div>
-            </output>
           )}
           <div className="mt-8 flex items-center justify-between border-t pt-6">
             <Button variant="ghost" size="lg" onClick={onBack}>
@@ -831,59 +1024,92 @@ function Results({
   competencyScores,
   toolkitScores,
   interpretation,
-  field,
+  year,
+  characterVariant,
+  modeKey,
+  growthStageKey,
   onRestart,
   onDownload,
 }: {
   competencyScores: ReturnType<typeof calculateResults>['competencyScores'];
   toolkitScores: ReturnType<typeof calculateResults>['toolkitScores'];
   interpretation: ReturnType<typeof interpretResults>;
-  field: string | null;
+  year: string | null;
+  characterVariant: CharacterVariant;
+  modeKey: EngineeringModeKey;
+  growthStageKey: GrowthStageKey;
   onRestart: () => void;
   onDownload: () => void;
 }) {
-  const fieldLabel =
-    engineeringFields.find((option) => option.id === field)?.title ??
-    (field === 'other' ? 'Other / Interdisciplinary' : null);
+  const yearLabel = getStudyYearLabel(year);
+  const mode = engineeringModes[modeKey];
+  const stage = growthStages[growthStageKey];
   return (
     <section className="mx-auto max-w-7xl px-6 py-11 lg:px-12 lg:py-15">
-      <div className="results-hero">
-        <div>
-          <div className="eyebrow mb-5">
-            <Sparkles className="size-4" /> YOUR CURRENT PROFILE
+      <div
+        className="mode-hero"
+        style={
+          {
+            '--mode-accent': mode.accent,
+            '--mode-tint': mode.tint,
+          } as React.CSSProperties
+        }
+      >
+        <div className="mode-copy">
+          <div className="mode-eyebrow">
+            <Sparkles className="size-4" /> CURRENT ENGINEERING MODE
           </div>
-          <h1 className="font-serif text-4xl font-semibold tracking-tight sm:text-6xl">
-            A clearer view of where you are—and where you want to grow.
-          </h1>
-          <p className="mt-5 max-w-3xl text-lg leading-7 text-muted-foreground">
-            This profile reflects your current self-reported ways of working and
-            technical experience. It is not a fixed engineering type, grade, or
-            cross-department ranking.
+          <div className="mode-stage-row">
+            <span className="growth-stage-pill">
+              GROWTH STAGE {String(stage.number).padStart(2, '0')}/04 ·{' '}
+              {stage.name}
+            </span>
+            {yearLabel && (
+              <span className="year-context-pill">
+                <GraduationCap className="size-3.5" /> {yearLabel} · context
+                only
+              </span>
+            )}
+          </div>
+          <h1>{mode.name}</h1>
+          <p className="mode-lead">{mode.shortDescription}</p>
+          <div className="mode-contribution">
+            <span>YOUR CONTRIBUTION</span>
+            <p>{mode.contribution}</p>
+          </div>
+          <p className="mode-disclaimer">
+            A current reflection, not a fixed personality type or professional
+            rank. The illustration is selected at random and does not represent
+            your gender.
           </p>
-          {fieldLabel && (
-            <div className="mt-5 inline-flex items-center gap-2 rounded-full border bg-card px-3 py-1.5 text-xs font-medium">
-              <Building2 className="size-3.5 text-primary" /> Background:{' '}
-              {fieldLabel} · not scored
-            </div>
-          )}
+          <div className="mode-actions">
+            <Button
+              variant="outline"
+              className="rounded-full"
+              onClick={onDownload}
+            >
+              <Download className="mr-1 size-4" /> Download summary
+            </Button>
+            <Button
+              variant="ghost"
+              className="rounded-full"
+              onClick={onRestart}
+            >
+              <RefreshCw className="mr-1 size-4" /> Retake
+            </Button>
+          </div>
         </div>
-        <div className="flex flex-wrap gap-3 lg:justify-end">
-          <Button
-            variant="outline"
-            size="lg"
-            className="rounded-full"
-            onClick={onDownload}
-          >
-            <Download className="mr-1 size-4" /> Download summary
-          </Button>
-          <Button
-            variant="ghost"
-            size="lg"
-            className="rounded-full"
-            onClick={onRestart}
-          >
-            <RefreshCw className="mr-1 size-4" /> Retake
-          </Button>
+        <div
+          className="mode-art"
+          aria-label={`${mode.name} character illustration`}
+        >
+          <Image
+            src={mode.image[characterVariant]}
+            alt=""
+            width={1200}
+            height={1200}
+            priority
+          />
         </div>
       </div>
       <div className="mt-9 grid gap-6 lg:grid-cols-[1.04fr_.96fr]">
@@ -996,9 +1222,6 @@ function Results({
                       : 'Choose one small project action that gives you direct practice and feedback.'}
                   </p>
                 </div>
-                {item.score !== undefined && (
-                  <span className="score-pill">{item.score}</span>
-                )}
               </div>
             ))}
           </div>
@@ -1046,11 +1269,10 @@ function Results({
         <CircleHelp className="mt-0.5 size-5 shrink-0 text-primary" />
         <p>
           Use this profile to choose a project role, learning activity, or
-          conversation—not to compare students across fields. A future Pro
-          version will add deeper scenario and evidence checks.
+          conversation—not to compare students across years or departments. A
+          future Pro version will add deeper scenario and evidence checks.
         </p>
       </div>
     </section>
   );
 }
-

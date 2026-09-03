@@ -1,4 +1,7 @@
-export type AssessmentVersion = 'standard-v1.2' | 'pro-future';
+export type AssessmentVersion =
+  | 'standard-v1.2'
+  | 'standard-v1.3'
+  | 'pro-future';
 
 export type ActiveLearningEssentialTag =
   | 'designAndInnovation'
@@ -80,4 +83,3 @@ export type AssessmentItem =
 
 export type AssessmentAnswer = number | string[];
 export type AssessmentAnswers = Record<string, AssessmentAnswer>;
-

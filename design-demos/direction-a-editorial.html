@@ -1,0 +1,315 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Engineering Compass — Direction A</title>
+    <!--
+    Direction A: editorial field-guide portrait.
+    Assumption: identity is a current mode, while stage is a non-professional learning-stage indicator.
+    This is a visual concept only; no production scoring rule is implied.
+  -->
+    <style>
+      :root {
+        --ink: #102d26;
+        --green: #075b45;
+        --mint: #dcebe3;
+        --paper: #f6f3e9;
+        --line: #c9d8cf;
+        --gold: #b78b34;
+      }
+      * {
+        box-sizing: border-box;
+      }
+      body {
+        margin: 0;
+        background: var(--paper);
+        color: var(--ink);
+        font-family: Arial, sans-serif;
+      }
+      .page {
+        min-height: 900px;
+        padding: 24px 48px 40px;
+        background:
+          radial-gradient(circle at 88% 8%, #e2eee6 0 18%, transparent 42%),
+          var(--paper);
+      }
+      header {
+        height: 64px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        border-bottom: 1px solid var(--line);
+      }
+      .brand {
+        display: flex;
+        gap: 12px;
+        align-items: center;
+      }
+      .mark {
+        width: 38px;
+        height: 38px;
+        border-radius: 12px;
+        background: var(--green);
+        color: white;
+        display: grid;
+        place-items: center;
+        font-size: 19px;
+      }
+      .brand b {
+        font-family: Georgia, serif;
+        font-size: 20px;
+      }
+      .brand small {
+        display: block;
+        letter-spacing: 0.16em;
+        font-size: 9px;
+        margin-top: 3px;
+        color: #547068;
+      }
+      .meta {
+        font-size: 12px;
+        color: #547068;
+      }
+      .meta b {
+        color: var(--green);
+      }
+      main {
+        max-width: 1344px;
+        margin: 28px auto 0;
+      }
+      .crumb {
+        font-size: 11px;
+        letter-spacing: 0.18em;
+        font-weight: 700;
+        color: var(--green);
+      }
+      .hero {
+        display: grid;
+        grid-template-columns: 1.05fr 0.95fr;
+        min-height: 525px;
+        margin-top: 12px;
+        border: 1px solid var(--line);
+        background: #fff;
+        border-radius: 26px;
+        overflow: hidden;
+        box-shadow: 0 20px 60px #163e2c12;
+      }
+      .copy {
+        padding: 48px 54px;
+        position: relative;
+      }
+      .stage {
+        display: inline-flex;
+        align-items: center;
+        gap: 9px;
+        padding: 8px 12px;
+        border-radius: 999px;
+        background: var(--mint);
+        font-size: 12px;
+        font-weight: 700;
+      }
+      .stage span {
+        color: var(--green);
+      }
+      h1 {
+        font:
+          700 64px/1 Georgia,
+          serif;
+        letter-spacing: -0.035em;
+        margin: 26px 0 10px;
+        max-width: 700px;
+      }
+      .sub {
+        font:
+          italic 21px Georgia,
+          serif;
+        color: var(--green);
+        margin: 0 0 22px;
+      }
+      .description {
+        font-size: 16px;
+        line-height: 1.7;
+        color: #466159;
+        max-width: 590px;
+        margin: 0;
+      }
+      .notice {
+        margin-top: 24px;
+        padding-top: 18px;
+        border-top: 1px solid var(--line);
+        font-size: 12px;
+        line-height: 1.5;
+        color: #6d7f79;
+      }
+      .art {
+        position: relative;
+        background: #d9e5db;
+        min-height: 525px;
+      }
+      .art img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+      }
+      .art:after {
+        content: 'CURRENT MODE · CAN CHANGE WITH EXPERIENCE';
+        position: absolute;
+        left: 24px;
+        bottom: 22px;
+        background: #fff;
+        padding: 9px 12px;
+        font-size: 10px;
+        letter-spacing: 0.14em;
+        font-weight: 700;
+        border-radius: 999px;
+      }
+      .summary {
+        display: grid;
+        grid-template-columns: 1.1fr 0.9fr 0.9fr;
+        gap: 14px;
+        margin-top: 14px;
+      }
+      .card {
+        min-height: 142px;
+        border: 1px solid var(--line);
+        background: #ffffffd9;
+        border-radius: 18px;
+        padding: 20px;
+      }
+      .label {
+        font-size: 10px;
+        letter-spacing: 0.16em;
+        font-weight: 700;
+        color: var(--green);
+      }
+      .card h2 {
+        font:
+          700 24px Georgia,
+          serif;
+        margin: 8px 0 6px;
+      }
+      .card p {
+        margin: 0;
+        color: #5d736b;
+        font-size: 13px;
+        line-height: 1.55;
+      }
+      .traits {
+        display: flex;
+        gap: 8px;
+        flex-wrap: wrap;
+        margin-top: 12px;
+      }
+      .trait {
+        border: 1px solid var(--line);
+        padding: 6px 9px;
+        border-radius: 99px;
+        font-size: 11px;
+        background: #f9fbf9;
+      }
+      .levels {
+        display: flex;
+        gap: 6px;
+        margin-top: 14px;
+      }
+      .dot {
+        height: 7px;
+        flex: 1;
+        border-radius: 9px;
+        background: #d7e2da;
+      }
+      .dot.on {
+        background: var(--green);
+      }
+      .number {
+        font:
+          700 35px Georgia,
+          serif;
+        color: var(--green);
+        float: right;
+        margin-top: -4px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="page">
+      <header>
+        <div class="brand">
+          <div class="mark">⌁</div>
+          <div>
+            <b>Engineering Compass</b
+            ><small>ACTIVE LEARNING · ENGINEERING EDUCATION</small>
+          </div>
+        </div>
+        <div class="meta"><b>Year 3</b> · Standard V1.3 concept</div>
+      </header>
+      <main>
+        <div class="crumb">YOUR ENGINEERING SNAPSHOT</div>
+        <section class="hero">
+          <div class="copy">
+            <div class="stage">
+              GROWTH STAGE <span>04 / 04 · Integrating</span>
+            </div>
+            <h1>Systems Integrator</h1>
+            <p class="sub">
+              You connect parts, people, and evidence into a working whole.
+            </p>
+            <p class="description">
+              Your profile is unusually balanced. You are comfortable moving
+              between technical work, problem framing, collaboration, and
+              communicating decisions—especially when a project needs its pieces
+              to work together.
+            </p>
+            <div class="traits">
+              <span class="trait">connects disciplines</span
+              ><span class="trait">tests before deciding</span
+              ><span class="trait">makes trade-offs visible</span>
+            </div>
+            <p class="notice">
+              <strong>This is not a professional rank.</strong> It is a
+              formative snapshot based on self-reported behaviours, technical
+              experience, and project context.
+            </p>
+          </div>
+          <div class="art">
+            <img
+              src="assets/editorial-integrator.png"
+              alt="Editorial illustration of a student engineer holding an integrated prototype"
+            />
+          </div>
+        </section>
+        <section class="summary">
+          <div class="card">
+            <span class="number">94</span>
+            <div class="label">PROFILE SHAPE</div>
+            <h2>Balanced breadth</h2>
+            <p>
+              All six competency areas are currently strong, with no single mode
+              dominating the profile.
+            </p>
+          </div>
+          <div class="card">
+            <div class="label">LEARNING STAGE</div>
+            <h2>Integrating</h2>
+            <div class="levels">
+              <i class="dot on"></i><i class="dot on"></i><i class="dot on"></i
+              ><i class="dot on"></i>
+            </div>
+            <p style="margin-top: 12px">
+              Able to coordinate interfaces across people or subsystems.
+            </p>
+          </div>
+          <div class="card">
+            <div class="label">BEST TEAM CONTRIBUTION</div>
+            <h2>Bridge the gaps</h2>
+            <p>
+              Help a team connect specialist work into a coherent solution and
+              decision.
+            </p>
+          </div>
+        </section>
+      </main>
+    </div>
+  </body>
+</html>

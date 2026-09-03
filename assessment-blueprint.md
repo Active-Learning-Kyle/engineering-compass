@@ -1,6 +1,6 @@
 # Engineering Compass — Standard Assessment Blueprint
 
-Version: Standard V1.2
+Version: Standard V1.3
 Status: approved and implemented
 
 ## Purpose
@@ -120,7 +120,7 @@ The interface should show five simple positions. A compact endpoint legend is su
 
 ### Scale B — technical experience and independence
 
-Prompt: **What best describes your current experience?**
+Prompt: **Choose the description closest to your current experience.**
 
 | Value | Meaning                                                  |
 | ----: | -------------------------------------------------------- |
@@ -154,7 +154,14 @@ Display T01–T09 separately. Because each area has one direct self-report item 
 - I01 does not add points. It describes areas the learner wants to explore.
 - G01 does not add points. Its selected priorities should appear before any automatically inferred low-score suggestion.
 - J01 and J02 do not create a seventh score and do not silently change radar scores. They provide a small “engineering evidence practice” interpretation and can flag an inconsistency for reflective wording.
-- Engineering-field selection remains background context only and never affects any score.
+- Study-year selection remains optional background context only and never affects any score.
+
+### Formative result identity
+
+- **Current Engineering Mode** is a non-scoring interpretive layer derived from the relative six-competency profile. Six modes correspond to a leading axis; Systems Integrator is reserved for a sufficiently developed, balanced profile. It never creates a seventh competency or changes a score.
+- The seven visual themes are deliberately distinct and non-hierarchical: red, orange, yellow, green, cyan, blue, and purple.
+- **Growth Stage** uses C01, C02, and current Technical Toolkit experience to describe present scope as Exploring, Building, Practising, or Integrating. It is not a professional title, employability claim, grade, or engineer rank.
+- Two character-presentation variants are available for every Mode. One is selected randomly at the start and stored with the browser draft. The system never infers gender, and the illustration is explicitly described as decorative rather than a representation of the learner's gender.
 
 ## Results-page contract
 
@@ -167,18 +174,19 @@ The Standard results page should contain:
 - optional contextual note about project experience;
 - a light evidence-practice reflection from J01/J02;
 - explicit statement that results are formative self-report, not a grade or fixed engineering type.
+- a current Engineering Mode identity card and compact Growth Stage label, with the limitations above stated visibly.
 
 Do not display:
 
 - an overall engineering score;
-- an engineer level;
-- a fixed “Your compass points to X” type based only on the highest axis;
+- a junior/mid/senior engineer level or professional rank;
+- a fixed personality type or claim that a Mode exhaustively describes the learner;
 - a claim that the learner’s lowest score is automatically their required growth area.
 
 ## Learner-facing sequence
 
 1. Welcome: course-independent Engineering Compass identity.
-2. Optional engineering field: four main cards, Other, or Skip.
+2. Optional study year: Year 1, Year 2, Year 3, Year 4, or Skip.
 3. How You Work: 15 mixed behavioural items with neutral progress only.
 4. Technical Toolkit: nine clearly labelled technical items using the independence scale.
 5. Project Context: two factual items.
@@ -192,7 +200,7 @@ Competency names may appear on the welcome and results pages, but not while B01�
 
 Keep the current gentle speed nudge. The nudge should ask the learner to picture a real project example and reconsider if needed. It must not block completion or alter scores automatically.
 
-For Standard V1.2, response-quality signals should be transparent and limited to:
+For Standard V1.3, response-quality signals should be transparent and limited to:
 
 - repeated unusually fast answers;
 - unanswered required items;
@@ -205,4 +213,3 @@ Do not present these signals as dishonesty detection.
 Pro is not part of this implementation round. The data model should nevertheless support an `assessmentVersion`, item type, scale type, scoring mappings, optional cross-check relationships, and multiple items per toolkit area.
 
 The future Pro assessment is expected to be approximately 50–60 questions and to add scenario-based decisions, cross-check items, evidence of engineering work, failure diagnosis, teamwork situations, project responsibility, safety/limitations, communication transfer, and possible pre/post comparison. It should not be implemented as a duplicated or merely lengthened Standard bank.
-

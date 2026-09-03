@@ -1,6 +1,7 @@
 import { sites } from '@openai/sites-vite-plugin';
 import tailwindcss from '@tailwindcss/postcss';
 import vinext from 'vinext';
+import { existsSync } from 'node:fs';
 import { defineConfig } from 'vite';
 
 const SITE_CREATOR_PLACEHOLDER_DATABASE_ID =
@@ -55,11 +56,12 @@ export default defineConfig(async ({ command }) => {
   // GitHub Pages is a plain static deployment and does not have the private
   // ChatGPT Sites project metadata used by the Sites publishing plugin.
   const sitesPlugin =
-    process.env.GITHUB_ACTIONS === 'true' ? null : sites();
+    process.env.GITHUB_ACTIONS !== 'true' && existsSync('.openai/hosting.json')
+      ? sites()
+      : null;
 
   return {
-    base:
-      process.env.GITHUB_ACTIONS === 'true' ? '/engineering-compass/' : '/',
+    base: process.env.GITHUB_ACTIONS === 'true' ? '/engineering-compass/' : '/',
     css: { postcss: { plugins: [tailwindcss()] } },
     server: isCodexSeatbeltSandbox
       ? { watch: { useFsEvents: false, usePolling: true } }
@@ -71,4 +73,3 @@ export default defineConfig(async ({ command }) => {
     ],
   };
 });
-

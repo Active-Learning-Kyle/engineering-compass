@@ -60,4 +60,3 @@ export function interpretResults(
     responsibilityLabel,
   };
 }
-

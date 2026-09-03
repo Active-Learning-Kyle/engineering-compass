@@ -1,0 +1,294 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Engineering Compass — Direction C</title>
+    <!-- Direction C: identity-first team formation system. Current modes are descriptive, not fixed personality types. -->
+    <style>
+      :root {
+        --ink: #071f18;
+        --green: #064f3c;
+        --mint: #a9ddb7;
+        --cream: #f5f0df;
+        --coral: #ff674e;
+      }
+      * {
+        box-sizing: border-box;
+      }
+      body {
+        margin: 0;
+        background: var(--cream);
+        color: var(--ink);
+        font-family: Arial, sans-serif;
+      }
+      .page {
+        min-height: 900px;
+        padding: 24px 42px;
+        background-image:
+          linear-gradient(#0f563c0a 1px, transparent 1px),
+          linear-gradient(90deg, #0f563c0a 1px, transparent 1px);
+        background-size: 32px 32px;
+      }
+      header {
+        height: 58px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        border: 2px solid var(--ink);
+        background: var(--cream);
+        padding: 0 18px;
+        box-shadow: 5px 5px 0 var(--ink);
+      }
+      .brand {
+        font:
+          800 21px Georgia,
+          serif;
+      }
+      .brand span {
+        color: var(--coral);
+      }
+      .home {
+        font-size: 12px;
+        font-weight: 800;
+        letter-spacing: 0.1em;
+      }
+      main {
+        max-width: 1356px;
+        margin: 26px auto 0;
+      }
+      .hero {
+        display: grid;
+        grid-template-columns: 0.96fr 1.04fr;
+        min-height: 540px;
+        border: 2px solid var(--ink);
+        background: var(--mint);
+        box-shadow: 9px 9px 0 var(--ink);
+      }
+      .art {
+        position: relative;
+        overflow: hidden;
+        border-right: 2px solid var(--ink);
+      }
+      .art img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+      }
+      .sticker {
+        position: absolute;
+        right: 20px;
+        top: 20px;
+        background: var(--coral);
+        color: var(--ink);
+        width: 104px;
+        height: 104px;
+        border: 2px solid var(--ink);
+        border-radius: 50%;
+        display: grid;
+        place-items: center;
+        text-align: center;
+        font-size: 11px;
+        font-weight: 900;
+        transform: rotate(8deg);
+        box-shadow: 4px 4px 0 var(--ink);
+      }
+      .copy {
+        padding: 44px 48px;
+        background: var(--cream);
+      }
+      .eyebrow {
+        display: inline-block;
+        border: 2px solid var(--ink);
+        background: white;
+        padding: 7px 10px;
+        font-size: 10px;
+        letter-spacing: 0.15em;
+        font-weight: 900;
+      }
+      .copy h1 {
+        font:
+          900 64px/0.94 Georgia,
+          serif;
+        letter-spacing: -0.04em;
+        margin: 20px 0 16px;
+      }
+      .copy h1 span {
+        color: var(--green);
+      }
+      .lead {
+        font-size: 20px;
+        line-height: 1.4;
+        font-weight: 800;
+        max-width: 590px;
+      }
+      .copy p {
+        font-size: 14px;
+        line-height: 1.65;
+        color: #38574e;
+        max-width: 610px;
+      }
+      .role {
+        margin-top: 22px;
+        border: 2px solid var(--ink);
+        background: white;
+        padding: 18px;
+        display: grid;
+        grid-template-columns: 42px 1fr;
+        gap: 14px;
+        align-items: start;
+      }
+      .role i {
+        width: 42px;
+        height: 42px;
+        background: var(--green);
+        color: white;
+        display: grid;
+        place-items: center;
+        font-style: normal;
+        font-size: 20px;
+      }
+      .role b {
+        font:
+          800 18px Georgia,
+          serif;
+      }
+      .role small {
+        display: block;
+        line-height: 1.5;
+        margin-top: 5px;
+        color: #4b665e;
+      }
+      .row {
+        display: grid;
+        grid-template-columns: 1.25fr 0.75fr;
+        gap: 14px;
+        margin-top: 18px;
+      }
+      .panel {
+        border: 2px solid var(--ink);
+        background: white;
+        padding: 19px;
+        box-shadow: 5px 5px 0 var(--ink);
+      }
+      .label {
+        font-size: 10px;
+        letter-spacing: 0.15em;
+        font-weight: 900;
+        color: var(--green);
+      }
+      .modes {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 8px;
+        margin-top: 13px;
+      }
+      .mode {
+        border: 1.5px solid var(--ink);
+        padding: 10px 8px;
+        font-size: 11px;
+        font-weight: 700;
+        background: #f8f5e9;
+      }
+      .mode.active {
+        background: var(--coral);
+        box-shadow: 3px 3px 0 var(--ink);
+      }
+      .panel h2 {
+        font:
+          800 25px Georgia,
+          serif;
+        margin: 9px 0 4px;
+      }
+      .panel p {
+        margin: 0;
+        font-size: 12px;
+        line-height: 1.5;
+        color: #4c665d;
+      }
+      .tags {
+        display: flex;
+        gap: 6px;
+        flex-wrap: wrap;
+        margin-top: 12px;
+      }
+      .tag {
+        padding: 6px 8px;
+        background: var(--mint);
+        font-size: 10px;
+        font-weight: 800;
+        border: 1px solid var(--ink);
+      }
+    </style>
+  </head>
+  <body>
+    <div class="page">
+      <header>
+        <div class="brand">Engineering <span>Compass</span></div>
+        <div class="home">⌂ RETURN HOME &nbsp; · &nbsp; YEAR 1</div>
+      </header>
+      <main>
+        <section class="hero">
+          <div class="art">
+            <img
+              src="assets/team-connector.png"
+              alt="Graphic illustration of a student connecting team prototype modules"
+            />
+            <div class="sticker">CURRENT<br />MODE<br />≠ FIXED TYPE</div>
+          </div>
+          <div class="copy">
+            <span class="eyebrow">MEET YOUR ENGINEERING MODE</span>
+            <h1>The Team<br /><span>Connector</span></h1>
+            <div class="lead">
+              You help different people, ideas, and technical contributions work
+              together.
+            </div>
+            <p>
+              This mode appears when Interdisciplinary Collaboration is a clear
+              strength. It describes how you currently tend to contribute—not a
+              permanent personality label. Your mode can change as your project
+              role and experience change.
+            </p>
+            <div class="role">
+              <i>↔</i>
+              <div>
+                <b>In a first project team</b
+                ><small
+                  >Translate between specialisms, make ownership clear, and
+                  surface disagreements early enough to resolve them.</small
+                >
+              </div>
+            </div>
+          </div>
+        </section>
+        <section class="row">
+          <div class="panel">
+            <div class="label">THE ENGINEERING COMPASS CREW</div>
+            <div class="modes">
+              <div class="mode">Problem Framer</div>
+              <div class="mode">Project Navigator</div>
+              <div class="mode active">Team Connector</div>
+              <div class="mode">Practical Builder</div>
+              <div class="mode">Prototype Explorer</div>
+              <div class="mode">Solution Storyteller</div>
+            </div>
+          </div>
+          <div class="panel">
+            <div class="label">TEAM-FORMATION NOTE</div>
+            <h2>Build for complementarity</h2>
+            <p>
+              Use modes as a conversation starter, then check interests,
+              technical toolkit, and preferred growth—not as an automatic
+              grouping rule.
+            </p>
+            <div class="tags">
+              <span class="tag">Collaboration 92</span
+              ><span class="tag">Pitch 83</span
+              ><span class="tag">Planning 76</span>
+            </div>
+          </div>
+        </section>
+      </main>
+    </div>
+  </body>
+</html>

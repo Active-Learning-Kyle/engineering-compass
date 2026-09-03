@@ -1,6 +1,6 @@
 # Engineering Compass — Standard Question Bank
 
-Version: Standard V1.2
+Version: Standard V1.3
 Status: approved and implemented
 
 ## Learner instructions
@@ -15,11 +15,11 @@ Use Scale A: 1 = **Not like me yet**, 5 = **Consistently like me**. The competen
 | --: | --- | ----------------------------------------------------------------------------------------------------------------------------- | ------------------------------- | ------------------------------------- |
 |   1 | B01 | Before proposing a solution, I investigate what is actually happening.                                                        | Problem Identification          | Investigate before solving            |
 |   2 | B02 | In team projects, I take ownership of my responsibilities and deliver work others can rely on.                                | Interdisciplinary Collaboration | Ownership and dependable coordination |
-|   3 | B03 | I adjust how I explain a problem and proposed solution so a particular audience can follow why it matters.                    | Pitch for Engineering Solutions | Audience-centred explanation          |
-|   4 | B04 | I compare meaningful solution approaches against the project's requirements before committing to one.                         | Proposal with Plan              | Alternative comparison                |
+|   3 | B03 | I adapt my explanation of an engineering problem and solution to the needs of a particular audience.                          | Pitch for Engineering Solutions | Audience-centred explanation          |
+|   4 | B04 | I compare alternative solutions against the project's requirements before choosing one.                                       | Proposal with Plan              | Alternative comparison                |
 |   5 | B05 | I make an early prototype while there is still time for what I learn to change the design.                                    | Design Thinking and Prototyping | Early learning prototype              |
-|   6 | B06 | I connect ideas and methods from people with different technical backgrounds when solving a problem.                          | Interdisciplinary Collaboration | Interdisciplinary thinking            |
-|   7 | B07 | I use evidence to check whether an engineering problem is real and important.                                                 | Problem Identification          | Evidence-based validation             |
+|   6 | B06 | I combine relevant ideas and methods from people with different technical backgrounds.                                        | Interdisciplinary Collaboration | Interdisciplinary thinking            |
+|   7 | B07 | I use evidence to check whether a proposed engineering problem is worth solving.                                              | Problem Identification          | Evidence-based validation             |
 |   8 | B08 | I design tests to answer a specific question or check a clear success criterion.                                              | Design Thinking and Prototyping | Purposeful testing                    |
 |   9 | B09 | I turn an idea into an actionable plan with clear milestones and ownership.                                                   | Proposal with Plan              | Actionable planning                   |
 |  10 | B10 | I support important claims about an engineering solution with relevant evidence.                                              | Pitch for Engineering Solutions | Evidence-supported claims             |
@@ -41,17 +41,17 @@ Use Scale B:
 
 The section title and current toolkit area may be shown. Each result bar uses its own response.
 
-| No. | ID  | Toolkit area                     | Learner-facing prompt                                                                                                               |
-| --: | --- | -------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------- |
-|  16 | T01 | Mechanical Assembly & Mechanisms | Assemble, adjust, and troubleshoot a basic mechanical system using suitable hand tools, fasteners, alignment, and mechanism checks. |
-|  17 | T02 | CAD & 3D Modelling               | Turn measurements or a sketch into an editable 3D model that accounts for fit and how the part will be made.                        |
-|  18 | T03 | Digital Fabrication              | Prepare and produce a part using processes such as 3D printing or laser cutting, including material and machine settings.           |
-|  19 | T04 | Electronics                      | Build, measure, and troubleshoot a basic electronic circuit using breadboards or soldered connections.                              |
-|  20 | T05 | Programming                      | Read, modify, write, and debug code to achieve a defined behaviour.                                                                 |
-|  21 | T06 | Physical Computing               | Use a Raspberry Pi, Arduino, ESP32, or similar platform to read inputs and control outputs.                                         |
-|  22 | T07 | Sensors, Data & IoT              | Connect and calibrate sensors, collect useful data, and transmit or log it reliably when needed.                                    |
-|  23 | T08 | AI / Computer Vision             | Prepare suitable inputs, apply or adapt an AI/computer-vision workflow, and evaluate whether its output is useful.                  |
-|  24 | T09 | System Integration & Automation  | Connect mechanical, electronic, sensing, and software subsystems into a reliable end-to-end or automated behaviour.                 |
+| No. | ID  | Toolkit area                     | Learner-facing prompt                                                                                                            |
+| --: | --- | -------------------------------- | -------------------------------------------------------------------------------------------------------------------------------- |
+|  16 | T01 | Mechanical Assembly & Mechanisms | How independently can you assemble, adjust, and troubleshoot a basic mechanical system using suitable tools?                     |
+|  17 | T02 | CAD & 3D Modelling               | How independently can you turn measurements or a sketch into an editable 3D model that accounts for fit and manufacture?         |
+|  18 | T03 | Digital Fabrication              | How independently can you prepare and produce a part using a process such as 3D printing or laser cutting?                       |
+|  19 | T04 | Electronics                      | How independently can you build, measure, and troubleshoot a basic electronic circuit using breadboards or soldered connections? |
+|  20 | T05 | Programming                      | How independently can you develop and debug code to achieve a defined behaviour?                                                 |
+|  21 | T06 | Physical Computing               | How independently can you use a Raspberry Pi, Arduino, ESP32, or similar platform to read inputs and control outputs?            |
+|  22 | T07 | Sensors, Data & IoT              | How independently can you connect and calibrate sensors, then collect or transmit data reliably?                                 |
+|  23 | T08 | AI / Computer Vision             | How independently can you apply or adapt an AI or computer-vision workflow and evaluate whether its output is useful?            |
+|  24 | T09 | System Integration & Automation  | How independently can you connect subsystems into a reliable end-to-end or automated system?                                     |
 
 ## Questions 25–26: Project Context
 
@@ -137,9 +137,9 @@ These scenarios are short cross-cutting checks. Their ordered responses create a
 
 **A prototype’s sensor readings suddenly become inconsistent. What would you be most likely to do first?**
 
-- Keep adjusting different parts until the readings look better.
-- Replace the sensor immediately because it is probably faulty.
-- Repeat the same test to see whether the issue disappears.
+- Adjust several parts of the setup at once and see whether the readings improve.
+- Restart the system or replace the sensor before checking the rest of the setup.
+- Repeat the same test to see whether the inconsistent pattern continues.
 - Check the setup, expected range, connections, and calibration, changing one likely cause at a time.
 - Define a short diagnostic test, compare logged evidence with expected behaviour, isolate variables, and document the conclusion before changing the design.
 
@@ -149,9 +149,9 @@ Interpretation: higher-order options show stronger evidence isolation and diagno
 
 **Your team prefers its current design, but a fair test shows that it misses an important success criterion. What would you be most likely to do?**
 
-- Keep the design and avoid emphasising the failed result.
-- Repeat the test until the team gets a result it can present.
-- Mention the result but continue because changing direction would be inconvenient.
+- Keep the current design because the schedule is fixed and treat the result as an anomaly.
+- Repeat the test with small adjustments until the design reaches the criterion.
+- Continue with the current design but report that it did not meet this criterion.
 - Review the test quality and criterion with the team, then revise the design or justify an explicit trade-off.
 - Verify the evidence, compare feasible alternatives and trade-offs, agree on a documented decision, and communicate the limitation clearly to stakeholders.
 
@@ -163,7 +163,7 @@ Interpretation: higher-order options show stronger use of evidence in planning, 
 - Growth guidance should combine G01 priorities, relevant profile evidence, project context, and one feasible next action.
 - C01/C02 can soften confidence language. For example, a high technical self-rating with no completed project experience should be framed as confidence to test in a project, not treated as invalid.
 - J01/J02 can produce a brief reflection such as “You tend to use structured evidence when decisions become uncertain.” Do not display them as an exam grade.
-- Field selection and I01 never affect competency or toolkit scores.
+- Study-year selection and I01 never affect competency or toolkit scores.
 
 The scenario choices are presented without learner-facing numerical labels. Their order is retained internally for qualitative interpretation only.
 
@@ -196,4 +196,3 @@ The six Engineering Compass competencies remain the observable engineering behav
 | J02  | `valueAndAttitude`, `designAndInnovation`          |
 
 Items not listed are intentionally unmapped. Metadata should be added only where the pedagogical relationship is clear.
-

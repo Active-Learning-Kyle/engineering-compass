@@ -65,4 +65,3 @@ export const toolkitOrder: ToolkitKey[] = [
   'aiVision',
   'integration',
 ];
-

@@ -24,4 +24,3 @@ export const engineeringFields = [
     icon: 'cog',
   },
 ] as const;
-

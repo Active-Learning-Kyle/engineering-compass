@@ -22,7 +22,6 @@ import {
   Wrench,
 } from 'lucide-react';
 import { PolarAngleAxis, PolarGrid, Radar, RadarChart } from 'recharts';
-import Image from 'next/image';
 import { Button } from '@/components/ui/button';
 import { ChartContainer, type ChartConfig } from '@/components/ui/chart';
 import { Progress } from '@/components/ui/progress';
@@ -72,6 +71,7 @@ declare global {
 }
 
 const progressStorageKey = 'engineering-compass-progress-v1.3';
+const assetPath = (path: string) => `${import.meta.env.BASE_URL}${path}`;
 const phases: Array<{ key: PhaseKey; label: string; range: string }> = [
   { key: 'behaviour', label: 'How you work', range: '01–15' },
   { key: 'technical', label: 'Technical toolkit', range: '16–24' },
@@ -643,7 +643,13 @@ function Welcome({
               }
             >
               <div className="mode-preview-art">
-                <Image src={mode.image.a} alt="" width={320} height={320} />
+                {/* oxlint-disable-next-line next/no-img-element */}
+                <img
+                  src={assetPath(mode.image.a)}
+                  alt=""
+                  width={320}
+                  height={320}
+                />
               </div>
               <div className="mode-preview-copy">
                 <span>
@@ -1103,12 +1109,12 @@ function Results({
           className="mode-art"
           aria-label={`${mode.name} character illustration`}
         >
-          <Image
-            src={mode.image[characterVariant]}
+          {/* oxlint-disable-next-line next/no-img-element */}
+          <img
+            src={assetPath(mode.image[characterVariant])}
             alt=""
             width={1200}
             height={1200}
-            priority
           />
         </div>
       </div>

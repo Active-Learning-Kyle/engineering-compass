@@ -1,6 +1,6 @@
-# Engineering Compass — Proposed Standard Question Bank
+# Engineering Compass — Standard Question Bank
 
-Version: Standard V1.1
+Version: Standard V1.2
 Status: approved and implemented
 
 ## Learner instructions
@@ -11,23 +11,23 @@ Answer for how you work now, not for the engineer you think you should be. When 
 
 Use Scale A: 1 = **Not like me yet**, 5 = **Consistently like me**. The competency mapping below is implementation metadata and must not be shown during answering.
 
-| No. | ID  | Learner-facing statement                                                                                   | Hidden competency               | Behaviour represented                 |
-| --: | --- | ---------------------------------------------------------------------------------------------------------- | ------------------------------- | ------------------------------------- |
-|   1 | B01 | Before proposing a solution, I investigate what is actually happening.                                     | Problem Identification          | Investigate before solving            |
-|   2 | B02 | In team projects, I take ownership of my responsibilities and deliver work others can rely on.             | Interdisciplinary Collaboration | Ownership and dependable coordination |
-|   3 | B03 | I adjust how I explain a problem and proposed solution so a particular audience can follow why it matters. | Pitch for Engineering Solutions | Audience-centred explanation          |
-|   4 | B04 | I compare meaningful solution approaches against the project's requirements before committing to one.      | Proposal with Plan              | Alternative comparison                |
-|   5 | B05 | I make an early prototype while there is still time for what I learn to change the design.                 | Design Thinking and Prototyping | Early learning prototype              |
-|   6 | B06 | I actively connect contributions from people with different skills, backgrounds, or viewpoints.            | Interdisciplinary Collaboration | Integrating perspectives              |
-|   7 | B07 | I use evidence to check whether an engineering problem is real and important.                              | Problem Identification          | Evidence-based validation             |
-|   8 | B08 | I design tests to answer a specific question or check a clear success criterion.                           | Design Thinking and Prototyping | Purposeful testing                    |
-|   9 | B09 | I turn an idea into an actionable plan with clear milestones and ownership.                                | Proposal with Plan              | Actionable planning                   |
-|  10 | B10 | I support important claims about an engineering solution with relevant evidence.                           | Pitch for Engineering Solutions | Evidence-supported claims             |
-|  11 | B11 | When a prototype fails, I diagnose the likely cause before deciding what to change.                        | Design Thinking and Prototyping | Failure diagnosis and iteration       |
-|  12 | B12 | When a team disagrees, I help clarify the issue and move toward a workable decision.                       | Interdisciplinary Collaboration | Constructive disagreement             |
-|  13 | B13 | Before work begins, I identify the most important risk that could prevent the plan from succeeding.        | Proposal with Plan              | Risk anticipation                     |
-|  14 | B14 | I turn a broad concern into a specific engineering problem that a team can act on.                         | Problem Identification          | Problem framing                       |
-|  15 | B15 | I explain a solution's important limitations and trade-offs honestly.                                      | Pitch for Engineering Solutions | Credibility and trade-offs            |
+| No. | ID  | Learner-facing statement                                                                                                      | Hidden competency               | Behaviour represented                 |
+| --: | --- | ----------------------------------------------------------------------------------------------------------------------------- | ------------------------------- | ------------------------------------- |
+|   1 | B01 | Before proposing a solution, I investigate what is actually happening.                                                        | Problem Identification          | Investigate before solving            |
+|   2 | B02 | In team projects, I take ownership of my responsibilities and deliver work others can rely on.                                | Interdisciplinary Collaboration | Ownership and dependable coordination |
+|   3 | B03 | I adjust how I explain a problem and proposed solution so a particular audience can follow why it matters.                    | Pitch for Engineering Solutions | Audience-centred explanation          |
+|   4 | B04 | I compare meaningful solution approaches against the project's requirements before committing to one.                         | Proposal with Plan              | Alternative comparison                |
+|   5 | B05 | I make an early prototype while there is still time for what I learn to change the design.                                    | Design Thinking and Prototyping | Early learning prototype              |
+|   6 | B06 | I connect ideas and methods from people with different technical backgrounds when solving a problem.                          | Interdisciplinary Collaboration | Interdisciplinary thinking            |
+|   7 | B07 | I use evidence to check whether an engineering problem is real and important.                                                 | Problem Identification          | Evidence-based validation             |
+|   8 | B08 | I design tests to answer a specific question or check a clear success criterion.                                              | Design Thinking and Prototyping | Purposeful testing                    |
+|   9 | B09 | I turn an idea into an actionable plan with clear milestones and ownership.                                                   | Proposal with Plan              | Actionable planning                   |
+|  10 | B10 | I support important claims about an engineering solution with relevant evidence.                                              | Pitch for Engineering Solutions | Evidence-supported claims             |
+|  11 | B11 | When a prototype fails, I diagnose the likely cause before deciding what to change.                                           | Design Thinking and Prototyping | Failure diagnosis and iteration       |
+|  12 | B12 | When a team disagrees, I help clarify the issue and move toward a workable decision.                                          | Interdisciplinary Collaboration | Constructive disagreement             |
+|  13 | B13 | Before work begins, I identify important risks that could affect the safety, feasibility, or responsible use of the solution. | Proposal with Plan              | Responsible risk anticipation         |
+|  14 | B14 | I turn a broad concern into a specific engineering problem that a team can act on.                                            | Problem Identification          | Problem framing                       |
+|  15 | B15 | I explain a solution's important limitations and trade-offs honestly.                                                         | Pitch for Engineering Solutions | Credibility and trade-offs            |
 
 ## Questions 16–24: Technical Toolkit
 
@@ -124,6 +124,8 @@ Technical options:
 - Sensors, Data & IoT
 - AI / Computer Vision
 - System Integration & Automation
+- Learning unfamiliar engineering tools and methods
+- Not sure yet
 
 Results should begin growth guidance with these selected priorities. Profile values may add context, but the lowest value alone must not overwrite the learner’s choice.
 
@@ -164,4 +166,34 @@ Interpretation: higher-order options show stronger use of evidence in planning, 
 - Field selection and I01 never affect competency or toolkit scores.
 
 The scenario choices are presented without learner-facing numerical labels. Their order is retained internally for qualitative interpretation only.
+
+## Hidden HKU Active Learning alignment metadata
+
+The six Engineering Compass competencies remain the observable engineering behaviours being assessed. The six [HKU Active Learning Essentials](https://activelearning.engg.hku.hk/#about) are higher-level pedagogical alignment metadata only. They are hidden from learners, produce no scores, and do not alter the radar, toolkit, or scenario interpretation.
+
+| Item | `activeLearningEssentialTags`                      |
+| ---- | -------------------------------------------------- |
+| B01  | `problemSolving`                                   |
+| B02  | `valueAndAttitude`                                 |
+| B03  | `communication`                                    |
+| B04  | `problemSolving`, `designAndInnovation`            |
+| B05  | `designAndInnovation`, `lifelongLearning`          |
+| B06  | `interdisciplinaryThinking`                        |
+| B07  | `problemSolving`, `valueAndAttitude`               |
+| B08  | `designAndInnovation`, `problemSolving`            |
+| B09  | `problemSolving`                                   |
+| B10  | `communication`, `valueAndAttitude`                |
+| B11  | `designAndInnovation`, `lifelongLearning`          |
+| B12  | `interdisciplinaryThinking`, `valueAndAttitude`    |
+| B13  | `problemSolving`, `valueAndAttitude`               |
+| B14  | `problemSolving`                                   |
+| B15  | `communication`, `valueAndAttitude`                |
+| T05  | `lifelongLearning`                                 |
+| T08  | `designAndInnovation`, `lifelongLearning`          |
+| T09  | `designAndInnovation`, `interdisciplinaryThinking` |
+| G01  | `lifelongLearning`                                 |
+| J01  | `problemSolving`, `lifelongLearning`               |
+| J02  | `valueAndAttitude`, `designAndInnovation`          |
+
+Items not listed are intentionally unmapped. Metadata should be added only where the pedagogical relationship is clear.
 

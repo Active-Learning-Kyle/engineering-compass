@@ -280,7 +280,7 @@ export default function Home() {
       engineeringFields.find((option) => option.id === field)?.title ??
       (field === 'other' ? 'Other / Interdisciplinary' : 'Not provided');
     const lines = [
-      'ENGINEERING COMPASS — STANDARD V1.1 PROFILE',
+      'ENGINEERING COMPASS — STANDARD V1.2 PROFILE',
       `Engineering field: ${fieldLabel} (context only)`,
       '',
       'SIX ENGINEERING COMPETENCIES',
@@ -307,7 +307,7 @@ export default function Home() {
     const url = URL.createObjectURL(blob);
     const anchor = document.createElement('a');
     anchor.href = url;
-    anchor.download = 'engineering-compass-standard-v1-1.txt';
+    anchor.download = 'engineering-compass-standard-v1-2.txt';
     anchor.click();
     URL.revokeObjectURL(url);
   }

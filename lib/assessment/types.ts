@@ -1,4 +1,12 @@
-export type AssessmentVersion = 'standard-v1.1' | 'pro-future';
+export type AssessmentVersion = 'standard-v1.2' | 'pro-future';
+
+export type ActiveLearningEssentialTag =
+  | 'designAndInnovation'
+  | 'problemSolving'
+  | 'interdisciplinaryThinking'
+  | 'valueAndAttitude'
+  | 'communication'
+  | 'lifelongLearning';
 
 export type CompetencyKey =
   | 'problem'
@@ -38,6 +46,8 @@ type BaseItem = {
   phase: PhaseKey;
   prompt: string;
   helper?: string;
+  /** Hidden pedagogical alignment metadata. Never used in learner scoring. */
+  activeLearningEssentialTags?: ActiveLearningEssentialTag[];
 };
 
 export type BehaviourItem = BaseItem & {

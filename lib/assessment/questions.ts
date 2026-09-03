@@ -1,6 +1,6 @@
 import type { AssessmentItem, AssessmentVersion } from './types';
 
-export const assessmentVersion: AssessmentVersion = 'standard-v1.1';
+export const assessmentVersion: AssessmentVersion = 'standard-v1.2';
 
 export const behaviourScale = {
   prompt: 'How well does this describe how you usually work?',
@@ -83,6 +83,10 @@ export const growthOptions = [
   { id: 'sensorsIot', label: 'Sensors, Data & IoT' },
   { id: 'aiVision', label: 'AI / Computer Vision' },
   { id: 'integration', label: 'System Integration & Automation' },
+  {
+    id: 'unfamiliarTools',
+    label: 'Learning unfamiliar engineering tools and methods',
+  },
   { id: 'not-sure', label: 'Not sure yet' },
 ];
 
@@ -95,6 +99,7 @@ export const questions: AssessmentItem[] = [
     competency: 'problem',
     prompt:
       'Before proposing a solution, I investigate what is actually happening.',
+    activeLearningEssentialTags: ['problemSolving'],
   },
   {
     id: 'B02',
@@ -104,6 +109,7 @@ export const questions: AssessmentItem[] = [
     competency: 'collaboration',
     prompt:
       'In team projects, I take ownership of my responsibilities and deliver work others can rely on.',
+    activeLearningEssentialTags: ['valueAndAttitude'],
   },
   {
     id: 'B03',
@@ -113,6 +119,7 @@ export const questions: AssessmentItem[] = [
     competency: 'pitch',
     prompt:
       'I adjust how I explain a problem and proposed solution so a particular audience can follow why it matters.',
+    activeLearningEssentialTags: ['communication'],
   },
   {
     id: 'B04',
@@ -122,6 +129,7 @@ export const questions: AssessmentItem[] = [
     competency: 'planning',
     prompt:
       "I compare meaningful solution approaches against the project's requirements before committing to one.",
+    activeLearningEssentialTags: ['problemSolving', 'designAndInnovation'],
   },
   {
     id: 'B05',
@@ -131,6 +139,7 @@ export const questions: AssessmentItem[] = [
     competency: 'design',
     prompt:
       'I make an early prototype while there is still time for what I learn to change the design.',
+    activeLearningEssentialTags: ['designAndInnovation', 'lifelongLearning'],
   },
   {
     id: 'B06',
@@ -139,7 +148,8 @@ export const questions: AssessmentItem[] = [
     kind: 'behaviour',
     competency: 'collaboration',
     prompt:
-      'I actively connect contributions from people with different skills, backgrounds, or viewpoints.',
+      'I connect ideas and methods from people with different technical backgrounds when solving a problem.',
+    activeLearningEssentialTags: ['interdisciplinaryThinking'],
   },
   {
     id: 'B07',
@@ -151,6 +161,7 @@ export const questions: AssessmentItem[] = [
       'I use evidence to check whether an engineering problem is real and important.',
     helper:
       'Evidence might include observation, user input, measurements, or research.',
+    activeLearningEssentialTags: ['problemSolving', 'valueAndAttitude'],
   },
   {
     id: 'B08',
@@ -160,6 +171,7 @@ export const questions: AssessmentItem[] = [
     competency: 'design',
     prompt:
       'I design tests to answer a specific question or check a clear success criterion.',
+    activeLearningEssentialTags: ['designAndInnovation', 'problemSolving'],
   },
   {
     id: 'B09',
@@ -169,6 +181,7 @@ export const questions: AssessmentItem[] = [
     competency: 'planning',
     prompt:
       'I turn an idea into an actionable plan with clear milestones and ownership.',
+    activeLearningEssentialTags: ['problemSolving'],
   },
   {
     id: 'B10',
@@ -178,6 +191,7 @@ export const questions: AssessmentItem[] = [
     competency: 'pitch',
     prompt:
       'I support important claims about an engineering solution with relevant evidence.',
+    activeLearningEssentialTags: ['communication', 'valueAndAttitude'],
   },
   {
     id: 'B11',
@@ -187,6 +201,7 @@ export const questions: AssessmentItem[] = [
     competency: 'design',
     prompt:
       'When a prototype fails, I diagnose the likely cause before deciding what to change.',
+    activeLearningEssentialTags: ['designAndInnovation', 'lifelongLearning'],
   },
   {
     id: 'B12',
@@ -196,6 +211,10 @@ export const questions: AssessmentItem[] = [
     competency: 'collaboration',
     prompt:
       'When a team disagrees, I help clarify the issue and move toward a workable decision.',
+    activeLearningEssentialTags: [
+      'interdisciplinaryThinking',
+      'valueAndAttitude',
+    ],
   },
   {
     id: 'B13',
@@ -204,7 +223,10 @@ export const questions: AssessmentItem[] = [
     kind: 'behaviour',
     competency: 'planning',
     prompt:
-      'Before work begins, I identify the most important risk that could prevent the plan from succeeding.',
+      'Before work begins, I identify important risks that could affect the safety, feasibility, or responsible use of the solution.',
+    helper:
+      'Risks may be technical, safety-related, environmental, social, financial, or practical.',
+    activeLearningEssentialTags: ['problemSolving', 'valueAndAttitude'],
   },
   {
     id: 'B14',
@@ -214,6 +236,7 @@ export const questions: AssessmentItem[] = [
     competency: 'problem',
     prompt:
       'I turn a broad concern into a specific engineering problem that a team can act on.',
+    activeLearningEssentialTags: ['problemSolving'],
   },
   {
     id: 'B15',
@@ -223,6 +246,7 @@ export const questions: AssessmentItem[] = [
     competency: 'pitch',
     prompt:
       "I explain a solution's important limitations and trade-offs honestly.",
+    activeLearningEssentialTags: ['communication', 'valueAndAttitude'],
   },
   {
     id: 'T01',
@@ -268,6 +292,7 @@ export const questions: AssessmentItem[] = [
     toolkit: 'programming',
     prompt:
       'Read, modify, write, and debug code to achieve a defined behaviour.',
+    activeLearningEssentialTags: ['lifelongLearning'],
   },
   {
     id: 'T06',
@@ -295,6 +320,7 @@ export const questions: AssessmentItem[] = [
     toolkit: 'aiVision',
     prompt:
       'Apply or adapt an AI or computer-vision workflow and evaluate whether its output is useful.',
+    activeLearningEssentialTags: ['designAndInnovation', 'lifelongLearning'],
   },
   {
     id: 'T09',
@@ -306,6 +332,10 @@ export const questions: AssessmentItem[] = [
       'Connect subsystems into a reliable end-to-end or automated behaviour.',
     helper:
       'Think about mechanical, electronic, sensing, and software interfaces.',
+    activeLearningEssentialTags: [
+      'designAndInnovation',
+      'interdisciplinaryThinking',
+    ],
   },
   {
     id: 'C01',
@@ -349,6 +379,7 @@ export const questions: AssessmentItem[] = [
     options: growthOptions,
     min: 1,
     max: 3,
+    activeLearningEssentialTags: ['lifelongLearning'],
   },
   {
     id: 'J01',
@@ -386,6 +417,7 @@ export const questions: AssessmentItem[] = [
         value: 5,
       },
     ],
+    activeLearningEssentialTags: ['problemSolving', 'lifelongLearning'],
   },
   {
     id: 'J02',
@@ -424,6 +456,7 @@ export const questions: AssessmentItem[] = [
         value: 5,
       },
     ],
+    activeLearningEssentialTags: ['valueAndAttitude', 'designAndInnovation'],
   },
 ];
 

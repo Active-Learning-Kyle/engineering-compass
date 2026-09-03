@@ -21,6 +21,10 @@ The public site is hosted directly from this repository with GitHub Pages.
 
 Engineering-field selection is never included in scoring. Answers remain in the current browser session and are not submitted to a server.
 
+## Standard V1.2 pedagogical alignment
+
+The six Engineering Compass competencies are the observable engineering behaviours being assessed and reported. Relevant questions also carry hidden alignment metadata for the six [HKU Active Learning Essentials](https://activelearning.engg.hku.hk/#about). These Essentials are a higher-level pedagogical mapping only: they create no additional scores, never change the radar or toolkit calculations, and are not shown as a second learner-facing framework.
+
 ## Competencies
 
 1. Problem Identification

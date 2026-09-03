@@ -1,6 +1,6 @@
 # Engineering Compass â€” Standard Assessment Blueprint
 
-Version: Standard V1.1
+Version: Standard V1.2
 Status: approved and implemented
 
 ## Purpose
@@ -25,7 +25,7 @@ The product retains exactly these six competencies:
 
 No overall engineering score and no seventh competency will be created.
 
-## Proposed allocation of all 30 questions
+## Approved allocation of all 30 questions
 
 | Question positions | Component                                                           |  Count | Response logic                        | Scoring role                                                                       |
 | ------------------ | ------------------------------------------------------------------- | -----: | ------------------------------------- | ---------------------------------------------------------------------------------- |
@@ -50,6 +50,41 @@ Each non-hands-on competency has three items tied to observable behaviours.
 | Pitch for Engineering Solutions | explain problem/solution/value; support claims; adapt detail while stating limitations          | B03, B10, B15 |
 
 The learner sees the B items in the sequence shown above, but does not see the competency mapping. No two consecutive B items measure the same competency.
+
+## HKU Active Learning alignment
+
+Engineering Compass uses two related but non-competing layers:
+
+- **Engineering Compass competencies** are the six learner-facing domains of observable engineering behaviour being assessed and reported.
+- **HKU Active Learning Essentials** are higher-level pedagogical alignment metadata attached to relevant items.
+
+The Essentials metadata is hidden from learners, creates no additional score, does not change radar or toolkit calculations, and is not a second visible assessment framework. It maps selected items to the six Essentials described by [HKU Engineering Active Learning](https://activelearning.engg.hku.hk/#about): Design & Innovation, Problem Solving, Interdisciplinary Thinking, Value & Attitude, Communication, and Lifelong Learning.
+
+| Item | Active Learning Essential tags                  |
+| ---- | ----------------------------------------------- |
+| B01  | Problem Solving                                 |
+| B02  | Value & Attitude                                |
+| B03  | Communication                                   |
+| B04  | Problem Solving; Design & Innovation            |
+| B05  | Design & Innovation; Lifelong Learning          |
+| B06  | Interdisciplinary Thinking                      |
+| B07  | Problem Solving; Value & Attitude               |
+| B08  | Design & Innovation; Problem Solving            |
+| B09  | Problem Solving                                 |
+| B10  | Communication; Value & Attitude                 |
+| B11  | Design & Innovation; Lifelong Learning          |
+| B12  | Interdisciplinary Thinking; Value & Attitude    |
+| B13  | Problem Solving; Value & Attitude               |
+| B14  | Problem Solving                                 |
+| B15  | Communication; Value & Attitude                 |
+| T05  | Lifelong Learning                               |
+| T08  | Design & Innovation; Lifelong Learning          |
+| T09  | Design & Innovation; Interdisciplinary Thinking |
+| G01  | Lifelong Learning                               |
+| J01  | Problem Solving; Lifelong Learning              |
+| J02  | Value & Attitude; Design & Innovation           |
+
+Items without a tag are intentionally left unmapped rather than forcing a weak association.
 
 ## Technical Toolkit allocation
 
@@ -157,7 +192,7 @@ Competency names may appear on the welcome and results pages, but not while B01â
 
 Keep the current gentle speed nudge. The nudge should ask the learner to picture a real project example and reconsider if needed. It must not block completion or alter scores automatically.
 
-For Standard V1.1, response-quality signals should be transparent and limited to:
+For Standard V1.2, response-quality signals should be transparent and limited to:
 
 - repeated unusually fast answers;
 - unanswered required items;

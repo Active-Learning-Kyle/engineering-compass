@@ -446,15 +446,15 @@ export default function Home() {
 
   return (
     <main className="min-h-screen bg-background text-foreground">
-      <Header
-        progress={
-          step === 'assessment'
-            ? ((current + 1) / questions.length) * 100
-            : null
-        }
-        showNavigation={step === 'welcome'}
-        onBegin={() => setStep('year')}
-      />
+      {step !== 'welcome' && (
+        <Header
+          progress={
+            step === 'assessment'
+              ? ((current + 1) / questions.length) * 100
+              : null
+          }
+        />
+      )}
       {step === 'welcome' && (
         <Welcome
           onBegin={() => setStep('year')}
@@ -502,15 +502,7 @@ export default function Home() {
   );
 }
 
-function Header({
-  progress,
-  showNavigation,
-  onBegin,
-}: {
-  progress: number | null;
-  showNavigation: boolean;
-  onBegin: () => void;
-}) {
+function Header({ progress }: { progress: number | null }) {
   return (
     <header className="sticky top-0 z-30 border-b bg-background/92 backdrop-blur-xl">
       <div className="mx-auto flex h-[74px] max-w-7xl items-center justify-between px-5 lg:px-12">
@@ -527,26 +519,10 @@ function Header({
             </div>
           </div>
         </div>
-        {showNavigation ? (
-          <div className="home-nav">
-            <nav aria-label="Homepage sections">
-              <a href="#how-it-works">How it works</a>
-              <a href="#roles">Roles</a>
-            </nav>
-            <Button
-              variant="outline"
-              className="rounded-full"
-              onClick={onBegin}
-            >
-              Take the assessment <ArrowRight className="ml-1 size-4" />
-            </Button>
-          </div>
-        ) : (
-          <div className="hidden items-center gap-2 text-xs text-muted-foreground sm:flex">
-            <span className="size-2 rounded-full bg-emerald-600" /> Responses
-            stay in this browser
-          </div>
-        )}
+        <div className="hidden items-center gap-2 text-xs text-muted-foreground sm:flex">
+          <span className="size-2 rounded-full bg-emerald-600" /> Responses stay
+          in this browser
+        </div>
       </div>
       {progress !== null && (
         <Progress
@@ -572,8 +548,11 @@ function Welcome({
       <div className="compass-grid absolute inset-0" aria-hidden="true" />
       <div className="relative mx-auto grid max-w-7xl items-center gap-12 px-6 py-14 lg:min-h-[610px] lg:grid-cols-[1.04fr_.96fr] lg:px-12">
         <div className="max-w-3xl">
-          <div className="eyebrow mb-6">
-            <Compass className="size-4" /> STANDARD · FORMATIVE SELF-ASSESSMENT
+          <div className="home-product-kicker mb-6">
+            <span className="home-product-mark">
+              <Compass className="size-4" />
+            </span>
+            <span>Engineering Compass</span>
           </div>
           <h1 className="display-title text-[clamp(3.2rem,6vw,6.3rem)] leading-[.94] tracking-[-.055em]">
             Find Your Role in an Engineering Team
@@ -735,9 +714,22 @@ function Welcome({
           </div>
           <div className="toolkit-chip-grid">
             {toolkitOrder.map((key) => (
-              <span key={key}>
-                <Wrench className="size-4" /> {toolkit[key].label}
-              </span>
+              <button
+                type="button"
+                className="toolkit-preview-card"
+                key={key}
+                aria-label={`${toolkit[key].label}: ${toolkit[key].skills.join(', ')}`}
+              >
+                <span className="toolkit-preview-title">
+                  <Wrench className="size-4" />
+                  <strong>{toolkit[key].label}</strong>
+                </span>
+                <span className="toolkit-skills-preview" aria-hidden="true">
+                  {toolkit[key].skills.map((skill) => (
+                    <span key={skill}>{skill}</span>
+                  ))}
+                </span>
+              </button>
             ))}
           </div>
         </div>

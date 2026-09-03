@@ -25,6 +25,10 @@ Illustrations must retain their original natural colour. Do not apply a green ov
 
 The homepage compass uses a quiet compass rose, concentric rings, six role icons, and small orbital markers. It should feel like an engineering instrument rather than a decorative infographic.
 
+The homepage has no standalone navigation banner. The Engineering Compass mark and name are embedded directly in the hero content. The compact branded header remains available only after the learner enters the assessment flow.
+
+Technical Toolkit cards remain calm by default and reveal a short set of evidence-aligned component skills on hover or keyboard focus. The interaction must not change the toolkit structure or scoring.
+
 ## Prohibited interpretations
 
 - Do not call Engineering Experience Level a professional qualification, grade, seniority, or engineering licence.

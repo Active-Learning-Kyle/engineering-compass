@@ -34,6 +34,12 @@ Role-card motion refinement, 3 September 2026:
 
 > “卡片……可能就是男生女生是渐变切换的。就它图片本身就是男生，然后会就渐变成女生，然后再渐变成男生。然后取决于这个人鼠标放在上面的时间多久，只要他放在上面，它就可以一直渐变。”
 
+Homepage and toolkit refinement, 3 September 2026:
+
+> “鼠标放在这个对应的，比如说 Mechanical Assemblies and Mechanism，或者是 CAD and 3D Modeling的时候，然后对应的相关的具体 skills 就会列出来。”
+
+> “我想把上面这个 banner 先给它去掉，只需要一个网页就行。然后 How it Works、Roles、Take the Assessment这三个部分可以不要，不用显示在右上角了。然后可能 Engineering Compass 部分可以给它融为这个网页的一部分……替换那个 Standard Formative Self-Assessment。”
+
 ## Implementation interpretation
 
 - Preserve the established HKU-inspired green/white system for global navigation, controls, charts, and the formal report.
@@ -50,3 +56,5 @@ Role-card motion refinement, 3 September 2026:
 - Use the reference compass-rose structure in the homepage profile graphic while retaining the six role icons.
 - Rename the four-step result label to Engineering Experience Level. It remains a formative scope-of-experience interpretation, not a professional engineer rank. Show each toolkit response as its corresponding five-level experience descriptor.
 - While a role card is hovered or keyboard-focused, continuously crossfade between its two character variants. Stop and reset the animation when the card is no longer active; respect reduced-motion preferences.
+- Remove the standalone homepage header and navigation. Integrate the Engineering Compass name and mark into the hero content in place of the former Standard assessment eyebrow; retain the compact header only inside the assessment and results flow.
+- Give every Technical Toolkit card a concise, evidence-aligned list of component skills that appears on hover or keyboard focus.

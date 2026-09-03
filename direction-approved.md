@@ -1,4 +1,4 @@
-# Approved visual direction and V1.4 refinement
+# Approved visual direction and V1.5 refinement
 
 ## Directions shown
 
@@ -22,13 +22,26 @@ V1.4 refinement, 3 September 2026:
 
 > “另外我这里其实也想让你去验证一下是否要分成七个角色。然后，就是真的最后是七个角色吗？可能我目前第一张截图的六个就可以了吧。另外你看看能不能去掉每个model不同颜色的设定，都用原本的颜色就行。”
 
+V1.5 refinement, 3 September 2026:
+
+> “首先能不能不要加上绿色的滤镜，用回正常的照片就行。”
+
+> “另外第七张图片中这六个卡片鼠标只要放在上面就会出现一个有图片的对这个Model的介绍。然后第八张图片参考第九章图片的指南针设计。”
+
+> “整个测试的UI色调风格参考一下 ENGG2202-Teach-to-Learn。”
+
 ## Implementation interpretation
 
 - Preserve the established HKU-inspired green/white system for global navigation, controls, charts, and the formal report.
 - Use the reference screenshot's clear, professional homepage hierarchy and direct “Find Your Role in an Engineering Team” proposition.
-- Use icons rather than character previews on the homepage. Add the editorial character-led identity card only at the top of the completed result page.
+- Keep character artwork out of the homepage hero. On the six role cards, reveal an editorial role image and fuller contribution description only on hover or keyboard focus.
 - Provide six non-fixed Current Engineering Roles: Problem Framer, Project Navigator, Team Connector, Practical Builder, Prototype Explorer, and Solution Storyteller. Each maps to one measured competency; do not retain a seventh balanced-profile role without an independently measured construct.
 - Add a compact four-step Engineering Growth Stage label: Exploring, Building, Practising, and Integrating.
 - Each role has two randomly selected character presentations. The choice is visual only, is not inferred from the learner, and stays stable for one completed result.
 - Use one shared HKU-inspired green/white colour system for all six roles. Differentiate them through icons and language, not separate palettes.
 - Interest and growth questions allow unrestricted multi-selection. “Not sure yet” remains mutually exclusive where provided.
+- Align the interface with the ENGG2202 site: modern system sans typography, deep forest-green surfaces, a restrained lime action accent, softer borders, generous rounded panels, and less editorial ornament.
+- Present generated illustrations in their original colours, without green overlays or colour-blend filters.
+- Simplify homepage navigation to How it works, Roles, and Take the assessment. Keep detailed toolkit content on the page without adding a redundant navigation item.
+- Use the reference compass-rose structure in the homepage profile graphic while retaining the six role icons.
+- Rename the four-step result label to Engineering Experience Level. It remains a formative scope-of-experience interpretation, not a professional engineer rank. Show each toolkit response as its corresponding five-level experience descriptor.

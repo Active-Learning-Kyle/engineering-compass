@@ -19,17 +19,18 @@ The public site is hosted directly from this repository with GitHub Pages.
 - Six-competency radar profile
 - Nine-area technical toolkit profile
 - Downloadable plain-text summary
-- A six-role current Engineering Role card with a compact four-stage Growth Stage label
+- A six-role current Engineering Role card with a compact four-stage Engineering Experience Level
+- Five-level experience descriptors for every Technical Toolkit result
 
 Study year is never included in scoring. Answers and an unfinished draft remain on the current browser/device and are not submitted to a server.
 
-## Standard V1.4 identity and pedagogical alignment
+## Standard V1.5 identity and pedagogical alignment
 
 The results layer adds six current Engineering Roles: Problem Framer, Project Navigator, Team Connector, Practical Builder, Prototype Explorer, and Solution Storyteller. Each maps directly to one of the six measured competencies and uses the shared HKU-inspired green/white visual system. The current role is a formative lens on the six-axis profile—not a personality type, grade, professional rank, or team assignment.
 
-The homepage uses role icons rather than character previews. One of two character-presentation variants appears only after completion, remains stable for a saved/completed attempt, and never infers the learner's gender.
+The homepage hero uses role icons rather than character portraits. Role cards reveal a natural-colour illustration and fuller explanation on hover or keyboard focus. One of two character-presentation variants appears after completion and remains stable for a saved/completed attempt; the visual choice never affects results.
 
-The compact Growth Stage label (Exploring, Building, Practising, or Integrating) uses project context and current Technical Toolkit experience to describe the learner's present scope of experience. It is not a junior/mid/senior engineer designation.
+The compact Engineering Experience Level (Exploring, Building, Practising, or Integrating) uses project context and current Technical Toolkit experience to describe the learner's present scope of experience. It is not a junior/mid/senior engineer designation. Each toolkit bar also shows the learner's selected five-level experience descriptor.
 
 The six Engineering Compass competencies are the observable engineering behaviours being assessed and reported. Relevant questions also carry hidden alignment metadata for the six [HKU Active Learning Essentials](https://activelearning.engg.hku.hk/#about). These Essentials are a higher-level pedagogical mapping only: they create no additional scores, never change the radar or toolkit calculations, and are not shown as a second learner-facing framework.
 

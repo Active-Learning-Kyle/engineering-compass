@@ -8,21 +8,24 @@ Engineering Compass is a standalone formative engineering self-reflection produc
 
 - Product name: Engineering Compass
 - Product mark: the existing compass icon used in the application header and favicon
-- Global colours: deep green, white, warm paper neutrals, restrained jade accents
-- Display typography: editorial serif for identity and report headings
-- Interface typography: readable sans serif for controls, questions, and explanatory text
+- Global colours: deep forest green, white, pale botanical neutrals, and a restrained lime action accent
+- Display and interface typography: modern system sans serif, consistent with the ENGG2202 teaching site
 
-## V1.4 identity layer
+## V1.5 identity layer
 
 The full experience uses one consistent HKU-inspired green/white system. Six Current Engineering Roles are distinguished by icon, name, and description rather than separate colour themes. This keeps the roles visibly related and avoids implying that colour represents a score, status, or personality category.
 
-Character illustrations are not shown on the homepage. They appear only in the completed result, where they add an approachable identity layer to the otherwise professional report.
+Character illustrations are not shown in the homepage hero. The role overview reveals a role illustration and fuller description only on hover or keyboard focus; a larger illustration appears in the completed result.
 
 Generated editorial character illustrations must share the same paper texture, line-work, composition quality, and academic tone. They must not use hard-hat, lab-coat, or gender stereotypes. Character presentation is randomly selected and never treated as learner identity data.
 
+Illustrations must retain their original natural colour. Do not apply a green overlay, colour blend, or role-specific colour filter. Deep forest green (`#102f1d` / `#163f27`) anchors key surfaces; lime (`#d7f43c`) is reserved for primary actions and the compact experience-level marker.
+
+The homepage compass uses a quiet compass rose, concentric rings, six role icons, and small orbital markers. It should feel like an engineering instrument rather than a decorative infographic.
+
 ## Prohibited interpretations
 
-- Do not call Growth Stage a professional qualification, grade, seniority, or engineering licence.
+- Do not call Engineering Experience Level a professional qualification, grade, seniority, or engineering licence.
 - Do not call Current Engineering Role a fixed personality type or a validated team-role assignment.
 - Do not infer a learner's gender from answers, year, field, scores, or interests.
 - Do not use role colour as a score, category, or hierarchy.

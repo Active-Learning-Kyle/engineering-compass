@@ -1,6 +1,6 @@
 # Engineering Compass — Standard Assessment Blueprint
 
-Version: Standard V1.4
+Version: Standard V1.5
 Status: approved and implemented
 
 ## Purpose
@@ -160,8 +160,8 @@ Display T01–T09 separately. Because each area has one direct self-report item 
 
 - **Current Engineering Role** is a non-scoring interpretive layer derived from the leading axis in the relative six-competency profile. The six roles map one-to-one to the six measured competencies. It never creates a seventh competency or changes a score.
 - Role presentation uses the common HKU-inspired green/white visual system. Icons and language distinguish roles; colour is not used to imply different categories or hierarchy.
-- **Growth Stage** uses C01, C02, and current Technical Toolkit experience to describe present scope as Exploring, Building, Practising, or Integrating. It is not a professional title, employability claim, grade, or engineer rank.
-- Two character-presentation variants are available for every Role. One is selected randomly at the start and stored with the browser draft. Character illustrations appear only after completion. The system never infers gender, and the illustration is explicitly described as decorative rather than a representation of the learner's gender.
+- **Engineering Experience Level** uses C01, C02, and current Technical Toolkit experience to describe present scope as Exploring, Building, Practising, or Integrating. It is not a professional title, employability claim, grade, or engineer rank.
+- Two character-presentation variants are available for every Role. One is selected randomly at the start and stored with the browser draft. Role-card previews use one standard natural-colour illustration; the completed result uses the stored variant. The system never infers gender, and the visual choice does not affect results.
 
 ## Results-page contract
 
@@ -174,7 +174,9 @@ The Standard results page should contain:
 - optional contextual note about project experience;
 - a light evidence-practice reflection from J01/J02;
 - explicit statement that results are formative self-report, not a grade or fixed engineering type.
-- a current Engineering Role identity card and compact Growth Stage label, with the limitations above stated visibly.
+- a current Engineering Role identity card and compact Engineering Experience Level label, with the limitations above stated visibly;
+- a plain-language analysis beneath the radar based on the strongest, supporting, and clearest practice-next competency;
+- five-level current-experience descriptors beside each Technical Toolkit score.
 
 Do not display:
 
@@ -200,7 +202,7 @@ Competency names may appear on the welcome and results pages, but not while B01�
 
 Keep the current gentle speed nudge. The nudge should ask the learner to picture a real project example and reconsider if needed. It must not block completion or alter scores automatically.
 
-For Standard V1.4, response-quality signals should be transparent and limited to:
+For Standard V1.5, response-quality signals should be transparent and limited to:
 
 - repeated unusually fast answers;
 - unanswered required items;

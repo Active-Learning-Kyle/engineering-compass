@@ -73,7 +73,7 @@ declare global {
   }
 }
 
-const progressStorageKey = 'engineering-compass-progress-v1.4';
+const progressStorageKey = 'engineering-compass-progress-v1.5';
 const assetPath = (path: string) => `${import.meta.env.BASE_URL}${path}`;
 const phases: Array<{ key: PhaseKey; label: string; range: string }> = [
   { key: 'behaviour', label: 'How you work', range: '01–15' },
@@ -83,7 +83,7 @@ const phases: Array<{ key: PhaseKey; label: string; range: string }> = [
   { key: 'judgment', label: 'Engineering judgment', range: '29–30' },
 ];
 const chartConfig = {
-  score: { label: 'Profile', color: '#075b45' },
+  score: { label: 'Profile', color: '#163f27' },
 } satisfies ChartConfig;
 const roleIcons: Record<EngineeringModeKey, typeof Compass> = {
   problem: CircleHelp,
@@ -93,6 +93,19 @@ const roleIcons: Record<EngineeringModeKey, typeof Compass> = {
   design: Boxes,
   pitch: MessageCircle,
 };
+
+const toolkitExperienceLevels = [
+  'New to this',
+  'Guided',
+  'Developing',
+  'Independent',
+  'Adaptable',
+] as const;
+
+function getToolkitExperienceLevel(score: number) {
+  const number = Math.min(5, Math.max(1, Math.round(score / 25) + 1));
+  return { number, label: toolkitExperienceLevels[number - 1] };
+}
 const phaseCopy: Record<
   PhaseKey,
   { eyebrow: string; note: string; icon: typeof Compass }
@@ -397,10 +410,10 @@ export default function Home() {
   function downloadSummary() {
     const yearLabel = getStudyYearLabel(year) ?? 'Not provided';
     const lines = [
-      'ENGINEERING COMPASS — STANDARD V1.4 PROFILE',
-      `Study year: ${yearLabel} (context only)`,
+      'ENGINEERING COMPASS — STANDARD V1.5 PROFILE',
+      `Study year: ${yearLabel}`,
       `Current Engineering Role: ${engineeringModes[modeKey].name}`,
-      `Growth stage: ${growthStages[growthStageKey].name}`,
+      `Engineering experience level: ${growthStages[growthStageKey].name}`,
       '',
       'SIX ENGINEERING COMPETENCIES',
       ...results.competencyScores.map(
@@ -426,7 +439,7 @@ export default function Home() {
     const url = URL.createObjectURL(blob);
     const anchor = document.createElement('a');
     anchor.href = url;
-    anchor.download = 'engineering-compass-standard-v1-4.txt';
+    anchor.download = 'engineering-compass-standard-v1-5.txt';
     anchor.click();
     URL.revokeObjectURL(url);
   }
@@ -517,11 +530,8 @@ function Header({
         {showNavigation ? (
           <div className="home-nav">
             <nav aria-label="Homepage sections">
-              <a href="#about">About</a>
               <a href="#how-it-works">How it works</a>
               <a href="#roles">Roles</a>
-              <a href="#toolkit">Toolkit areas</a>
-              <a href="#faq">FAQ</a>
             </nav>
             <Button
               variant="outline"
@@ -575,7 +585,7 @@ function Welcome({
           <div className="mt-9 flex flex-wrap items-center gap-3">
             <Button
               size="lg"
-              className="h-13 rounded-full px-7 text-base shadow-[0_14px_34px_rgba(7,91,69,.2)]"
+              className="home-primary-action h-13 rounded-full px-7 text-base"
               onClick={onBegin}
             >
               Begin assessment <ArrowRight className="ml-1 size-4" />
@@ -603,6 +613,10 @@ function Welcome({
           <div className="profile-orbit" aria-hidden="true">
             <div className="orbit-axis orbit-axis-x" />
             <div className="orbit-axis orbit-axis-y" />
+            <div className="orbit-compass-rose" />
+            <span className="orbit-dot orbit-dot-1" />
+            <span className="orbit-dot orbit-dot-2" />
+            <span className="orbit-dot orbit-dot-3" />
             <div className="orbit-center">
               <Compass className="size-11" strokeWidth={1.5} />
               <span>YOUR PROFILE</span>
@@ -611,7 +625,7 @@ function Welcome({
               <div
                 key={key}
                 className={`orbit-point orbit-point-${index + 1}`}
-                style={{ '--point-color': '#075b45' } as React.CSSProperties}
+                style={{ '--point-color': '#163f27' } as React.CSSProperties}
               >
                 {(() => {
                   const RoleIcon = roleIcons[key];
@@ -647,9 +661,9 @@ function Welcome({
           <p>
             Thirty responses form your six-competency radar and nine-area
             toolkit. Your leading competency suggests one of six current team
-            roles; project context and toolkit experience provide a small Growth
-            Stage label. Neither is a grade, personality type, or professional
-            rank.
+            roles; project context and toolkit experience provide a compact
+            Engineering Experience Level. Neither is a grade, personality type,
+            or professional rank.
           </p>
         </div>
         <div id="roles" className="modes-preview-heading scroll-mt-24">
@@ -670,18 +684,34 @@ function Welcome({
               ]
             >
           ).map(([key, mode]) => (
-            <article className="role-preview-card" key={key}>
-              <div className="role-preview-icon" aria-hidden="true">
-                {(() => {
-                  const RoleIcon = roleIcons[key];
-                  return <RoleIcon className="size-7" strokeWidth={1.65} />;
-                })()}
+            <button
+              type="button"
+              className="role-preview-card"
+              key={key}
+              aria-label={`Preview ${mode.name}`}
+            >
+              <div className="role-preview-default">
+                <div className="role-preview-icon" aria-hidden="true">
+                  {(() => {
+                    const RoleIcon = roleIcons[key];
+                    return <RoleIcon className="size-7" strokeWidth={1.65} />;
+                  })()}
+                </div>
+                <div className="mode-preview-copy">
+                  <h3>{mode.name}</h3>
+                  <p>{mode.shortDescription}</p>
+                </div>
               </div>
-              <div className="mode-preview-copy">
-                <h3>{mode.name}</h3>
-                <p>{mode.shortDescription}</p>
+              <div className="role-hover-preview" aria-hidden="true">
+                {/* oxlint-disable-next-line next/no-img-element */}
+                <img src={assetPath(mode.image.a)} alt="" />
+                <div className="role-hover-copy">
+                  <span>ENGINEERING ROLE</span>
+                  <h3>{mode.name}</h3>
+                  <p>{mode.contribution}</p>
+                </div>
               </div>
-            </article>
+            </button>
           ))}
         </div>
         <div id="toolkit" className="home-toolkit scroll-mt-24">
@@ -700,25 +730,6 @@ function Welcome({
               </span>
             ))}
           </div>
-        </div>
-        <div id="about" className="home-info-grid scroll-mt-24">
-          <article>
-            <div className="panel-eyebrow">ABOUT</div>
-            <h2>A practical reflection for engineering learners.</h2>
-            <p>
-              Use it at different points in your undergraduate journey to notice
-              changing strengths, experience, and priorities.
-            </p>
-          </article>
-          <article id="faq" className="scroll-mt-24">
-            <div className="panel-eyebrow">FAQ</div>
-            <h2>Will this decide my team role?</h2>
-            <p>
-              No. Your result offers one useful role lens based on your current
-              responses. If several scores are close, your team contribution may
-              shift with the project.
-            </p>
-          </article>
         </div>
       </div>
       <footer className="home-footer">
@@ -1107,6 +1118,23 @@ function Results({
   const yearLabel = getStudyYearLabel(year);
   const mode = engineeringModes[modeKey];
   const stage = growthStages[growthStageKey];
+  const rankedCompetencies = [...competencyScores].sort(
+    (a, b) => b.score - a.score,
+  );
+  const strongest = rankedCompetencies[0];
+  const supporting = rankedCompetencies[1];
+  const growthEdge = rankedCompetencies.at(-1);
+  const workingAnalysis = strongest
+    ? `Your answers point most strongly to ${strongest.fullLabel}${
+        supporting
+          ? `, with ${supporting.fullLabel} as a supporting strength`
+          : ''
+      }. ${
+        growthEdge
+          ? `${growthEdge.fullLabel} is the clearest area to practise next.`
+          : ''
+      }`
+    : 'Your profile shows how you currently approach engineering work.';
   return (
     <section className="mx-auto max-w-7xl px-6 py-11 lg:px-12 lg:py-15">
       <div
@@ -1124,13 +1152,12 @@ function Results({
           </div>
           <div className="mode-stage-row">
             <span className="growth-stage-pill">
-              GROWTH STAGE {String(stage.number).padStart(2, '0')}/04 ·{' '}
-              {stage.name}
+              ENGINEERING EXPERIENCE LEVEL{' '}
+              {String(stage.number).padStart(2, '0')}/04 · {stage.name}
             </span>
             {yearLabel && (
               <span className="year-context-pill">
-                <GraduationCap className="size-3.5" /> {yearLabel} · context
-                only
+                <GraduationCap className="size-3.5" /> {yearLabel}
               </span>
             )}
           </div>
@@ -1143,8 +1170,7 @@ function Results({
           <p className="mode-disclaimer">
             A current role lens, not a fixed personality type or professional
             rank. If several scores are close, another role may fit just as
-            well. The illustration is selected at random and does not represent
-            your gender.
+            well.
           </p>
           <div className="mode-actions">
             <Button
@@ -1159,7 +1185,7 @@ function Results({
               className="rounded-full"
               onClick={onRestart}
             >
-              <RefreshCw className="mr-1 size-4" /> Retake
+              <RefreshCw className="mr-1 size-4" /> Take assessment again
             </Button>
           </div>
         </div>
@@ -1205,15 +1231,11 @@ function Results({
                 fill="var(--color-score)"
                 fillOpacity={0.16}
                 strokeWidth={2.5}
-                dot={{ r: 4, fill: '#075b45', strokeWidth: 0 }}
+                dot={{ r: 4, fill: '#163f27', strokeWidth: 0 }}
               />
             </RadarChart>
           </ChartContainer>
-          <p className="result-footnote">
-            Hands-on represents your current technical breadth, experience, and
-            independence across all nine toolkit areas—not an objective ability
-            score.
-          </p>
+          <p className="result-footnote">{workingAnalysis}</p>
         </article>
         <article className="result-panel">
           <div className="panel-heading">
@@ -1226,26 +1248,33 @@ function Results({
             <Wrench className="size-5 text-primary" />
           </div>
           <div className="mt-7 space-y-4">
-            {toolkitScores.map((item) => (
-              <div key={item.key}>
-                <div className="mb-1.5 flex items-end justify-between gap-4 text-sm">
-                  <span className="font-medium">{item.name}</span>
-                  <span className="font-semibold tabular-nums text-primary">
-                    {item.score}
-                  </span>
+            {toolkitScores.map((item) => {
+              const level = getToolkitExperienceLevel(item.score);
+              return (
+                <div key={item.key}>
+                  <div className="mb-1.5 flex items-end justify-between gap-4 text-sm">
+                    <span className="font-medium">{item.name}</span>
+                    <span className="toolkit-score-meta">
+                      <strong>{item.score}</strong>
+                      <span>
+                        Level {level.number}/5 · {level.label}
+                      </span>
+                    </span>
+                  </div>
+                  <div className="h-2 overflow-hidden rounded-full bg-secondary">
+                    <div
+                      className="h-full rounded-full bg-primary transition-all"
+                      style={{ width: `${item.score}%` }}
+                    />
+                  </div>
                 </div>
-                <div className="h-2 overflow-hidden rounded-full bg-secondary">
-                  <div
-                    className="h-full rounded-full bg-primary transition-all"
-                    style={{ width: `${item.score}%` }}
-                  />
-                </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
           <p className="result-footnote mt-6">
-            Each bar comes from its own Standard self-report item. Use it as a
-            starting point for reflection, not proof of mastery.
+            Each level reflects your selected experience and independence in
+            that area. Use it as a practice starting point, not proof of
+            mastery.
           </p>
         </article>
       </div>

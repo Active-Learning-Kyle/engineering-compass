@@ -1,6 +1,6 @@
 import type { AssessmentItem, AssessmentVersion } from './types';
 
-export const assessmentVersion: AssessmentVersion = 'standard-v1.4';
+export const assessmentVersion: AssessmentVersion = 'standard-v1.5';
 
 export const behaviourScale = {
   prompt: 'How well does this describe how you usually work?',

@@ -26,8 +26,8 @@ export const engineeringModes: Record<
       'You look closely at what is happening before deciding what should be solved.',
     contribution:
       'Help the team define the real need, gather evidence, and turn a broad concern into an actionable problem.',
-    accent: '#075b45',
-    tint: '#e8f1ec',
+    accent: '#163f27',
+    tint: '#edf4ed',
     image: {
       a: 'modes/problem-framer-a.webp',
       b: 'modes/problem-framer-b.webp',
@@ -39,8 +39,8 @@ export const engineeringModes: Record<
       'You turn a promising direction into a route that people can realistically follow.',
     contribution:
       'Clarify requirements, milestones, ownership, resources, and important risks before work accelerates.',
-    accent: '#075b45',
-    tint: '#e8f1ec',
+    accent: '#163f27',
+    tint: '#edf4ed',
     image: {
       a: 'modes/project-navigator-a.webp',
       b: 'modes/project-navigator-b.webp',
@@ -52,8 +52,8 @@ export const engineeringModes: Record<
       'You help different people, ideas, and technical contributions work together.',
     contribution:
       'Translate between specialisms, make ownership clear, and surface disagreements early enough to resolve them.',
-    accent: '#075b45',
-    tint: '#e8f1ec',
+    accent: '#163f27',
+    tint: '#edf4ed',
     image: {
       a: 'modes/team-connector-a.webp',
       b: 'modes/team-connector-b.webp',
@@ -65,8 +65,8 @@ export const engineeringModes: Record<
       'You learn quickly when an idea becomes something you can assemble, test, and improve.',
     contribution:
       'Turn discussion into a working prototype, troubleshoot common failures, and make practical constraints visible.',
-    accent: '#075b45',
-    tint: '#e8f1ec',
+    accent: '#163f27',
+    tint: '#edf4ed',
     image: {
       a: 'modes/practical-builder-a.webp',
       b: 'modes/practical-builder-b.webp',
@@ -78,8 +78,8 @@ export const engineeringModes: Record<
       'You use prototypes and tests to learn what should change next.',
     contribution:
       'Create an early version, design a useful test, diagnose failures, and turn feedback into a focused iteration.',
-    accent: '#075b45',
-    tint: '#e8f1ec',
+    accent: '#163f27',
+    tint: '#edf4ed',
     image: {
       a: 'modes/prototype-explorer-a.webp',
       b: 'modes/prototype-explorer-b.webp',
@@ -91,8 +91,8 @@ export const engineeringModes: Record<
       'You make an engineering solution understandable, credible, and relevant to its audience.',
     contribution:
       'Explain the problem and value clearly, support claims with evidence, and communicate limitations honestly.',
-    accent: '#075b45',
-    tint: '#e8f1ec',
+    accent: '#163f27',
+    tint: '#edf4ed',
     image: {
       a: 'modes/solution-storyteller-a.webp',
       b: 'modes/solution-storyteller-b.webp',

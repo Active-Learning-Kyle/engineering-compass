@@ -52,6 +52,11 @@ export default defineConfig(async ({ command }) => {
         })
       : null;
 
+  // GitHub Pages is a plain static deployment and does not have the private
+  // ChatGPT Sites project metadata used by the Sites publishing plugin.
+  const sitesPlugin =
+    process.env.GITHUB_ACTIONS === 'true' ? null : sites();
+
   return {
     base:
       process.env.GITHUB_ACTIONS === 'true' ? '/engineering-compass/' : '/',
@@ -61,7 +66,7 @@ export default defineConfig(async ({ command }) => {
       : undefined,
     plugins: [
       vinext(),
-      sites(),
+      ...(sitesPlugin ? [sitesPlugin] : []),
       ...(cloudflarePlugin ? [cloudflarePlugin] : []),
     ],
   };

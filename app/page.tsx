@@ -162,8 +162,22 @@ const roleIcons: Record<EngineeringModeKey, typeof Compass> = {
   pitch: MessageCircle,
 };
 
-function AnimatedCompassNeedle() {
+function AnimatedCompassNeedle({
+  hoverTarget,
+}: {
+  hoverTarget: number | null;
+}) {
   const needle = useRef<HTMLDivElement>(null);
+  const interaction = useRef<number | null>(null);
+  useEffect(() => {
+    interaction.current = hoverTarget;
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+      needle.current?.style.setProperty(
+        '--needle-rotation',
+        `${hoverTarget ?? 0}deg`,
+      );
+    }
+  }, [hoverTarget]);
   useEffect(() => {
     const preference = window.matchMedia('(prefers-reduced-motion: reduce)');
     let frame = 0;
@@ -175,11 +189,22 @@ function AnimatedCompassNeedle() {
     let lastTime = 0;
     let nextMove = 0;
     let previousTarget = -1;
+    let lastHover: number | null = null;
     const animate = (time: number) => {
       if (preference.matches) return;
       const dt = Math.min((time - (lastTime || time)) / 1000, 0.035);
       lastTime = time;
-      if (time >= nextMove) {
+      const hover = interaction.current;
+      if (hover !== lastHover) {
+        if (hover !== null) {
+          const normalized = ((angle % 360) + 360) % 360;
+          target = angle + (((hover - normalized + 540) % 360) - 180);
+        } else {
+          nextMove = 0;
+        }
+        lastHover = hover;
+      }
+      if (hover === null && time >= nextMove) {
         if (index >= targets.length) {
           targets = shuffledCompassTargets(previousTarget);
           index = 0;
@@ -710,6 +735,7 @@ function Welcome({
   hasSavedProgress: boolean;
   hasLegacyDraft: boolean;
 }) {
+  const [compassHover, setCompassHover] = useState<number | null>(null);
   const { t } = useLanguage();
   return (
     <LocalizedContent>
@@ -815,7 +841,7 @@ function Welcome({
                 <span className="compass-cardinal compass-cardinal-e">E</span>
                 <span className="compass-cardinal compass-cardinal-s">S</span>
                 <span className="compass-cardinal compass-cardinal-w">W</span>
-                <AnimatedCompassNeedle />
+                <AnimatedCompassNeedle hoverTarget={compassHover} />
                 <span className="orbit-dot orbit-dot-1" />
                 <span className="orbit-dot orbit-dot-2" />
                 <span className="orbit-dot orbit-dot-3" />
@@ -827,6 +853,23 @@ function Welcome({
                   <div
                     key={key}
                     className={`orbit-point orbit-point-${index + 1}`}
+                    onPointerEnter={(event) => {
+                      if (event.pointerType === 'touch') return;
+                      const point = event.currentTarget.getBoundingClientRect();
+                      const orbit =
+                        event.currentTarget.parentElement!.getBoundingClientRect();
+                      const dx =
+                        point.left +
+                        point.width / 2 -
+                        (orbit.left + orbit.width / 2);
+                      const dy =
+                        point.top +
+                        point.height / 2 -
+                        (orbit.top + orbit.height / 2);
+                      setCompassHover((Math.atan2(dx, -dy) * 180) / Math.PI);
+                    }}
+                    onPointerLeave={() => setCompassHover(null)}
+                    onPointerCancel={() => setCompassHover(null)}
                     style={
                       { '--point-color': '#163f27' } as React.CSSProperties
                     }

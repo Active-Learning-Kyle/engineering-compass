@@ -1576,14 +1576,27 @@ function Results({
                 <h1>
                   {modes.balanced
                     ? 'result.role.balanced'
-                    : modes.leading
-                        .map((item) => t(engineeringModes[item.key].name))
-                        .join(' + ')}
+                    : modes.leading.length > 2
+                      ? 'result.role.multiple'
+                      : modes.leading
+                          .map((item) => t(engineeringModes[item.key].name))
+                          .join(' + ')}
                 </h1>
                 {modes.leading.length > 1 && !modes.balanced && (
-                  <p className="mode-secondary">
-                    {'result.role.tied'} · {modes.leading[0].score}
-                  </p>
+                  <>
+                    <p className="mode-secondary">
+                      {'result.role.tied'} · {modes.leading[0].score}
+                    </p>
+                    {modes.leading.length > 2 && (
+                      <div className="leading-mode-tags">
+                        {modes.leading.map((item) => (
+                          <span key={item.key}>
+                            {t(engineeringModes[item.key].name)}
+                          </span>
+                        ))}
+                      </div>
+                    )}
+                  </>
                 )}
                 <p className="mode-lead">
                   {modes.balanced

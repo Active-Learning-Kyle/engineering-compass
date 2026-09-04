@@ -137,6 +137,10 @@ export const refinementMessages = {
     'Joint leading modes at the displayed score',
     '按顯示分數並列領先的方向',
   ],
+  'result.role.multiple': [
+    'Several current strengths stand out',
+    '多項目前優勢並列',
+  ],
   'result.role.balanced': ['A balanced current profile', '目前的能力表現均衡'],
   'result.role.balancedNote': [
     'All six displayed scores are equal. No single role stands out; explore the six modes below.',

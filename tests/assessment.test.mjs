@@ -768,6 +768,12 @@ test('Leading mode presentation preserves ties without an arbitrary near-tie thr
   assert.equal(deriveLeadingModes(close).supporting[0].score, 95);
   close[1].score = 96;
   assert.equal(deriveLeadingModes(close).leading.length, 2);
+  const multiple = close.map((item, index) => ({
+    ...item,
+    score: index < 4 ? 100 : 75,
+  }));
+  assert.equal(deriveLeadingModes(multiple).leading.length, 4);
+  assert.equal(deriveLeadingModes(multiple).balanced, false);
   const interpretation = interpretResults(coreAnswers, scores, []);
   assert.equal(interpretation.strengths.length, 6);
 });

@@ -1869,6 +1869,22 @@ html:lang(zh-Hant) .toolkit-score-meta {
   font-weight: 650;
   fill: var(--foreground);
 }
+.leading-mode-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-top: 0.8rem;
+}
+.leading-mode-tags span {
+  border: 1px solid rgba(246, 249, 243, 0.28);
+  border-radius: 999px;
+  padding: 0.4rem 0.72rem;
+  color: #f6f9f3;
+  background: rgba(246, 249, 243, 0.08);
+  font-size: 0.78rem;
+  font-weight: 650;
+  line-height: 1.2;
+}
 /* Keep regular labels readable; retain smaller sizes only for secondary metadata. */
 .version-meta,
 .version-purpose,

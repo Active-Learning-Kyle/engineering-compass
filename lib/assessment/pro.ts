@@ -377,7 +377,7 @@ export const proChecks: ProCheckItem[] = [
   ...scenarios.map(
     ([area, prompt, choices], index): ProCheckItem => ({
       id: `PS${String(index + 1).padStart(2, '0')}`,
-      number: 31 + index,
+      number: 25 + index,
       phase: 'proScenarios',
       kind: 'proCheck',
       area,
@@ -394,7 +394,7 @@ export const proChecks: ProCheckItem[] = [
   ...evidenceTasks.map(
     ([area, task, evidence], index): ProCheckItem => ({
       id: `PE${String(index + 1).padStart(2, '0')}`,
-      number: 43 + index,
+      number: 37 + index,
       phase: 'proEvidence',
       kind: 'proCheck',
       area,
@@ -433,9 +433,36 @@ export const proChecks: ProCheckItem[] = [
   ),
 ];
 
-export const proQuestions = [...questions, ...proChecks];
+// Keep the original six closing items at the end in both editions.
+export const proQuestions = [
+  ...questions.slice(0, 24),
+  ...proChecks,
+  ...questions.slice(24),
+].map((item, index) => ({ ...item, number: index + 1 }));
 export const getQuestions = (edition: AssessmentEdition) =>
   edition === 'pro' ? proQuestions : questions;
+
+export function restoreQuestionIndex(
+  edition: AssessmentEdition,
+  version: string,
+  current: number,
+  answers: AssessmentAnswers,
+) {
+  const bank = getQuestions(edition);
+  if (edition === 'pro' && version === 'pro-v0.1') {
+    // Old drafts could already contain closing answers but no Pro checks.
+    // Resume the first unanswered item, never jump past the new middle section.
+    const missing = bank.findIndex((item) => {
+      const answer = answers[item.id];
+      if (item.kind === 'interest') return !Array.isArray(answer);
+      if (item.kind === 'growth')
+        return !Array.isArray(answer) || answer.length < item.min;
+      return typeof answer !== 'number';
+    });
+    return missing === -1 ? bank.length - 1 : missing;
+  }
+  return Math.min(Math.max(Math.floor(current), 0), bank.length - 1);
+}
 
 export function interpretPro(answers: AssessmentAnswers) {
   const scenariosByArea = Object.keys(competencies).map((area) => ({

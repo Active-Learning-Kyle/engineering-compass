@@ -23,9 +23,18 @@ import {
   TimerReset,
   UsersRound,
   Wrench,
+  Cog,
+  Box,
+  Printer,
+  CircuitBoard,
+  Code2,
+  Cpu,
+  Radio,
+  ScanEye,
+  Workflow,
 } from 'lucide-react';
 import { PolarAngleAxis, PolarGrid, Radar, RadarChart } from 'recharts';
-import { toPng } from 'html-to-image';
+import { exportProfileImage } from '@/lib/assessment/profile-export';
 import { Button } from '@/components/ui/button';
 import { ChartContainer, type ChartConfig } from '@/components/ui/chart';
 import { Progress } from '@/components/ui/progress';
@@ -47,9 +56,14 @@ import {
   technicalScale,
 } from '@/lib/assessment/questions';
 import { calculateResults } from '@/lib/assessment/scoring';
-import { getQuestions, interpretPro } from '@/lib/assessment/pro';
+import {
+  getQuestions,
+  interpretPro,
+  restoreQuestionIndex,
+} from '@/lib/assessment/pro';
 import {
   compassSpringStep,
+  compassRetargetDelay,
   shuffledCompassTargets,
 } from '@/lib/assessment/compass-motion';
 import { toolkit, toolkitOrder } from '@/lib/assessment/toolkit';
@@ -59,6 +73,7 @@ import type {
   AssessmentEdition,
   AssessmentItem,
   PhaseKey,
+  ToolkitKey,
 } from '@/lib/assessment/types';
 
 type Step = 'welcome' | 'year' | 'assessment' | 'results';
@@ -90,10 +105,24 @@ const phases: Array<{ key: PhaseKey; label: string; range: string }> = [
   { key: 'judgment', label: 'Engineering judgment', range: '29–30' },
 ];
 const proPhases = [
-  ...phases,
-  { key: 'proScenarios' as const, label: 'Team decisions', range: '31–42' },
-  { key: 'proEvidence' as const, label: 'Practice evidence', range: '43–60' },
+  ...phases.slice(0, 2),
+  { key: 'proScenarios' as const, label: 'Team decisions', range: '25–36' },
+  { key: 'proEvidence' as const, label: 'Practice evidence', range: '37–54' },
+  { key: 'context' as const, label: 'Project context', range: '55–56' },
+  { key: 'priorities' as const, label: 'Interests & growth', range: '57–58' },
+  { key: 'judgment' as const, label: 'Engineering judgment', range: '59–60' },
 ];
+const toolkitIcons: Record<ToolkitKey, typeof Compass> = {
+  mechanical: Cog,
+  cad: Box,
+  fabrication: Printer,
+  electronics: CircuitBoard,
+  programming: Code2,
+  physicalComputing: Cpu,
+  sensorsIot: Radio,
+  aiVision: ScanEye,
+  integration: Workflow,
+};
 const chartConfig = {
   score: { label: 'Profile', color: '#163f27' },
 } satisfies ChartConfig;
@@ -131,7 +160,7 @@ function AnimatedCompassNeedle() {
         previousTarget = targets[index++];
         const normalized = ((angle % 360) + 360) % 360;
         target = angle + (((previousTarget - normalized + 540) % 360) - 180);
-        nextMove = time + 2100 + Math.random() * 650;
+        nextMove = time + compassRetargetDelay();
       }
       // Underdamped spring: several overshoots, with a small continuous flutter.
       ({ angle, velocity } = compassSpringStep(
@@ -280,7 +309,7 @@ export default function Home() {
   const [edition, setEdition] = useState<AssessmentEdition>('standard');
   const questions = getQuestions(edition);
   const activePhases = edition === 'pro' ? proPhases : phases;
-  const version = edition === 'pro' ? 'pro-v0.1' : assessmentVersion;
+  const version = edition === 'pro' ? 'pro-v0.2' : assessmentVersion;
   const [step, setStep] = useState<Step>('welcome');
   const [year, setYear] = useState<string | null>(null);
   const [current, setCurrent] = useState(0);
@@ -310,18 +339,21 @@ export default function Home() {
       };
       if (
         (parsed.version === assessmentVersion ||
-          parsed.version === 'pro-v0.1') &&
+          parsed.version === 'pro-v0.1' ||
+          parsed.version === 'pro-v0.2') &&
         typeof parsed.current === 'number' &&
+        Number.isFinite(parsed.current) &&
         parsed.answers
       ) {
         queueMicrotask(() =>
           setSavedDraft({
-            edition: parsed.version === 'pro-v0.1' ? 'pro' : 'standard',
+            edition: parsed.version?.startsWith('pro-') ? 'pro' : 'standard',
             year: typeof parsed.year === 'string' ? parsed.year : null,
-            current: Math.min(
-              Math.max(parsed.current ?? 0, 0),
-              getQuestions(parsed.version === 'pro-v0.1' ? 'pro' : 'standard')
-                .length - 1,
+            current: restoreQuestionIndex(
+              parsed.version?.startsWith('pro-') ? 'pro' : 'standard',
+              parsed.version ?? '',
+              parsed.current ?? 0,
+              parsed.answers ?? {},
             ),
             answers: parsed.answers ?? { I01: [] },
           }),
@@ -529,31 +561,10 @@ export default function Home() {
   async function downloadProfileImage() {
     const resultPage = document.getElementById('engineering-compass-results');
     if (!resultPage) return;
-    await Promise.all(
-      Array.from(resultPage.querySelectorAll('img')).map(
-        (image) =>
-          new Promise<void>((resolve) => {
-            if (image.complete) resolve();
-            else {
-              image.addEventListener('load', () => resolve(), { once: true });
-              image.addEventListener('error', () => resolve(), { once: true });
-            }
-          }),
-      ),
+    await exportProfileImage(
+      resultPage,
+      `engineering-compass-${edition}-${modeKey}-profile.png`,
     );
-    const url = await toPng(resultPage, {
-      backgroundColor: '#f7faf6',
-      cacheBust: true,
-      pixelRatio: Math.min(window.devicePixelRatio || 1, 2),
-      filter: (node) =>
-        !(
-          node instanceof HTMLElement && node.dataset.captureExclude === 'true'
-        ),
-    });
-    const anchor = document.createElement('a');
-    anchor.href = url;
-    anchor.download = `engineering-compass-${edition}-${modeKey}-profile.png`;
-    anchor.click();
   }
 
   return (
@@ -711,10 +722,10 @@ function Welcome({
               </span>
             </button>
           </div>
-          <div className="mt-4 flex flex-wrap items-center gap-3">
+          <div className="home-start-actions mt-4">
             <Button
               size="lg"
-              className="h-13 rounded-full px-6"
+              className="home-begin-button h-13 w-full rounded-full px-6"
               onClick={onBegin}
             >
               Begin {edition === 'pro' ? 'Pro' : 'Standard'}{' '}
@@ -737,18 +748,8 @@ function Welcome({
                 : 'Your core engineering profile'}
             </div>
           </div>
-          {edition === 'pro' && (
-            <p className="mt-3 text-sm text-muted-foreground">
-              Pro is an initial pilot for feedback and revision, not a validated
-              assessment.
-            </p>
-          )}
-          <p className="mt-5 max-w-lg text-xs leading-5 text-muted-foreground">
-            Your responses are private and stay on this device. The role is a
-            reflection prompt—not a grade, selection test, or fixed type.
-          </p>
         </div>
-        <div className="mx-auto w-full max-w-lg">
+        <div className="home-compass-column mx-auto w-full max-w-lg">
           <div className="profile-orbit" aria-hidden="true">
             <div className="orbit-axis orbit-axis-x" />
             <div className="orbit-axis orbit-axis-y" />
@@ -796,6 +797,18 @@ function Welcome({
                 </div>
               </div>
             ))}
+          </div>
+          <div className="home-assessment-notes">
+            {edition === 'pro' && (
+              <p>
+                Pro is an initial pilot for feedback and revision, not a
+                validated assessment.
+              </p>
+            )}
+            <p>
+              Your responses are private and stay on this device. The role is a
+              reflection prompt—not a grade, selection test, or fixed type.
+            </p>
           </div>
         </div>
       </div>
@@ -883,40 +896,27 @@ function Welcome({
               Each area is reflected separately, so the result shows both
               breadth and the tools you may want to practise next.
             </p>
-            <div className="toolkit-reading-guide">
-              <div>
-                <strong>Breadth</strong>
-                <span>Which kinds of tools you have already encountered.</span>
-              </div>
-              <div>
-                <strong>Independence</strong>
-                <span>Where you can work with less step-by-step support.</span>
-              </div>
-              <div>
-                <strong>Next practice</strong>
-                <span>One useful area to try in your next project.</span>
-              </div>
-            </div>
           </div>
           <div className="toolkit-chip-grid">
-            {toolkitOrder.map((key) => (
-              <button
-                type="button"
-                className="toolkit-preview-card"
-                key={key}
-                aria-label={`${toolkit[key].label}: ${toolkit[key].skills.join(', ')}`}
-              >
-                <span className="toolkit-preview-title">
-                  <Wrench className="size-4" />
-                  <strong>{toolkit[key].label}</strong>
-                </span>
-                <span className="toolkit-skills-preview" aria-hidden="true">
-                  {toolkit[key].skills.map((skill) => (
-                    <span key={skill}>{skill}</span>
-                  ))}
-                </span>
-              </button>
-            ))}
+            {toolkitOrder.map((key) => {
+              const ToolkitIcon = toolkitIcons[key];
+              return (
+                <article className="toolkit-preview-card" key={key}>
+                  <div className="toolkit-preview-title">
+                    <span className="toolkit-area-icon">
+                      <ToolkitIcon className="size-6" aria-hidden="true" />
+                    </span>
+                    <h3>{toolkit[key].label}</h3>
+                  </div>
+                  <p>{toolkit[key].description}</p>
+                  <ul className="toolkit-skills-preview">
+                    {toolkit[key].skills.map((skill) => (
+                      <li key={skill}>{skill}</li>
+                    ))}
+                  </ul>
+                </article>
+              );
+            })}
           </div>
         </div>
       </div>
@@ -1331,6 +1331,7 @@ function Results({
   onDownload: () => Promise<void>;
 }) {
   const [isSaving, setIsSaving] = useState(false);
+  const [saveError, setSaveError] = useState<string | null>(null);
   const yearLabel = getStudyYearLabel(year);
   const mode = engineeringModes[modeKey];
   const stage = growthStages[growthStageKey];
@@ -1404,8 +1405,13 @@ function Results({
               disabled={isSaving}
               onClick={async () => {
                 setIsSaving(true);
+                setSaveError(null);
                 try {
                   await onDownload();
+                } catch {
+                  setSaveError(
+                    'The image could not be saved. Please let the illustrations finish loading and try again.',
+                  );
                 } finally {
                   setIsSaving(false);
                 }
@@ -1422,6 +1428,15 @@ function Results({
               <RefreshCw className="mr-1 size-4" /> Take assessment again
             </Button>
           </div>
+          {saveError && (
+            <p
+              role="alert"
+              className="mt-3 text-sm text-white"
+              data-capture-exclude="true"
+            >
+              {saveError}
+            </p>
+          )}
         </div>
         <div
           className="mode-art"
@@ -1501,10 +1516,10 @@ function Results({
                   <div className="mb-1.5 flex items-end justify-between gap-4 text-sm">
                     <span className="font-medium">{item.name}</span>
                     <span className="toolkit-score-meta">
-                      <strong>{item.score}</strong>
                       <span>
                         Level {level.number}/5 · {level.label}
                       </span>
+                      <strong>{item.score}</strong>
                     </span>
                   </div>
                   <div className="h-2 overflow-hidden rounded-full bg-secondary">

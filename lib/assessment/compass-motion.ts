@@ -9,6 +9,9 @@ export function shuffledCompassTargets(previous = -1, random = Math.random) {
   return targets;
 }
 
+export const compassRetargetDelay = (random = Math.random) =>
+  650 + random() * 250;
+
 export function compassSpringStep(
   angle: number,
   velocity: number,
@@ -16,8 +19,8 @@ export function compassSpringStep(
   time: number,
   dt: number,
 ) {
-  const flutter = 2.2 * Math.sin(time / 95) + 0.8 * Math.sin(time / 43);
+  const flutter = 7 * Math.sin(time / 48) + 3 * Math.sin(time / 23);
   const nextVelocity =
-    velocity + (65 * (target + flutter - angle) - 3.9 * velocity) * dt;
+    velocity + (260 * (target + flutter - angle) - 5.8 * velocity) * dt;
   return { angle: angle + nextVelocity * dt, velocity: nextVelocity };
 }

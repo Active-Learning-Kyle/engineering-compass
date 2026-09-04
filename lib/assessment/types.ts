@@ -5,6 +5,7 @@ export type AssessmentVersion =
   | 'standard-v1.5'
   | 'standard-v1.6'
   | 'pro-v0.1'
+  | 'pro-v0.2'
   | 'pro-future';
 
 export type ActiveLearningEssentialTag =

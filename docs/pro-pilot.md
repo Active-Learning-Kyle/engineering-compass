@@ -9,7 +9,7 @@ Implemented 4 September 2026 at the owner's request. This supersedes the earlier
 | 1–24      | Standard v1.7: recent-project behaviour frequency and original toolkit ratings          | Existing core mappings and formulas                                                     |
 | 25–36     | PS01–PS12: two contextual decisions per competency, each with two defensible trade-offs | Benefit/cost feedback for the selected priority; no numeric score                       |
 | 37–54     | PE01–PE18: two concrete practice-evidence reflections per toolkit area                  | Qualitative experience summary, next practice and broad/specific experience cross-check |
-| 55–60     | Original six closing items: C01, C02, I01, G01, J01, J02                                | Project context, interests, growth priorities and closing judgment reflections          |
+| 55–60     | Closing items: C01, C02, J01, J02, I01, G01 | Project context, judgment, then interest and growth multi-selects |
 
 Scenario option values identify choices, not merit or ability. Both options must be defensible within the stated constraint, with similar length and an explicit cost. Do not use careless/unsafe/incompetent distractors or a longer “do everything correctly” answer. Scenarios explore priorities, not stable personality traits. Evidence options retain four factual anchors: no experience, guided participation, explained contribution and independently checked work. This is self-reported evidence: no uploads or verification are implied.
 
@@ -25,7 +25,7 @@ The homepage selects Standard (30) or Pro (60), updates statistics and purpose-b
 - Current Experience Scope retains the old heuristic (projects 25%, responsibility 50%, toolkit mean 25%; boundaries 1.8 / 2.8 / 3.8). It is explicitly approximate; no rank fraction is displayed.
 - Equal displayed leading scores show joint modes. All six equal scores show a balanced profile. A sole leader is accompanied by the next-highest mode(s), including their scores. We do not invent a 5- or 10-point “close” rule; any future near-tie interpretation needs pilot evidence.
 - Exact ties at the second-highest strength score are all retained rather than truncated by array order. The portrait remains decorative and does not resolve a tie.
-- The original Standard closing judgment pair is retained in both editions. It has not been converted to forced choice in this revision.
+- The original Standard judgment pair is retained in both editions, before the two final multi-selects (Standard 27–28; Pro 57–58). Question meanings and scoring are unchanged. Current-version drafts without the new order marker retain answers by ID and resume any newly preceding unanswered item; new drafts retain their exact position.
 
 ## Review priorities
 

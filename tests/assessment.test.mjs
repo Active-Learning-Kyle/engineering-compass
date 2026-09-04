@@ -249,6 +249,13 @@ const coreAnswers = Object.fromEntries(
 );
 
 test('Standard has 30 items; Pro has 60 sequential, unique, fully answerable items', () => {
+  for (const bank of [questions, proQuestions]) {
+    assert.deepEqual(
+      bank.slice(-6).map((item) => item.id),
+      ['C01', 'C02', 'J01', 'J02', 'I01', 'G01'],
+    );
+    bank.forEach((item, index) => assert.equal(item.number, index + 1));
+  }
   assert.equal(getQuestions('standard').length, 30);
   assert.equal(getQuestions('pro').length, 60);
   assert.deepEqual(proQuestions.slice(0, 24), questions.slice(0, 24));
@@ -688,6 +695,45 @@ test('Language controls render within the sticky assessment/results header', asy
 test('Home introduction is neutral about assessment length in both languages', () => {
   assert.doesNotMatch(translate('home.hero.description', 'en'), /short/i);
   assert.doesNotMatch(translate('home.hero.description', 'zh-Hant'), /簡短/);
+});
+
+test('Reordered closing questions preserve old draft answers without skipping judgment', () => {
+  for (const edition of ['standard', 'pro']) {
+    const bank = getQuestions(edition);
+    const start = bank.length - 6;
+    const answers = {
+      ...coreAnswers,
+      ...Object.fromEntries(proChecks.map((q) => [q.id, 1])),
+    };
+    if (edition === 'standard') for (const q of proChecks) delete answers[q.id];
+    delete answers.J01;
+    delete answers.J02;
+    for (const offset of [2, 3, 4, 5]) {
+      const result = readDraft(
+        JSON.stringify({
+          edition,
+          version: currentVersion(edition),
+          current: start + offset,
+          year: null,
+          answers,
+        }),
+      );
+      assert.equal(result.status, 'current');
+      assert.equal(result.draft.current, start + 2);
+      assert.deepEqual(result.draft.answers, answers);
+    }
+    const current = readDraft(
+      JSON.stringify({
+        edition,
+        version: currentVersion(edition),
+        questionOrder: 'judgment-before-priorities',
+        current: start + 4,
+        year: null,
+        answers,
+      }),
+    );
+    assert.equal(current.draft.current, start + 4);
+  }
 });
 
 test('Result components render complete single, joint and balanced profiles without unresolved keys', async () => {

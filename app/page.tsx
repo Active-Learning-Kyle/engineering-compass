@@ -112,8 +112,8 @@ const phases: Array<{ key: PhaseKey; label: string; range: string }> = [
   { key: 'behaviour', label: 'common.howYouWork', range: '01–15' },
   { key: 'technical', label: 'common.technicalToolkit', range: '16–24' },
   { key: 'context', label: 'common.projectContext', range: '25–26' },
-  { key: 'priorities', label: 'common.interestsGrowth', range: '27–28' },
-  { key: 'judgment', label: 'common.engineeringJudgment', range: '29–30' },
+  { key: 'judgment', label: 'common.engineeringJudgment', range: '27–28' },
+  { key: 'priorities', label: 'common.interestsGrowth', range: '29–30' },
 ];
 const proPhases = [
   ...phases.slice(0, 2),
@@ -129,13 +129,13 @@ const proPhases = [
   },
   { key: 'context' as const, label: 'common.projectContext', range: '55–56' },
   {
-    key: 'priorities' as const,
-    label: 'common.interestsGrowth',
+    key: 'judgment' as const,
+    label: 'common.engineeringJudgment',
     range: '57–58',
   },
   {
-    key: 'judgment' as const,
-    label: 'common.engineeringJudgment',
+    key: 'priorities' as const,
+    label: 'common.interestsGrowth',
     range: '59–60',
   },
 ];
@@ -382,7 +382,11 @@ function HomeContent() {
     const draft = { edition, year, current, answers };
     window.localStorage.setItem(
       progressStorageKey,
-      JSON.stringify({ version, ...draft }),
+      JSON.stringify({
+        version,
+        questionOrder: 'judgment-before-priorities',
+        ...draft,
+      }),
     );
   }, [answers, current, step, year, edition, version]);
 
@@ -554,7 +558,11 @@ function HomeContent() {
     setSavedDraft(draft);
     window.localStorage.setItem(
       progressStorageKey,
-      JSON.stringify({ version, ...draft }),
+      JSON.stringify({
+        version,
+        questionOrder: 'judgment-before-priorities',
+        ...draft,
+      }),
     );
     setStep('welcome');
     window.scrollTo({ top: 0, behavior: 'smooth' });

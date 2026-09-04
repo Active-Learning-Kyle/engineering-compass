@@ -55,13 +55,32 @@ export function readDraft(
       )
         return { status: 'invalid' };
     }
+    let current = value.current;
+    if (value.questionOrder !== 'judgment-before-priorities') {
+      const oldClosing = ['C01', 'C02', 'I01', 'G01', 'J01', 'J02'];
+      const closingStart = bank.length - 6;
+      if (current >= closingStart) {
+        const oldId = oldClosing[current - closingStart];
+        current = bank.findIndex((item) => item.id === oldId);
+        // Keep answers by ID. Resume any newly preceding unanswered item first.
+        const missing = bank.findIndex((item, index) => {
+          if (index >= current) return false;
+          const answer = value.answers[item.id];
+          if (item.kind === 'interest') return !Array.isArray(answer);
+          if (item.kind === 'growth')
+            return !Array.isArray(answer) || answer.length < item.min;
+          return typeof answer !== 'number';
+        });
+        if (missing >= 0) current = missing;
+      }
+    }
     return {
       status: 'current',
       draft: {
         edition,
         version: value.version,
         year: typeof value.year === 'string' ? value.year : null,
-        current: value.current,
+        current,
         answers: value.answers,
       },
     };

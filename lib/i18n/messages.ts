@@ -398,9 +398,9 @@ export const en = {
   'common.yourContribution': 'YOUR CONTRIBUTION',
 
   'result.export.error':
-    'The image could not be saved. Please let the illustrations finish loading and try again.',
-  'result.export.preparing': 'Preparing image…',
-  'result.export.save': 'Save profile as image',
+    'The PDF could not be saved. Please let the illustrations finish loading and try again.',
+  'result.export.preparing': 'Preparing PDF…',
+  'result.export.save': 'Save profile as PDF',
   'common.takeAssessmentAgain': 'Take assessment again',
   'common.sixCompetencies': 'SIX COMPETENCIES',
   'result.radar.title': 'How you currently work',
@@ -1165,9 +1165,9 @@ export const zhHant: Record<MessageKey, string> = {
   'common.engineeringExperienceLevel': '工程經驗階段',
   'common.yourContribution': '你的團隊貢獻',
 
-  'result.export.error': '未能儲存圖片。請等待插圖載入完成後再試。',
-  'result.export.preparing': '正在準備圖片…',
-  'result.export.save': '將能力概況儲存為圖片',
+  'result.export.error': '未能儲存 PDF。請等待插圖載入完成後再試。',
+  'result.export.preparing': '正在準備 PDF…',
+  'result.export.save': '將完整能力概況儲存為 PDF',
   'common.takeAssessmentAgain': '重新測試一次',
   'common.sixCompetencies': '六項核心能力',
   'result.radar.title': '你目前的工作方式',

@@ -45,17 +45,69 @@ export function profileExportOptions(width: number, height: number, dpr = 1) {
   };
 }
 
-export async function exportProfileImage(root: HTMLElement, filename: string) {
+export function pdfPageBreaks(
+  height: number,
+  pageHeight: number,
+  blocks: Array<{ top: number; bottom: number }>,
+) {
+  if (
+    !Number.isFinite(height) ||
+    !Number.isFinite(pageHeight) ||
+    height < 0 ||
+    pageHeight <= 0
+  )
+    throw new Error('Invalid PDF page size.');
+  const breaks = [0];
+  while (breaks[breaks.length - 1] < height) {
+    const start = breaks[breaks.length - 1];
+    let end = Math.min(start + pageHeight, height);
+    for (const block of [...blocks].sort((a, b) => b.top - a.top)) {
+      if (
+        block.top > start &&
+        block.top < end &&
+        block.bottom > end &&
+        block.bottom - block.top <= pageHeight
+      )
+        end = block.top;
+    }
+    breaks.push(end);
+  }
+  return breaks;
+}
+
+export async function exportProfilePdf(root: HTMLElement, filename: string) {
+  const { jsPDF } = await import('jspdf');
   await document.fonts.ready;
-  // A separate, fixed-width card prevents the phone's responsive layout and
+  // A separate, fixed-width report prevents the phone's responsive layout and
   // crossfade timing from changing the downloaded artifact.
   const card = root.cloneNode(true) as HTMLElement;
   card.removeAttribute('id');
-  card.classList.add('profile-export-card');
+  card.classList.add('profile-pdf-document');
   card
     .querySelectorAll('[data-capture-exclude="true"]')
     .forEach((node) => node.remove());
   card.querySelectorAll('[id]').forEach((node) => node.removeAttribute('id'));
+  card
+    .querySelectorAll<SVGSVGElement>('svg.recharts-surface')
+    .forEach((svg) => {
+      const width = Number(svg.getAttribute('width'));
+      const height = Number(svg.getAttribute('height'));
+      if (width && height) {
+        svg.setAttribute('viewBox', `0 0 ${width} ${height}`);
+        svg.setAttribute('width', '500');
+        svg.setAttribute('height', '500');
+        Object.assign(svg.style, {
+          width: '100%',
+          height: 'auto',
+          display: 'block',
+        });
+        const chart = svg.closest('[data-chart]');
+        if (chart) {
+          chart.querySelector('.recharts-responsive-container')?.remove();
+          chart.appendChild(svg);
+        }
+      }
+    });
   for (const element of [
     card,
     ...Array.from(card.querySelectorAll<HTMLElement>('*')),
@@ -75,7 +127,7 @@ export async function exportProfileImage(root: HTMLElement, filename: string) {
   });
   holder.appendChild(card);
   document.body.appendChild(holder);
-  let blob: Blob | null;
+  let blob: Blob;
   try {
     const portraits = Array.from(card.querySelectorAll('img'));
     if (!portraits.length) throw new Error('The profile portrait is missing.');
@@ -101,20 +153,80 @@ export async function exportProfileImage(root: HTMLElement, filename: string) {
         await image.decode();
       }),
     );
-    const bounds = card.getBoundingClientRect();
-    const options = profileExportOptions(
-      1200,
-      Math.max(card.scrollHeight, bounds.height),
-      1.5,
+    const pdf = new jsPDF({ unit: 'pt', format: 'a4', compress: true });
+    const width = 1200;
+    const printWidth = pdf.internal.pageSize.getWidth() - 40;
+    const pageHeight = Math.floor(
+      ((pdf.internal.pageSize.getHeight() - 60) * width) / printWidth,
     );
-    blob = await toBlob(card, {
-      ...options,
-      style: {
-        ...options.style,
-        backgroundColor: getComputedStyle(root).backgroundColor,
-        overflow: 'hidden',
-      },
+    const bounds = card.getBoundingClientRect();
+    const blocks = Array.from(
+      card.querySelectorAll(
+        'article, .mode-hero, .toolkit-result-card, .growth-row, .insight-tile, p, h2, h3, svg',
+      ),
+    ).map((node) => {
+      const rect = node.getBoundingClientRect();
+      return {
+        top: Math.max(0, Math.floor(rect.top - bounds.top)),
+        bottom: Math.ceil(rect.bottom - bounds.top),
+      };
     });
+    // Keep each section heading with its first content row, even for sections
+    // too long to keep together on a single page.
+    card.querySelectorAll('article').forEach((section) => {
+      const first = section.querySelector(
+        '.insight-tile, .toolkit-result-card, .growth-row',
+      );
+      if (first)
+        blocks.push({
+          top: Math.floor(section.getBoundingClientRect().top - bounds.top),
+          bottom: Math.ceil(first.getBoundingClientRect().bottom - bounds.top),
+        });
+    });
+    const breaks = pdfPageBreaks(
+      Math.ceil(card.scrollHeight),
+      pageHeight,
+      blocks,
+    );
+    const viewport = document.createElement('div');
+    Object.assign(viewport.style, {
+      width: '1200px',
+      overflow: 'hidden',
+      backgroundColor: '#f6f9f3',
+      position: 'relative',
+    });
+    holder.appendChild(viewport);
+    viewport.appendChild(card);
+    for (let i = 0; i < breaks.length - 1; i++) {
+      const height = breaks[i + 1] - breaks[i];
+      viewport.style.height = `${height}px`;
+      card.style.transform = `translateY(-${breaks[i]}px)`;
+      const page = await toBlob(viewport, {
+        ...profileExportOptions(width, height, 1.5),
+        style: {
+          ...profileExportOptions(width, height).style,
+          overflow: 'hidden',
+        },
+      });
+      if (!page?.size) throw new Error('Could not render a PDF page.');
+      if (i) pdf.addPage();
+      pdf.addImage(
+        new Uint8Array(await page.arrayBuffer()),
+        'PNG',
+        20,
+        20,
+        printWidth,
+        (height * printWidth) / width,
+      );
+      pdf.setFontSize(9);
+      pdf.setTextColor(80, 105, 89);
+      pdf.text(
+        `Engineering Compass  |  ${i + 1} / ${breaks.length - 1}`,
+        20,
+        pdf.internal.pageSize.getHeight() - 16,
+      );
+    }
+    blob = pdf.output('blob');
   } finally {
     holder.remove();
   }

@@ -39,7 +39,7 @@ import {
   Workflow,
 } from 'lucide-react';
 import { PolarAngleAxis, PolarGrid, Radar, RadarChart } from 'recharts';
-import { exportProfileImage } from '@/lib/assessment/profile-export';
+import { exportProfilePdf } from '@/lib/assessment/profile-export';
 import { Button } from '@/components/ui/button';
 import { ChartContainer, type ChartConfig } from '@/components/ui/chart';
 import { Progress } from '@/components/ui/progress';
@@ -609,14 +609,12 @@ function HomeContent() {
     window.localStorage.removeItem(progressStorageKey);
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }
-  async function downloadProfileImage() {
-    const resultPage = document.getElementById(
-      'engineering-compass-profile-card',
-    );
+  async function downloadProfilePdf() {
+    const resultPage = document.getElementById('engineering-compass-results');
     if (!resultPage) return;
-    await exportProfileImage(
+    await exportProfilePdf(
       resultPage,
-      `engineering-compass-${edition}-${modeKey}-profile.png`,
+      `engineering-compass-${edition}-${modeKey}-profile.pdf`,
     );
   }
 
@@ -683,7 +681,7 @@ function HomeContent() {
           modeKey={modeKey}
           growthStageKey={growthStageKey}
           onRestart={restart}
-          onDownload={downloadProfileImage}
+          onDownload={downloadProfilePdf}
         />
       )}
     </main>
@@ -910,7 +908,6 @@ function Welcome({
                 ))}
               </div>
               <div className="home-assessment-notes">
-                {edition === 'pro' && <p>{'common.proReflectionPurpose'}</p>}
                 <p>{'common.yourResponsesArePrivateAndStayOnThisDevice'}</p>
               </div>
             </div>
@@ -1054,11 +1051,11 @@ function YearSelection({
   return (
     <LocalizedContent>
       {
-        <section className="mx-auto max-w-6xl px-6 py-12 lg:px-12 lg:py-18">
+        <section className="year-onboarding mx-auto max-w-6xl px-6 py-12 lg:px-12 lg:py-18">
           <button className="back-link" onClick={onBack}>
             <ArrowLeft className="size-4" /> {'common.back'}
           </button>
-          <div className="max-w-2xl">
+          <div className="year-intro">
             <div className="eyebrow mb-5">{'common.optionalBackground'}</div>
             <h1 className="font-serif text-4xl font-semibold tracking-tight sm:text-5xl">
               {'common.whatYearOfUndergraduateStudyAreYouIn'}
@@ -1067,7 +1064,7 @@ function YearSelection({
               {'common.thisHelpsYouRevisitTheCompassAcrossDifferentYears'}
             </p>
           </div>
-          <div className="mt-9 grid gap-4 md:grid-cols-2">
+          <div className="year-options mt-9 grid gap-4 md:grid-cols-2">
             {studyYears.map((option) => {
               const isSelected = year === option.id;
               return (
@@ -1695,23 +1692,30 @@ function Results({
                       ...item,
                       subject: t(item.subject),
                     }))}
-                    outerRadius="60%"
+                    outerRadius="48%"
                   >
                     <PolarGrid stroke="#d8e2dc" />
                     <PolarAngleAxis
                       dataKey="subject"
-                      tick={({ x, y, payload, textAnchor }) => (
+                      tick={({ x, y, payload, textAnchor, index }) => (
                         <text
                           x={x}
                           y={y}
                           dx={
                             textAnchor === 'start'
-                              ? -12
+                              ? 8
                               : textAnchor === 'end'
-                                ? 12
+                                ? -8
                                 : 0
                           }
-                          textAnchor="middle"
+                          textAnchor={textAnchor}
+                          dy={
+                            textAnchor === 'middle'
+                              ? index === 0
+                                ? -16
+                                : 16
+                              : 0
+                          }
                           dominantBaseline="central"
                           className="radar-axis-label"
                         >
@@ -1720,6 +1724,7 @@ function Results({
                       )}
                     />
                     <Radar
+                      isAnimationActive={false}
                       dataKey="score"
                       stroke="var(--color-score)"
                       fill="#d7f43c"

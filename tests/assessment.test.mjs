@@ -308,8 +308,16 @@ const { initialCharacterVariant, engineeringModes } =
   await import('../lib/assessment/profile.ts');
 const { compassSpringStep, shuffledCompassTargets, compassRetargetDelay } =
   await import('../lib/assessment/compass-motion.ts');
-const { profileExportOptions } =
+const { profileExportOptions, pdfPageBreaks } =
   await import('../lib/assessment/profile-export.ts');
+test('PDF pagination keeps complete blocks and covers the full report', () => {
+  assert.deepEqual(
+    pdfPageBreaks(2400, 1000, [{ top: 800, bottom: 1150 }]),
+    [0, 800, 1800, 2400],
+  );
+  const breaks = pdfPageBreaks(3600, 1000, [{ top: 0, bottom: 2200 }]);
+  assert.deepEqual(breaks, [0, 1000, 2000, 3000, 3600]);
+});
 const coreAnswers = Object.fromEntries(
   questions.map((item) => [
     item.id,
@@ -597,14 +605,14 @@ test('Summary export keeps mobile and desktop canvas bounds safe', () => {
     assert.ok(options.pixelRatio > 0);
   }
 });
-test('Download targets only the hero card, without charts or evidence', () => {
+test('PDF download targets the entire results page', () => {
   const source = readFileSync(
     new URL('../app/page.tsx', import.meta.url),
     'utf8',
   );
   assert.match(
     source,
-    /document\.getElementById\(\s*'engineering-compass-profile-card',?\s*\)/,
+    /document\.getElementById\(\s*'engineering-compass-results',?\s*\)/,
   );
   const ast = ts.createSourceFile(
     'page.tsx',
@@ -621,7 +629,7 @@ test('Download targets only the hero card, without charts or evidence', () => {
         (attr) =>
           ts.isJsxAttribute(attr) &&
           attr.name.getText(ast) === 'id' &&
-          attr.initializer?.text === 'engineering-compass-profile-card',
+          attr.initializer?.text === 'engineering-compass-results',
       )
     )
       summary = node.getText(ast);
@@ -629,10 +637,10 @@ test('Download targets only the hero card, without charts or evidence', () => {
   };
   visit(ast);
   assert.ok(summary?.includes('mode-hero'));
-  assert.ok(!summary?.includes('<Radar'));
-  assert.ok(!summary?.includes('toolkit-results-grid'));
-  assert.ok(!summary?.includes('common.currentStrengths'));
-  assert.ok(!summary?.includes('result-growth-stack'));
+  assert.ok(summary?.includes('<Radar'));
+  assert.ok(summary?.includes('toolkit-results-grid'));
+  assert.ok(summary?.includes('common.currentStrengths'));
+  assert.ok(summary?.includes('result-growth-stack'));
 });
 test('Language presentation preserves control identity, handlers, values and complete rendered text', async () => {
   const React = await import('react');

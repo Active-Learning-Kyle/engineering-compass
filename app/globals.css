@@ -869,6 +869,96 @@
   min-height: 560px !important;
   margin: 0 !important;
 }
+
+.profile-pdf-document {
+  width: 1200px !important;
+  max-width: none !important;
+  margin: 0 !important;
+  padding: 24px !important;
+  background: #f6f9f3 !important;
+}
+.profile-pdf-document .mode-hero {
+  grid-template-columns: minmax(0, 1.18fr) minmax(360px, 0.82fr) !important;
+  background: #123421 !important;
+}
+.profile-pdf-document .mode-copy {
+  padding: 36px !important;
+}
+.profile-pdf-document .recharts-wrapper {
+  width: 100% !important;
+  height: 100% !important;
+}
+.profile-pdf-document .mode-copy h1 {
+  font-size: 50px !important;
+}
+.profile-pdf-document .mode-art {
+  min-height: 100% !important;
+}
+.profile-pdf-document .mode-quick-insights,
+.profile-pdf-document .result-summary-columns,
+.profile-pdf-document .growth-actions-grid,
+.profile-pdf-document .pro-reflection-grid {
+  display: grid !important;
+  grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+}
+.profile-pdf-document .toolkit-results-grid {
+  grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+}
+.year-intro {
+  position: relative;
+  overflow: hidden;
+  border-radius: 28px;
+  padding: clamp(28px, 5vw, 56px);
+  background: #123421;
+  color: #f6f9f3;
+  box-shadow: 0 18px 45px #12342112;
+}
+.year-intro::after {
+  content: '';
+  position: absolute;
+  width: 330px;
+  height: 330px;
+  border: 1px solid #d7f43c33;
+  border-radius: 50%;
+  right: -110px;
+  top: -100px;
+  box-shadow:
+    0 0 0 35px #d7f43c08,
+    0 0 0 70px #d7f43c05;
+  pointer-events: none;
+}
+.year-intro .eyebrow {
+  color: #d7f43c;
+}
+.year-intro h1 {
+  max-width: 850px;
+  position: relative;
+  z-index: 1;
+}
+.year-intro p {
+  color: #c3d6c8;
+  max-width: 800px;
+}
+.year-options .field-card {
+  border: 1px solid #9dbba5;
+  transition:
+    background 0.18s,
+    box-shadow 0.18s;
+}
+.year-options .field-card:hover,
+.year-options .field-card-selected {
+  background: #edf4cd;
+  box-shadow: 0 6px 20px #12342112;
+}
+.year-options .field-icon {
+  background: #163f27;
+  color: #d7f43c;
+}
+@media (prefers-reduced-motion: reduce) {
+  .year-options .field-card {
+    transition: none;
+  }
+}
 .profile-export-card .mode-copy {
   padding: 40px !important;
 }

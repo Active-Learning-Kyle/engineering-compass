@@ -1,84 +1,177 @@
-# Engineering Compass
+# Engineering Compass · 工程羅盤
 
-Engineering Compass is a standalone formative self-assessment for engineering learners. It helps students reflect on six engineering competencies, nine technical toolkit areas, and the directions they want to develop next.
+Explore how you work, what you have practised, and what you want to develop next.
 
-**Live site:** <https://active-learning-kyle.github.io/engineering-compass/>
+Engineering Compass is a bilingual self-reflection tool for engineering learners, from first-year students to experienced project teams. It brings together six competencies, nine technical experience areas, and practical next steps in a personal profile.
 
-The public site is hosted directly from this repository with GitHub Pages.
+**[Open Engineering Compass →](https://active-learning-kyle.github.io/engineering-compass/)** · [Browse the source](https://github.com/Active-Learning-Kyle/engineering-compass)
 
-## Assessment flow
+English / 繁體中文 · No account required · Responses stay in your browser · Full results PDF
 
-- Choose Standard (30 questions) or Pro pilot (60 questions)
-- Optional Year 1–4 study context, or Skip
-- 15 mixed recent-project behaviour questions across five non-hands-on competencies
-- Nine independent Technical Toolkit items
-- Project calibration, interests, selected growth areas, and two engineering-judgment scenarios
-- Separate five-level behaviour and technical-independence scales
-- Blocking reflection nudge after unusually fast response patterns
-- Instant single-choice auto-advance, Previous, Return Home, and browser-only resume
-- Integer scores on a 0–100 scale
-- Six-competency radar profile
-- Nine-area technical toolkit profile
-- Downloadable long-image profile
-- Leading current modes, shared-score ties, a next-highest direction, and a compact Current Experience Scope
-- Five-level experience descriptors for every Technical Toolkit result
+![Engineering Compass homepage with Standard and Pro choices and an interactive compass](docs/images/home.jpg)
 
-Study year is never included in scoring. Answers and an unfinished draft remain on the current browser/device and are not submitted to a server.
+## Start here
 
-## Standard v1.7 / Pro v0.3 — pilot refinement
+1. Choose **Standard** or **Pro**.
+2. Select your undergraduate year, or skip this optional step.
+3. Answer one question at a time. Go back, switch language, or resume saved progress in the same browser.
+4. Explore your current strengths, technical experience, and chosen growth directions.
+5. Select **Save profile as PDF** to download the complete results as a paginated report.
 
-The results layer adds six current Engineering Roles: Problem Framer, Project Navigator, Team Connector, Practical Builder, Prototype Explorer, and Solution Storyteller. Each maps directly to one of the six measured competencies and uses the shared HKU-inspired green/white visual system. The current role is a formative lens on the six-axis profile—not a personality type, grade, professional rank, or team assignment.
+The questions use plain language. You do not need formal engineering project or presentation experience to answer the behavioural items.
 
-The homepage hero uses role icons rather than character portraits. Role cards reveal natural-colour illustrations on hover or keyboard focus; male/female portraits crossfade continuously. The result uses the same crossfade and prescribed initial portrait: male first for Problem Framer, Team Connector and Prototype Explorer; female first for the other three. Reduced-motion preferences keep the initial portrait. Image exports capture that initial portrait without blending. The visual choice never affects results.
+## Standard or Pro?
 
-The homepage offers Standard (30) and Pro (60) with live question counts. Pro adds 12 team-decision scenarios and 18 concrete practice-evidence reflections. These produce qualitative feedback without changing Standard core scores. See [Pro pilot design](docs/pro-pilot.md) for the draft's interpretation rules and review priorities. The animated compass points to all six role directions once per shuffled cycle, with repeated spring overshoots and continuous flutter.
+| | Standard | Pro |
+| --- | --- | --- |
+| Purpose | A quick reflection on how you work and your technical experience | A deeper reflection on decisions and experience from specific tasks |
+| Questions | 30 | 60 |
+| Typical time | 8–10 minutes | About 18–25 minutes |
+| Core profile | Six competencies + nine technical areas | The same core profile |
+| Additional reflection | Two engineering-judgment scenarios | Also includes 12 team-decision trade-offs and 18 practice-evidence items |
+| Results | Current modes, experience scope, strengths, and next steps | All Standard results, plus decision feedback and practice-evidence reflections |
 
-Current Experience Scope (Exploring, Building, Practising, or Integrating) uses the existing project/context/toolkit heuristic, without a visible “04/04” rank. It is approximate, not a qualification or seniority designation. Each toolkit bar shows the five-level self-rating and score. Pro adds descriptive counts from two self-reported tasks and a broad/specific consistency reflection—not another score or externally verified evidence.
+**Pro adds context, not extra points.** Its additional questions do not change the Standard core scores. Team decisions offer two defensible approaches with different benefits and costs, rather than a textbook “best answer.”
 
-Behaviour items now ask about the most recent engineering project or practical learning task, using Never / Rarely / Sometimes / Often / Almost always. Core item-to-competency mappings and numeric formulas are unchanged. Changed response meanings are versioned: earlier drafts remain in their original storage key and are not silently interpreted with the new questions. Old and new responses should not be treated as directly equivalent longitudinal measurements.
+## A look inside
 
-Pro PS01–PS12 now offer two professionally defensible trade-offs with similar-length options and explicit opportunity costs. Feedback describes each choice's benefit and cost; it is not an answer key. All six equal scores produce a balanced profile, exact displayed ties show joint modes, and a single leader is accompanied by the next-highest mode(s). No unvalidated near-tie threshold is applied.
+### A starting point, not a prerequisite
 
-The six Engineering Compass competencies are the observable engineering behaviours being assessed and reported. Relevant questions also carry hidden alignment metadata for the six [HKU Active Learning Essentials](https://activelearning.engg.hku.hk/#about). These Essentials are a higher-level pedagogical mapping only: they create no additional scores, never change the radar or toolkit calculations, and are not shown as a second learner-facing framework.
+Study year is optional and never changes your scores.
 
-## Competencies
+![Optional study-year selection with a forest-green introduction and four year cards](docs/images/study-year.jpg)
 
-1. Problem Identification
-2. Proposal with Plan
-3. Interdisciplinary Collaboration
-4. Hands-on Skills
-5. Design Thinking & Prototyping
-6. Pitch for Engineering Solutions
+### One question at a time
 
-## Scoring
+Behaviour questions use a five-point frequency scale. Technical questions use a separate experience and independence scale. Language switching preserves your answers.
 
-Each non-hands-on competency uses the mean of three mixed behavioural items. Hands-on Skills uses the simple mean of all nine Technical Toolkit items and is interpreted as current technical breadth, experience, and independence. Means are converted to an integer profile value:
+![Assessment screen with section navigation, a plain-language question, and five numeric answer tiles](docs/images/assessment.jpg)
 
-`score = round(((mean - 1) / 4) × 100)`
+### Your current profile
 
-Every toolkit area has its own direct item. Project context, interests, growth choices, and judgment scenarios never change radar scores. The output is a formative reflection, not a grade, objective ability score, engineering type, or cross-department ranking.
+The summary connects a leading current mode with experience scope and a next step. Exact displayed-score ties can produce joint modes; equal scores across all six dimensions produce a balanced profile.
 
-## Local development
+![Example results summary card with a current profile and an illustrated engineering role](docs/images/profile.jpg)
+
+### Behaviour and technical experience, side by side
+
+The radar shows six competencies. The Technical Toolkit shows nine separate self-ratings. Pro practice evidence adds context underneath; it is not averaged into the toolkit score.
+
+![Six-competency radar beside the nine-area Technical Toolkit](docs/images/competencies-toolkit.jpg)
+
+*These screenshots use synthetic example responses, not student data. Your results depend on your own answers.*
+
+## Meet the six engineering roles
+
+These are **current ways of contributing**, not fixed personality types or assigned team positions. Each role connects to one competency; the illustrations are visual representations, not part of scoring.
+
+<table>
+<tr>
+<td width="33%" valign="top">
+<img src="public/modes/problem-framer-a.webp" alt="Problem Framer illustration" width="240"><br>
+<strong>Problem Framer</strong><br>
+Understand what is happening before choosing what to solve.<br><br>
+<em>Problem Identification</em>
+</td>
+<td width="33%" valign="top">
+<img src="public/modes/project-navigator-b.webp" alt="Project Navigator illustration" width="240"><br>
+<strong>Project Navigator</strong><br>
+Turn an idea into a practical plan with steps, priorities, and dependencies.<br><br>
+<em>Proposal with Plan</em>
+</td>
+<td width="33%" valign="top">
+<img src="public/modes/team-connector-a.webp" alt="Team Connector illustration" width="240"><br>
+<strong>Team Connector</strong><br>
+Help people with different skills coordinate their work and understand each other.<br><br>
+<em>Interdisciplinary Collaboration</em>
+</td>
+</tr>
+<tr>
+<td width="33%" valign="top">
+<img src="public/modes/practical-builder-b.webp" alt="Practical Builder illustration" width="240"><br>
+<strong>Practical Builder</strong><br>
+Bring practical technical experience to building, testing, and troubleshooting.<br><br>
+<em>Hands-on Skills</em>
+</td>
+<td width="33%" valign="top">
+<img src="public/modes/prototype-explorer-a.webp" alt="Prototype Explorer illustration" width="240"><br>
+<strong>Prototype Explorer</strong><br>
+Try ideas in a simple form, learn from tests, and improve what you make.<br><br>
+<em>Design Thinking &amp; Prototyping</em>
+</td>
+<td width="33%" valign="top">
+<img src="public/modes/solution-storyteller-b.webp" alt="Solution Storyteller illustration" width="240"><br>
+<strong>Solution Storyteller</strong><br>
+Explain an idea clearly, including its value, evidence, and limitations.<br><br>
+<em>Pitch for Engineering Solutions</em>
+</td>
+</tr>
+</table>
+
+## What the results mean
+
+- **Six competencies:** self-reported ways of working, not an objective ability test.
+- **Technical Toolkit:** experience and independence across mechanical assembly, CAD, digital fabrication, electronics, programming, physical computing, sensors/data/IoT, AI/computer vision, and system integration.
+- **Current Experience Scope:** Exploring, Building, Practising, or Integrating. An approximate summary of reported projects, responsibilities, and technical experience—not a qualification or seniority level.
+- **Practice evidence (Pro):** tasks you report doing, not independently verified evidence or additional ability points.
+- **Growth directions:** actions to consider for your next learning task or project.
+
+Engineering Compass supports formative reflection. It is **not a validated assessment**, grade, professional certification, or tool for ranking students. Small score differences should not determine team roles.
+
+### How scores work
+
+Five competencies each use the mean of three behavioural responses. Hands-on Skills uses the mean of the nine Technical Toolkit responses. Each toolkit area also retains its own rating.
+
+```text
+Profile score = round(((mean response - 1) / 4) × 100)
+```
+
+Study year, interests, growth choices, and judgment scenarios do not change the radar scores. Project count and responsibility inform the separate experience-scope heuristic, not the competency scores. See [scoring](lib/assessment/scoring.ts), [role and scope interpretation](lib/assessment/profile.ts), and [Pro interpretation](lib/assessment/pro.ts) for implementation details.
+
+## Privacy and saving
+
+- Answers and unfinished progress remain in local browser storage; the app does not submit them to a server.
+- There is no account, class dashboard, or student ranking system.
+- Saved progress is tied to that browser and device. Clearing browser storage can remove it.
+- PDF generation happens in your browser. It includes the complete results, including Pro reflections when applicable, and uses a fixed-width layout with a side-by-side summary card on phones and desktops.
+- The PDF contains your profile information. Share it only if you want others to see it.
+
+The site is delivered through GitHub Pages; “browser-only responses” describes assessment answers, not the hosting provider's ordinary handling of website requests.
+
+## For developers
+
+Built with React, TypeScript, vinext/Vite, Tailwind CSS, Recharts, and Lucide icons. PDF export uses html-to-image and jsPDF. The deployed application is a static site.
+
+### Run locally
+
+Use **Node.js 24**.
 
 ```bash
-npm install
+npm ci
 npm run dev
 ```
 
-## Language and checks
-
-English and Traditional Chinese share stable message IDs (for example `home.hero.title`, `question.PS01.option.a.label`, `result.scope.label`). General copy lives in `lib/i18n/messages.ts`, revision copy in `refinement-messages.ts`, and the twelve scenarios in `scenario-messages.ts`. Keys are unique across bundles; changing English punctuation does not affect Chinese lookup. `translate(key, locale, params)` rejects missing messages/parameters rather than silently showing English. React presentation boundaries resolve only message references and preserve answer IDs, keys and handlers.
-
-English uses Geist with system fallbacks; Traditional Chinese explicitly uses PingFang TC / Noto Sans TC / Microsoft JhengHei / system sans. Language preference remains independent of answers in local storage.
-
-Run `node --test tests/assessment.test.mjs` on Node 24, `npx tsc --noEmit`, and `npm run lint`. These checks cover both language catalogs, item coverage/order, score invariance, evidence counts, tie handling, versioned drafts and existing export/motion behaviour. Content still requires a student pilot; tests do not establish assessment validity.
-
-## Production build
+### Check and build
 
 ```bash
+npm test
+npm run lint
+npx tsc --noEmit
 npm run build
 ```
 
-The project exports a static site to `dist/client` for deployment.
+Static output is written to `dist/client`. The [GitHub Pages workflow](.github/workflows/deploy.yml) checks and deploys pushes to `main`.
 
-Pushes to `main` are automatically built and deployed with GitHub Pages.
+### Where to find things
+
+| Location | Contents |
+| --- | --- |
+| [app/page.tsx](app/page.tsx) | Home, study-year step, assessment flow, and results |
+| [app/globals.css](app/globals.css) | Visual system, responsive layouts, and export styling |
+| [lib/assessment](lib/assessment) | Questions, scoring, interpretation, saved drafts, and PDF export |
+| [lib/i18n](lib/i18n) | English and Traditional Chinese messages with stable translation keys |
+| [public/modes](public/modes) | Six role illustrations, each with two character variants |
+| [tests/assessment.test.mjs](tests/assessment.test.mjs) | Question, language, scoring, interpretation, and export regression checks |
+| [docs](docs) | Design notes and assessment development history |
+
+The current question sets are **Standard v1.8 / Pro v0.4**. Older documents mentioning a Pro pilot describe development history; the current interface presents Standard and Pro. Revisions that change question meanings are versioned so older drafts are not silently reinterpreted. Passing software tests does not establish assessment validity.

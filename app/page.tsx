@@ -2,6 +2,12 @@
 
 import { useEffect, useMemo, useRef, useState } from 'react';
 import {
+  LanguageProvider,
+  LanguageSwitcher,
+  LocalizedContent,
+  useLanguage,
+} from '@/components/language';
+import {
   ArrowLeft,
   ArrowRight,
   Boxes,
@@ -306,6 +312,15 @@ function isComplete(item: AssessmentItem, answer: unknown) {
 }
 
 export default function Home() {
+  return (
+    <LanguageProvider>
+      <LanguageSwitcher />
+      <HomeContent />
+    </LanguageProvider>
+  );
+}
+
+function HomeContent() {
   const [edition, setEdition] = useState<AssessmentEdition>('standard');
   const questions = getQuestions(edition);
   const activePhases = edition === 'pro' ? proPhases : phases;
@@ -631,33 +646,37 @@ export default function Home() {
 
 function Header({ progress }: { progress: number | null }) {
   return (
-    <header className="sticky top-0 z-30 border-b bg-background/92 backdrop-blur-xl">
-      <div className="mx-auto flex h-[74px] max-w-7xl items-center justify-between px-5 lg:px-12">
-        <div className="flex items-center gap-3">
-          <div className="brand-mark">
-            <Compass className="size-5" />
-          </div>
-          <div>
-            <div className="font-serif text-lg font-semibold leading-none">
-              Engineering Compass
+    <LocalizedContent>
+      {
+        <header className="sticky top-0 z-30 border-b bg-background/92 backdrop-blur-xl">
+          <div className="mx-auto flex h-[74px] max-w-7xl items-center justify-between px-5 lg:px-12">
+            <div className="flex items-center gap-3">
+              <div className="brand-mark">
+                <Compass className="size-5" />
+              </div>
+              <div>
+                <div className="font-serif text-lg font-semibold leading-none">
+                  Engineering Compass
+                </div>
+                <div className="mt-1 text-[10px] font-semibold uppercase tracking-[.18em] text-muted-foreground">
+                  Active Learning · HKU Engineering
+                </div>
+              </div>
             </div>
-            <div className="mt-1 text-[10px] font-semibold uppercase tracking-[.18em] text-muted-foreground">
-              Active Learning · HKU Engineering
+            <div className="hidden items-center gap-2 text-xs text-muted-foreground sm:flex">
+              <span className="size-2 rounded-full bg-emerald-600" /> Responses
+              stay in this browser
             </div>
           </div>
-        </div>
-        <div className="hidden items-center gap-2 text-xs text-muted-foreground sm:flex">
-          <span className="size-2 rounded-full bg-emerald-600" /> Responses stay
-          in this browser
-        </div>
-      </div>
-      {progress !== null && (
-        <Progress
-          value={progress}
-          className="absolute inset-x-0 bottom-0 gap-0 [&_[data-slot=progress-track]]:h-[3px] [&_[data-slot=progress-track]]:rounded-none"
-        />
-      )}
-    </header>
+          {progress !== null && (
+            <Progress
+              value={progress}
+              className="absolute inset-x-0 bottom-0 gap-0 [&_[data-slot=progress-track]]:h-[3px] [&_[data-slot=progress-track]]:rounded-none"
+            />
+          )}
+        </header>
+      }
+    </LocalizedContent>
   );
 }
 
@@ -675,267 +694,282 @@ function Welcome({
   hasSavedProgress: boolean;
 }) {
   return (
-    <section className="relative overflow-hidden">
-      <div className="compass-grid absolute inset-0" aria-hidden="true" />
-      <div className="relative mx-auto grid max-w-7xl items-center gap-12 px-6 py-14 lg:min-h-[610px] lg:grid-cols-[1.04fr_.96fr] lg:px-12">
-        <div className="max-w-3xl">
-          <div className="home-product-kicker mb-6">
-            <span className="home-product-mark">
-              <Compass className="size-4" />
-            </span>
-            <span>Engineering Compass</span>
-          </div>
-          <h1 className="display-title text-[clamp(3.2rem,6vw,6.3rem)] leading-[.94] tracking-[-.055em]">
-            Find Your Role in an Engineering Team
-          </h1>
-          <p className="mt-7 max-w-xl text-lg leading-8 text-muted-foreground sm:text-xl">
-            A short self-assessment to explore your engineering strengths,
-            hands-on experience, and growth directions.
-          </p>
-          <div className="assessment-version-grid mt-8">
-            <button
-              className={`assessment-version-card ${edition === 'standard' ? 'is-available is-selected' : ''}`}
-              aria-pressed={edition === 'standard'}
-              onClick={() => onEditionChange('standard')}
-            >
-              <span className="version-status">AVAILABLE NOW</span>
-              <span className="version-title">Standard</span>
-              <span className="version-meta">30 questions · 8–10 minutes</span>
-              <span className="version-action">
-                {edition === 'standard' ? 'Selected' : 'Choose Standard'}{' '}
-                <Check className="size-4" />
-              </span>
-            </button>
-            <button
-              className={`assessment-version-card ${edition === 'pro' ? 'is-available is-selected' : ''}`}
-              aria-pressed={edition === 'pro'}
-              onClick={() => onEditionChange('pro')}
-            >
-              <span className="version-status">PILOT EDITION</span>
-              <span className="version-title">Pro</span>
-              <span className="version-meta">
-                60 questions · about 18–25 minutes
-              </span>
-              <span className="version-action">
-                {edition === 'pro' ? 'Selected' : 'Choose Pro'}{' '}
-                <Check className="size-4" />
-              </span>
-            </button>
-          </div>
-          <div className="home-start-actions mt-4">
-            <Button
-              size="lg"
-              className="home-begin-button h-13 w-full rounded-full px-6"
-              onClick={onBegin}
-            >
-              Begin {edition === 'pro' ? 'Pro' : 'Standard'}{' '}
-              <ArrowRight className="size-4" />
-            </Button>
-            {hasSavedProgress && (
-              <Button
-                variant="outline"
-                size="lg"
-                className="h-13 rounded-full px-6"
-                onClick={onResume}
-              >
-                Resume saved progress
-              </Button>
-            )}
-            <div className="flex items-center gap-2 px-3 text-sm text-muted-foreground">
-              <Gauge className="size-4" />{' '}
-              {edition === 'pro'
-                ? 'Core profile + team scenarios + practice evidence'
-                : 'Your core engineering profile'}
-            </div>
-          </div>
-        </div>
-        <div className="home-compass-column mx-auto w-full max-w-lg">
-          <div className="profile-orbit" aria-hidden="true">
-            <div className="orbit-axis orbit-axis-x" />
-            <div className="orbit-axis orbit-axis-y" />
-            <CompassRose />
-            <span className="compass-cardinal compass-cardinal-n">N</span>
-            <span className="compass-cardinal compass-cardinal-e">E</span>
-            <span className="compass-cardinal compass-cardinal-s">S</span>
-            <span className="compass-cardinal compass-cardinal-w">W</span>
-            <AnimatedCompassNeedle />
-            <span className="orbit-dot orbit-dot-1" />
-            <span className="orbit-dot orbit-dot-2" />
-            <span className="orbit-dot orbit-dot-3" />
-            <div className="orbit-center">
-              <Compass className="size-11" strokeWidth={1.5} />
-              <span>YOUR PROFILE</span>
-            </div>
-            {competencyOrder.map((key, index) => (
-              <div
-                key={key}
-                className={`orbit-point orbit-point-${index + 1}`}
-                style={{ '--point-color': '#163f27' } as React.CSSProperties}
-              >
-                {(() => {
-                  const RoleIcon = roleIcons[key];
-                  return <RoleIcon className="size-6" strokeWidth={1.7} />;
-                })()}
+    <LocalizedContent>
+      {
+        <section className="relative overflow-hidden">
+          <div className="compass-grid absolute inset-0" aria-hidden="true" />
+          <div className="relative mx-auto grid max-w-7xl items-center gap-12 px-6 py-14 lg:min-h-[610px] lg:grid-cols-[1.04fr_.96fr] lg:px-12">
+            <div className="max-w-3xl">
+              <div className="home-product-kicker mb-6">
+                <span className="home-product-mark">
+                  <Compass className="size-4" />
+                </span>
+                <span>Engineering Compass</span>
               </div>
-            ))}
-          </div>
-          <div className="mt-7 grid grid-cols-3 divide-x divide-border rounded-2xl border bg-card/95 py-4 shadow-sm">
-            {[
-              [
-                edition === 'pro' ? '60' : '30',
-                edition === 'pro' ? 'Pro questions' : 'Standard questions',
-              ],
-              ['6', 'competencies'],
-              ['9', 'toolkit areas'],
-            ].map(([value, label]) => (
-              <div key={label} className="px-3 text-center">
-                <div className="font-serif text-2xl font-semibold text-primary">
-                  {value}
-                </div>
-                <div className="mt-0.5 text-xs text-muted-foreground">
-                  {label}
-                </div>
-              </div>
-            ))}
-          </div>
-          <div className="home-assessment-notes">
-            {edition === 'pro' && (
-              <p>
-                Pro is an initial pilot for feedback and revision, not a
-                validated assessment.
+              <h1 className="display-title text-[clamp(3.2rem,6vw,6.3rem)] leading-[.94] tracking-[-.055em]">
+                Find Your Role in an Engineering Team
+              </h1>
+              <p className="mt-7 max-w-xl text-lg leading-8 text-muted-foreground sm:text-xl">
+                A short self-assessment to explore your engineering strengths,
+                hands-on experience, and growth directions.
               </p>
-            )}
-            <p>
-              Your responses are private and stay on this device. The role is a
-              reflection prompt—not a grade, selection test, or fixed type.
-            </p>
-          </div>
-        </div>
-      </div>
-      <div className="relative mx-auto max-w-7xl px-6 pb-14 lg:px-12">
-        <div id="how-it-works" className="method-strip scroll-mt-24">
-          <div>
-            <div className="panel-eyebrow">HOW THE COMPASS WORKS</div>
-            <h2>Discover your strengths and what to practise next.</h2>
-          </div>
-          <p>
-            These responses help you explore six ways of contributing to an
-            engineering team and your experience with nine technical toolkit
-            areas. Your results highlight a current team role, your practical
-            experience, and actions for the skills you want to develop. They
-            describe where you are now—not a grade or a fixed type of engineer.
-          </p>
-        </div>
-        <div id="roles" className="modes-preview-heading scroll-mt-24">
-          <div>
-            <div className="panel-eyebrow">SIX ENGINEERING ROLES</div>
-            <h2>Explore how you may currently contribute to a team.</h2>
-          </div>
-          <span>
-            Different roles are useful in different moments—not higher or lower.
-          </span>
-        </div>
-        <div className="modes-preview-grid">
-          {(
-            Object.entries(engineeringModes) as Array<
-              [
-                EngineeringModeKey,
-                (typeof engineeringModes)[EngineeringModeKey],
-              ]
-            >
-          ).map(([key, mode]) => (
-            <button
-              type="button"
-              className="role-preview-card"
-              key={key}
-              aria-label={`Preview ${mode.name}`}
-            >
-              <div className="role-preview-default">
-                <div className="role-preview-icon" aria-hidden="true">
-                  {(() => {
-                    const RoleIcon = roleIcons[key];
-                    return <RoleIcon className="size-7" strokeWidth={1.65} />;
-                  })()}
-                </div>
-                <div className="mode-preview-copy">
-                  <h3>{mode.name}</h3>
-                  <p>{mode.contribution}</p>
+              <div className="assessment-version-grid mt-8">
+                <button
+                  className={`assessment-version-card ${edition === 'standard' ? 'is-available is-selected' : ''}`}
+                  aria-pressed={edition === 'standard'}
+                  onClick={() => onEditionChange('standard')}
+                >
+                  <span className="version-status">AVAILABLE NOW</span>
+                  <span className="version-title">Standard</span>
+                  <span className="version-meta">
+                    30 questions · 8–10 minutes
+                  </span>
+                  <span className="version-action">
+                    {edition === 'standard' ? 'Selected' : 'Choose Standard'}{' '}
+                    <Check className="size-4" />
+                  </span>
+                </button>
+                <button
+                  className={`assessment-version-card ${edition === 'pro' ? 'is-available is-selected' : ''}`}
+                  aria-pressed={edition === 'pro'}
+                  onClick={() => onEditionChange('pro')}
+                >
+                  <span className="version-status">PILOT EDITION</span>
+                  <span className="version-title">Pro</span>
+                  <span className="version-meta">
+                    60 questions · about 18–25 minutes
+                  </span>
+                  <span className="version-action">
+                    {edition === 'pro' ? 'Selected' : 'Choose Pro'}{' '}
+                    <Check className="size-4" />
+                  </span>
+                </button>
+              </div>
+              <div className="home-start-actions mt-4">
+                <Button
+                  size="lg"
+                  className="home-begin-button h-13 w-full rounded-full px-6"
+                  onClick={onBegin}
+                >
+                  Begin {edition === 'pro' ? 'Pro' : 'Standard'}{' '}
+                  <ArrowRight className="size-4" />
+                </Button>
+                {hasSavedProgress && (
+                  <Button
+                    variant="outline"
+                    size="lg"
+                    className="h-13 rounded-full px-6"
+                    onClick={onResume}
+                  >
+                    Resume saved progress
+                  </Button>
+                )}
+                <div className="flex items-center gap-2 px-3 text-sm text-muted-foreground">
+                  <Gauge className="size-4" />{' '}
+                  {edition === 'pro'
+                    ? 'Core profile + team scenarios + practice evidence'
+                    : 'Your core engineering profile'}
                 </div>
               </div>
-              <div className="role-hover-preview" aria-hidden="true">
-                {/* oxlint-disable-next-line next/no-img-element */}
-                <img
-                  className="role-preview-character role-preview-character-a"
-                  src={assetPath(mode.image[initialCharacterVariant(key)])}
-                  alt=""
-                />
-                {/* oxlint-disable-next-line next/no-img-element */}
-                <img
-                  className="role-preview-character role-preview-character-b"
-                  src={assetPath(
-                    mode.image[
-                      initialCharacterVariant(key) === 'a' ? 'b' : 'a'
-                    ],
-                  )}
-                  alt=""
-                />
-                <div className="role-hover-copy">
-                  <span>ENGINEERING ROLE</span>
-                  <h3>{mode.name}</h3>
-                  <p>{mode.contribution}</p>
+            </div>
+            <div className="home-compass-column mx-auto w-full max-w-lg">
+              <div className="profile-orbit" aria-hidden="true">
+                <div className="orbit-axis orbit-axis-x" />
+                <div className="orbit-axis orbit-axis-y" />
+                <CompassRose />
+                <span className="compass-cardinal compass-cardinal-n">N</span>
+                <span className="compass-cardinal compass-cardinal-e">E</span>
+                <span className="compass-cardinal compass-cardinal-s">S</span>
+                <span className="compass-cardinal compass-cardinal-w">W</span>
+                <AnimatedCompassNeedle />
+                <span className="orbit-dot orbit-dot-1" />
+                <span className="orbit-dot orbit-dot-2" />
+                <span className="orbit-dot orbit-dot-3" />
+                <div className="orbit-center">
+                  <Compass className="size-11" strokeWidth={1.5} />
+                  <span>YOUR PROFILE</span>
                 </div>
-              </div>
-            </button>
-          ))}
-        </div>
-        <div id="toolkit" className="home-toolkit scroll-mt-24">
-          <div>
-            <div className="panel-eyebrow">NINE TECHNICAL TOOLKIT AREAS</div>
-            <h2>See where your experience is growing.</h2>
-            <p>
-              Each area is reflected separately, so the result shows both
-              breadth and the tools you may want to practise next.
-            </p>
-          </div>
-          <div className="toolkit-chip-grid">
-            {toolkitOrder.map((key) => {
-              const ToolkitIcon = toolkitIcons[key];
-              return (
-                <article className="toolkit-preview-card" key={key}>
-                  <div className="toolkit-preview-title">
-                    <span className="toolkit-area-icon">
-                      <ToolkitIcon className="size-6" aria-hidden="true" />
-                    </span>
-                    <h3>{toolkit[key].label}</h3>
+                {competencyOrder.map((key, index) => (
+                  <div
+                    key={key}
+                    className={`orbit-point orbit-point-${index + 1}`}
+                    style={
+                      { '--point-color': '#163f27' } as React.CSSProperties
+                    }
+                  >
+                    {(() => {
+                      const RoleIcon = roleIcons[key];
+                      return <RoleIcon className="size-6" strokeWidth={1.7} />;
+                    })()}
                   </div>
-                  <p>{toolkit[key].description}</p>
-                  <ul className="toolkit-skills-preview">
-                    {toolkit[key].skills.map((skill) => (
-                      <li key={skill}>{skill}</li>
-                    ))}
-                  </ul>
-                </article>
-              );
-            })}
+                ))}
+              </div>
+              <div className="mt-7 grid grid-cols-3 divide-x divide-border rounded-2xl border bg-card/95 py-4 shadow-sm">
+                {[
+                  [
+                    edition === 'pro' ? '60' : '30',
+                    edition === 'pro' ? 'Pro questions' : 'Standard questions',
+                  ],
+                  ['6', 'competencies'],
+                  ['9', 'toolkit areas'],
+                ].map(([value, label]) => (
+                  <div key={label} className="px-3 text-center">
+                    <div className="font-serif text-2xl font-semibold text-primary">
+                      {value}
+                    </div>
+                    <div className="mt-0.5 text-xs text-muted-foreground">
+                      {label}
+                    </div>
+                  </div>
+                ))}
+              </div>
+              <div className="home-assessment-notes">
+                {edition === 'pro' && (
+                  <p>
+                    Pro is an initial pilot for feedback and revision, not a
+                    validated assessment.
+                  </p>
+                )}
+                <p>
+                  Your responses are private and stay on this device. The role
+                  is a reflection prompt—not a grade, selection test, or fixed
+                  type.
+                </p>
+              </div>
+            </div>
           </div>
-        </div>
-      </div>
-      <footer className="home-footer">
-        <div className="home-footer-brand">
-          <Compass className="size-5" />
-          <span>
-            <strong>Engineering Compass</strong>
-            <small>Reflect on how you think, build, and contribute.</small>
-          </span>
-        </div>
-        <span className="home-footer-privacy">
-          Private by design · responses stay on your device
-        </span>
-        <a href="https://activelearning.engg.hku.hk/#about">
-          Learn about Active Learning <ArrowRight className="size-4" />
-        </a>
-      </footer>
-    </section>
+          <div className="relative mx-auto max-w-7xl px-6 pb-14 lg:px-12">
+            <div id="how-it-works" className="method-strip scroll-mt-24">
+              <div>
+                <div className="panel-eyebrow">HOW THE COMPASS WORKS</div>
+                <h2>Discover your strengths and what to practise next.</h2>
+              </div>
+              <p>
+                These responses help you explore six ways of contributing to an
+                engineering team and your experience with nine technical toolkit
+                areas. Your results highlight a current team role, your
+                practical experience, and actions for the skills you want to
+                develop. They describe where you are now—not a grade or a fixed
+                type of engineer.
+              </p>
+            </div>
+            <div id="roles" className="modes-preview-heading scroll-mt-24">
+              <div>
+                <div className="panel-eyebrow">SIX ENGINEERING ROLES</div>
+                <h2>Explore how you may currently contribute to a team.</h2>
+              </div>
+              <span>
+                Different roles are useful in different moments—not higher or
+                lower.
+              </span>
+            </div>
+            <div className="modes-preview-grid">
+              {(
+                Object.entries(engineeringModes) as Array<
+                  [
+                    EngineeringModeKey,
+                    (typeof engineeringModes)[EngineeringModeKey],
+                  ]
+                >
+              ).map(([key, mode]) => (
+                <button
+                  type="button"
+                  className="role-preview-card"
+                  key={key}
+                  aria-label={`Preview ${mode.name}`}
+                >
+                  <div className="role-preview-default">
+                    <div className="role-preview-icon" aria-hidden="true">
+                      {(() => {
+                        const RoleIcon = roleIcons[key];
+                        return (
+                          <RoleIcon className="size-7" strokeWidth={1.65} />
+                        );
+                      })()}
+                    </div>
+                    <div className="mode-preview-copy">
+                      <h3>{mode.name}</h3>
+                      <p>{mode.contribution}</p>
+                    </div>
+                  </div>
+                  <div className="role-hover-preview" aria-hidden="true">
+                    {/* oxlint-disable-next-line next/no-img-element */}
+                    <img
+                      className="role-preview-character role-preview-character-a"
+                      src={assetPath(mode.image[initialCharacterVariant(key)])}
+                      alt=""
+                    />
+                    {/* oxlint-disable-next-line next/no-img-element */}
+                    <img
+                      className="role-preview-character role-preview-character-b"
+                      src={assetPath(
+                        mode.image[
+                          initialCharacterVariant(key) === 'a' ? 'b' : 'a'
+                        ],
+                      )}
+                      alt=""
+                    />
+                    <div className="role-hover-copy">
+                      <span>ENGINEERING ROLE</span>
+                      <h3>{mode.name}</h3>
+                      <p>{mode.contribution}</p>
+                    </div>
+                  </div>
+                </button>
+              ))}
+            </div>
+            <div id="toolkit" className="home-toolkit scroll-mt-24">
+              <div>
+                <div className="panel-eyebrow">
+                  NINE TECHNICAL TOOLKIT AREAS
+                </div>
+                <h2>See where your experience is growing.</h2>
+                <p>
+                  Each area is reflected separately, so the result shows both
+                  breadth and the tools you may want to practise next.
+                </p>
+              </div>
+              <div className="toolkit-chip-grid">
+                {toolkitOrder.map((key) => {
+                  const ToolkitIcon = toolkitIcons[key];
+                  return (
+                    <article className="toolkit-preview-card" key={key}>
+                      <div className="toolkit-preview-title">
+                        <span className="toolkit-area-icon">
+                          <ToolkitIcon className="size-6" aria-hidden="true" />
+                        </span>
+                        <h3>{toolkit[key].label}</h3>
+                      </div>
+                      <p>{toolkit[key].description}</p>
+                      <ul className="toolkit-skills-preview">
+                        {toolkit[key].skills.map((skill) => (
+                          <li key={skill}>{skill}</li>
+                        ))}
+                      </ul>
+                    </article>
+                  );
+                })}
+              </div>
+            </div>
+          </div>
+          <footer className="home-footer">
+            <div className="home-footer-brand">
+              <Compass className="size-5" />
+              <span>
+                <strong>Engineering Compass</strong>
+                <small>Reflect on how you think, build, and contribute.</small>
+              </span>
+            </div>
+            <span className="home-footer-privacy">
+              Private by design · responses stay on your device
+            </span>
+            <a href="https://activelearning.engg.hku.hk/#about">
+              Learn about Active Learning <ArrowRight className="size-4" />
+            </a>
+          </footer>
+        </section>
+      }
+    </LocalizedContent>
   );
 }
 
@@ -951,73 +985,77 @@ function YearSelection({
   onContinue: () => void;
 }) {
   return (
-    <section className="mx-auto max-w-6xl px-6 py-12 lg:px-12 lg:py-18">
-      <button className="back-link" onClick={onBack}>
-        <ArrowLeft className="size-4" /> Back
-      </button>
-      <div className="max-w-2xl">
-        <div className="eyebrow mb-5">OPTIONAL BACKGROUND</div>
-        <h1 className="font-serif text-4xl font-semibold tracking-tight sm:text-5xl">
-          What year of undergraduate study are you in?
-        </h1>
-        <p className="mt-4 text-lg leading-7 text-muted-foreground">
-          This helps you revisit the Compass across different years. It is
-          optional and never changes your scores.
-        </p>
-      </div>
-      <div className="mt-9 grid gap-4 md:grid-cols-2">
-        {studyYears.map((option) => {
-          const isSelected = year === option.id;
-          return (
+    <LocalizedContent>
+      {
+        <section className="mx-auto max-w-6xl px-6 py-12 lg:px-12 lg:py-18">
+          <button className="back-link" onClick={onBack}>
+            <ArrowLeft className="size-4" /> Back
+          </button>
+          <div className="max-w-2xl">
+            <div className="eyebrow mb-5">OPTIONAL BACKGROUND</div>
+            <h1 className="font-serif text-4xl font-semibold tracking-tight sm:text-5xl">
+              What year of undergraduate study are you in?
+            </h1>
+            <p className="mt-4 text-lg leading-7 text-muted-foreground">
+              This helps you revisit the Compass across different years. It is
+              optional and never changes your scores.
+            </p>
+          </div>
+          <div className="mt-9 grid gap-4 md:grid-cols-2">
+            {studyYears.map((option) => {
+              const isSelected = year === option.id;
+              return (
+                <button
+                  key={option.id}
+                  className={`field-card ${isSelected ? 'field-card-selected' : ''}`}
+                  onClick={() => onChange(option.id)}
+                  aria-pressed={isSelected}
+                >
+                  <span className="field-icon">
+                    <GraduationCap className="size-7" strokeWidth={1.6} />
+                  </span>
+                  <span className="min-w-0 text-left">
+                    <span className="block font-serif text-xl font-semibold">
+                      {option.label}
+                    </span>
+                    <span className="mt-1 block text-sm text-muted-foreground">
+                      {option.note}
+                    </span>
+                  </span>
+                  <span className="choice-check">
+                    {isSelected ? (
+                      <Check className="size-4" />
+                    ) : (
+                      <ChevronRight className="size-4" />
+                    )}
+                  </span>
+                </button>
+              );
+            })}
+          </div>
+          <div className="mt-4">
             <button
-              key={option.id}
-              className={`field-card ${isSelected ? 'field-card-selected' : ''}`}
-              onClick={() => onChange(option.id)}
-              aria-pressed={isSelected}
+              className="compact-choice w-full"
+              onClick={() => {
+                onChange(null);
+                onContinue();
+              }}
             >
-              <span className="field-icon">
-                <GraduationCap className="size-7" strokeWidth={1.6} />
-              </span>
-              <span className="min-w-0 text-left">
-                <span className="block font-serif text-xl font-semibold">
-                  {option.label}
-                </span>
-                <span className="mt-1 block text-sm text-muted-foreground">
-                  {option.note}
-                </span>
-              </span>
-              <span className="choice-check">
-                {isSelected ? (
-                  <Check className="size-4" />
-                ) : (
-                  <ChevronRight className="size-4" />
-                )}
-              </span>
+              Skip this step
             </button>
-          );
-        })}
-      </div>
-      <div className="mt-4">
-        <button
-          className="compact-choice w-full"
-          onClick={() => {
-            onChange(null);
-            onContinue();
-          }}
-        >
-          Skip this step
-        </button>
-      </div>
-      <div className="mt-9 flex justify-end">
-        <Button
-          size="lg"
-          className="h-12 rounded-full px-7"
-          onClick={onContinue}
-        >
-          Continue <ArrowRight className="ml-1 size-4" />
-        </Button>
-      </div>
-    </section>
+          </div>
+          <div className="mt-9 flex justify-end">
+            <Button
+              size="lg"
+              className="h-12 rounded-full px-7"
+              onClick={onContinue}
+            >
+              Continue <ArrowRight className="ml-1 size-4" />
+            </Button>
+          </div>
+        </section>
+      }
+    </LocalizedContent>
   );
 }
 
@@ -1054,145 +1092,157 @@ function Assessment({
   const PhaseIcon = phase.icon;
   const scale = question.kind === 'behaviour' ? behaviourScale : technicalScale;
   return (
-    <section className="mx-auto grid max-w-7xl gap-10 px-6 py-9 lg:grid-cols-[250px_minmax(0,780px)] lg:px-12 lg:py-13">
-      <aside className="hidden lg:block">
-        <div className="sticky top-27">
-          <div className="text-xs font-semibold uppercase tracking-[.16em] text-muted-foreground">
-            Assessment path
-          </div>
-          <div className="mt-4 space-y-1.5">
-            {phases.map((item, index) => (
-              <div
-                key={item.key}
-                className={`section-row ${index === activePhaseIndex ? 'section-row-active' : ''}`}
-              >
-                <span
-                  className={`section-dot ${index < activePhaseIndex ? 'section-dot-complete' : ''}`}
-                >
-                  {index < activePhaseIndex ? (
-                    <Check className="size-3" />
-                  ) : (
-                    index + 1
-                  )}
-                </span>
-                <span className="min-w-0 flex-1 text-sm">{item.label}</span>
-                <span className="text-[10px] tabular-nums text-muted-foreground">
-                  {item.range}
-                </span>
+    <LocalizedContent>
+      {
+        <section className="mx-auto grid max-w-7xl gap-10 px-6 py-9 lg:grid-cols-[250px_minmax(0,780px)] lg:px-12 lg:py-13">
+          <aside className="hidden lg:block">
+            <div className="sticky top-27">
+              <div className="text-xs font-semibold uppercase tracking-[.16em] text-muted-foreground">
+                Assessment path
               </div>
-            ))}
-          </div>
-          <div className="reflection-note mt-7">
-            <Leaf className="mt-0.5 size-4 shrink-0 text-primary" />
-            <span>{phase.note}</span>
-          </div>
-        </div>
-      </aside>
-      <div>
-        <div className="mb-6 flex flex-wrap items-center justify-between gap-4">
+              <div className="mt-4 space-y-1.5">
+                {phases.map((item, index) => (
+                  <div
+                    key={item.key}
+                    className={`section-row ${index === activePhaseIndex ? 'section-row-active' : ''}`}
+                  >
+                    <span
+                      className={`section-dot ${index < activePhaseIndex ? 'section-dot-complete' : ''}`}
+                    >
+                      {index < activePhaseIndex ? (
+                        <Check className="size-3" />
+                      ) : (
+                        index + 1
+                      )}
+                    </span>
+                    <span className="min-w-0 flex-1 text-sm">{item.label}</span>
+                    <span className="text-[10px] tabular-nums text-muted-foreground">
+                      {item.range}
+                    </span>
+                  </div>
+                ))}
+              </div>
+              <div className="reflection-note mt-7">
+                <Leaf className="mt-0.5 size-4 shrink-0 text-primary" />
+                <span>{phase.note}</span>
+              </div>
+            </div>
+          </aside>
           <div>
-            <div className="text-xs font-semibold uppercase tracking-[.16em] text-primary">
-              {phase.eyebrow}
-            </div>
-            <div className="mt-1 text-sm text-muted-foreground">
-              Question {current + 1} of {total}
-            </div>
-          </div>
-          <div className="flex items-center gap-2">
-            <button className="assessment-home" onClick={onHome}>
-              <House className="size-4" /> Return home
-            </button>
-            <div className="rounded-full border bg-card px-3 py-1.5 text-sm font-semibold tabular-nums text-primary">
-              {Math.round(((current + 1) / total) * 100)}%
-            </div>
-          </div>
-        </div>
-        {showNudge && (
-          <div className="nudge-backdrop">
-            <div
-              className="nudge-modal"
-              role="alertdialog"
-              aria-modal="true"
-              aria-labelledby="nudge-title"
-              aria-describedby="nudge-description"
-            >
-              <div className="nudge-icon">
-                <TimerReset className="size-7" />
-              </div>
+            <div className="mb-6 flex flex-wrap items-center justify-between gap-4">
               <div>
-                <h2 id="nudge-title">You&apos;re answering a little quickly</h2>
-                <p id="nudge-description">
-                  Take a moment to read each question before choosing. A more
-                  considered response is more likely to give you a result that
-                  reflects your current experience.
-                </p>
+                <div className="text-xs font-semibold uppercase tracking-[.16em] text-primary">
+                  {phase.eyebrow}
+                </div>
+                <div className="mt-1 text-sm text-muted-foreground">
+                  {`Question ${current + 1} of ${total}`}
+                </div>
               </div>
-              <Button className="nudge-continue" size="lg" onClick={onAdvance}>
-                Skip Answer and Continue <ArrowRight className="ml-1 size-4" />
-              </Button>
+              <div className="flex items-center gap-2">
+                <button className="assessment-home" onClick={onHome}>
+                  <House className="size-4" /> Return home
+                </button>
+                <div className="rounded-full border bg-card px-3 py-1.5 text-sm font-semibold tabular-nums text-primary">
+                  {Math.round(((current + 1) / total) * 100)}%
+                </div>
+              </div>
             </div>
+            {showNudge && (
+              <div className="nudge-backdrop">
+                <div
+                  className="nudge-modal"
+                  role="alertdialog"
+                  aria-modal="true"
+                  aria-labelledby="nudge-title"
+                  aria-describedby="nudge-description"
+                >
+                  <div className="nudge-icon">
+                    <TimerReset className="size-7" />
+                  </div>
+                  <div>
+                    <h2 id="nudge-title">
+                      You&apos;re answering a little quickly
+                    </h2>
+                    <p id="nudge-description">
+                      Take a moment to read each question before choosing. A
+                      more considered response is more likely to give you a
+                      result that reflects your current experience.
+                    </p>
+                  </div>
+                  <Button
+                    className="nudge-continue"
+                    size="lg"
+                    onClick={onAdvance}
+                  >
+                    Skip Answer and Continue{' '}
+                    <ArrowRight className="ml-1 size-4" />
+                  </Button>
+                </div>
+              </div>
+            )}
+            <article className="question-card">
+              <div className="question-kicker">
+                <PhaseIcon className="size-5" />
+                {question.kind === 'technical'
+                  ? toolkit[question.toolkit].label
+                  : phase.eyebrow}
+              </div>
+              <h1 className="mt-6 font-serif text-3xl font-semibold leading-tight tracking-tight sm:text-[2.35rem]">
+                {question.prompt}
+              </h1>
+              {question.helper && (
+                <p className="mt-4 max-w-2xl leading-7 text-muted-foreground">
+                  {question.helper}
+                </p>
+              )}
+              {(question.kind === 'behaviour' ||
+                question.kind === 'technical') && (
+                <ScaleQuestion
+                  selected={typeof selected === 'number' ? selected : undefined}
+                  prompt={scale.prompt}
+                  low={scale.low}
+                  high={scale.high}
+                  onChoose={onChooseNumber}
+                />
+              )}
+              {(question.kind === 'context' ||
+                question.kind === 'judgment' ||
+                question.kind === 'proCheck') && (
+                <OrderedChoices
+                  options={question.options}
+                  selected={typeof selected === 'number' ? selected : undefined}
+                  onChoose={onChooseNumber}
+                  scenario={
+                    question.kind === 'judgment' || question.kind === 'proCheck'
+                  }
+                />
+              )}
+              {(question.kind === 'interest' || question.kind === 'growth') && (
+                <MultiChoices
+                  options={question.options}
+                  selected={Array.isArray(selected) ? selected : []}
+                  onToggle={onToggle}
+                />
+              )}
+              <div className="mt-8 flex items-center justify-between border-t pt-6">
+                <Button variant="ghost" size="lg" onClick={onBack}>
+                  <ArrowLeft className="mr-1 size-4" /> Previous
+                </Button>
+                <Button
+                  size="lg"
+                  className="h-11 rounded-full px-6"
+                  disabled={!canContinue}
+                  onClick={onAdvance}
+                >
+                  {current === total - 1 ? 'View my profile' : 'Next'}
+                  <ArrowRight className="ml-1 size-4" />
+                </Button>
+              </div>
+            </article>
           </div>
-        )}
-        <article className="question-card">
-          <div className="question-kicker">
-            <PhaseIcon className="size-5" />
-            {question.kind === 'technical'
-              ? toolkit[question.toolkit].label
-              : phase.eyebrow}
-          </div>
-          <h1 className="mt-6 font-serif text-3xl font-semibold leading-tight tracking-tight sm:text-[2.35rem]">
-            {question.prompt}
-          </h1>
-          {question.helper && (
-            <p className="mt-4 max-w-2xl leading-7 text-muted-foreground">
-              {question.helper}
-            </p>
-          )}
-          {(question.kind === 'behaviour' || question.kind === 'technical') && (
-            <ScaleQuestion
-              selected={typeof selected === 'number' ? selected : undefined}
-              prompt={scale.prompt}
-              low={scale.low}
-              high={scale.high}
-              onChoose={onChooseNumber}
-            />
-          )}
-          {(question.kind === 'context' ||
-            question.kind === 'judgment' ||
-            question.kind === 'proCheck') && (
-            <OrderedChoices
-              options={question.options}
-              selected={typeof selected === 'number' ? selected : undefined}
-              onChoose={onChooseNumber}
-              scenario={
-                question.kind === 'judgment' || question.kind === 'proCheck'
-              }
-            />
-          )}
-          {(question.kind === 'interest' || question.kind === 'growth') && (
-            <MultiChoices
-              options={question.options}
-              selected={Array.isArray(selected) ? selected : []}
-              onToggle={onToggle}
-            />
-          )}
-          <div className="mt-8 flex items-center justify-between border-t pt-6">
-            <Button variant="ghost" size="lg" onClick={onBack}>
-              <ArrowLeft className="mr-1 size-4" /> Previous
-            </Button>
-            <Button
-              size="lg"
-              className="h-11 rounded-full px-6"
-              disabled={!canContinue}
-              onClick={onAdvance}
-            >
-              {current === total - 1 ? 'View my profile' : 'Next'}
-              <ArrowRight className="ml-1 size-4" />
-            </Button>
-          </div>
-        </article>
-      </div>
-    </section>
+        </section>
+      }
+    </LocalizedContent>
   );
 }
 
@@ -1210,27 +1260,31 @@ function ScaleQuestion({
   onChoose: (value: number) => void;
 }) {
   return (
-    <fieldset className="mt-9">
-      <legend className="text-sm font-semibold">{prompt}</legend>
-      <div className="mt-4 grid grid-cols-5 gap-2.5">
-        {[1, 2, 3, 4, 5].map((value) => (
-          <button
-            type="button"
-            key={value}
-            className={`scale-position ${selected === value ? 'scale-position-selected' : ''}`}
-            onClick={() => onChoose(value)}
-            aria-label={`${value} of 5`}
-            aria-pressed={selected === value}
-          >
-            {value}
-          </button>
-        ))}
-      </div>
-      <div className="mt-2 flex justify-between gap-4 text-xs text-muted-foreground">
-        <span>{low}</span>
-        <span className="text-right">{high}</span>
-      </div>
-    </fieldset>
+    <LocalizedContent>
+      {
+        <fieldset className="mt-9">
+          <legend className="text-sm font-semibold">{prompt}</legend>
+          <div className="mt-4 grid grid-cols-5 gap-2.5">
+            {[1, 2, 3, 4, 5].map((value) => (
+              <button
+                type="button"
+                key={value}
+                className={`scale-position ${selected === value ? 'scale-position-selected' : ''}`}
+                onClick={() => onChoose(value)}
+                aria-label={`${value} of 5`}
+                aria-pressed={selected === value}
+              >
+                {value}
+              </button>
+            ))}
+          </div>
+          <div className="mt-2 flex justify-between gap-4 text-xs text-muted-foreground">
+            <span>{low}</span>
+            <span className="text-right">{high}</span>
+          </div>
+        </fieldset>
+      }
+    </LocalizedContent>
   );
 }
 
@@ -1246,28 +1300,32 @@ function OrderedChoices({
   scenario: boolean;
 }) {
   return (
-    <fieldset className="mt-8">
-      <legend className="sr-only">Choose one response</legend>
-      <div className="grid gap-2.5">
-        {options.map((option) => (
-          <button
-            type="button"
-            key={option.id}
-            className={`ordered-choice ${selected === option.value ? 'ordered-choice-selected' : ''}`}
-            onClick={() => onChoose(option.value)}
-            aria-pressed={selected === option.value}
-          >
-            <span className="choice-radio">
-              {selected === option.value && <Check className="size-3.5" />}
-            </span>
-            <span>{option.label}</span>
-            {!scenario && (
-              <ChevronRight className="ml-auto size-4 shrink-0 text-muted-foreground" />
-            )}
-          </button>
-        ))}
-      </div>
-    </fieldset>
+    <LocalizedContent>
+      {
+        <fieldset className="mt-8">
+          <legend className="sr-only">Choose one response</legend>
+          <div className="grid gap-2.5">
+            {options.map((option) => (
+              <button
+                type="button"
+                key={option.id}
+                className={`ordered-choice ${selected === option.value ? 'ordered-choice-selected' : ''}`}
+                onClick={() => onChoose(option.value)}
+                aria-pressed={selected === option.value}
+              >
+                <span className="choice-radio">
+                  {selected === option.value && <Check className="size-3.5" />}
+                </span>
+                <span>{option.label}</span>
+                {!scenario && (
+                  <ChevronRight className="ml-auto size-4 shrink-0 text-muted-foreground" />
+                )}
+              </button>
+            ))}
+          </div>
+        </fieldset>
+      }
+    </LocalizedContent>
   );
 }
 
@@ -1281,31 +1339,35 @@ function MultiChoices({
   onToggle: (id: string) => void;
 }) {
   return (
-    <fieldset className="mt-8">
-      <legend className="sr-only">Select any that apply</legend>
-      <div className="grid gap-2.5 sm:grid-cols-2">
-        {options.map((option) => {
-          const checked = selected.includes(option.id);
-          return (
-            <button
-              type="button"
-              key={option.id}
-              className={`multi-choice ${checked ? 'multi-choice-selected' : ''}`}
-              onClick={() => onToggle(option.id)}
-              aria-pressed={checked}
-            >
-              <span className="multi-check">
-                {checked && <Check className="size-3.5" />}
-              </span>
-              <span>{option.label}</span>
-            </button>
-          );
-        })}
-      </div>
-      <div className="mt-3 text-right text-xs font-medium text-muted-foreground">
-        {selected.length} selected
-      </div>
-    </fieldset>
+    <LocalizedContent>
+      {
+        <fieldset className="mt-8">
+          <legend className="sr-only">Select any that apply</legend>
+          <div className="grid gap-2.5 sm:grid-cols-2">
+            {options.map((option) => {
+              const checked = selected.includes(option.id);
+              return (
+                <button
+                  type="button"
+                  key={option.id}
+                  className={`multi-choice ${checked ? 'multi-choice-selected' : ''}`}
+                  onClick={() => onToggle(option.id)}
+                  aria-pressed={checked}
+                >
+                  <span className="multi-check">
+                    {checked && <Check className="size-3.5" />}
+                  </span>
+                  <span>{option.label}</span>
+                </button>
+              );
+            })}
+          </div>
+          <div className="mt-3 text-right text-xs font-medium text-muted-foreground">
+            {`${selected.length} selected`}
+          </div>
+        </fieldset>
+      }
+    </LocalizedContent>
   );
 }
 
@@ -1331,6 +1393,7 @@ function Results({
   onDownload: () => Promise<void>;
 }) {
   const [isSaving, setIsSaving] = useState(false);
+  const { t } = useLanguage();
   const [saveError, setSaveError] = useState<string | null>(null);
   const yearLabel = getStudyYearLabel(year);
   const mode = engineeringModes[modeKey];
@@ -1356,281 +1419,293 @@ function Results({
           }`
         : 'Your profile shows how you currently approach engineering work.';
   return (
-    <section
-      id="engineering-compass-results"
-      className="results-capture mx-auto max-w-7xl px-6 py-11 lg:px-12 lg:py-15"
-    >
-      <div
-        className="mode-hero"
-        style={
-          {
-            '--mode-accent': mode.accent,
-            '--mode-tint': mode.tint,
-          } as React.CSSProperties
-        }
-      >
-        <div className="mode-copy">
-          <div className="mode-eyebrow">
-            <Sparkles className="size-4" />{' '}
-            {proReflection
-              ? 'PRO · CURRENT ENGINEERING ROLE'
-              : 'CURRENT ENGINEERING ROLE'}
-          </div>
-          <div className="mode-stage-row">
-            <span className="growth-stage-pill">
-              ENGINEERING EXPERIENCE LEVEL{' '}
-              {String(stage.number).padStart(2, '0')}/04 · {stage.name}
-            </span>
-            {yearLabel && (
-              <span className="year-context-pill">
-                <GraduationCap className="size-3.5" /> {yearLabel}
-              </span>
-            )}
-          </div>
-          <h1>{mode.name}</h1>
-          <p className="mode-lead">{mode.shortDescription}</p>
-          <div className="mode-contribution">
-            <span>YOUR CONTRIBUTION</span>
-            <p>{mode.contribution}</p>
-          </div>
-          <p className="mode-disclaimer">
-            A current role lens, not a fixed personality type or professional
-            rank. If several scores are close, another role may fit just as
-            well.
-          </p>
-          <div className="mode-actions" data-capture-exclude="true">
-            <Button
-              variant="outline"
-              className="rounded-full"
-              disabled={isSaving}
-              onClick={async () => {
-                setIsSaving(true);
-                setSaveError(null);
-                try {
-                  await onDownload();
-                } catch {
-                  setSaveError(
-                    'The image could not be saved. Please let the illustrations finish loading and try again.',
-                  );
-                } finally {
-                  setIsSaving(false);
-                }
-              }}
-            >
-              <Download className="mr-1 size-4" />
-              {isSaving ? 'Preparing image…' : 'Save profile as image'}
-            </Button>
-            <Button
-              variant="ghost"
-              className="rounded-full"
-              onClick={onRestart}
-            >
-              <RefreshCw className="mr-1 size-4" /> Take assessment again
-            </Button>
-          </div>
-          {saveError && (
-            <p
-              role="alert"
-              className="mt-3 text-sm text-white"
-              data-capture-exclude="true"
-            >
-              {saveError}
-            </p>
-          )}
-        </div>
-        <div
-          className="mode-art"
-          aria-label={`${mode.name} character illustration`}
+    <LocalizedContent>
+      {
+        <section
+          id="engineering-compass-results"
+          className="results-capture mx-auto max-w-7xl px-6 py-11 lg:px-12 lg:py-15"
         >
-          {/* oxlint-disable-next-line next/no-img-element */}
-          <img
-            className="result-character-first"
-            src={assetPath(mode.image[initialCharacterVariant(modeKey)])}
-            alt=""
-            width={1200}
-            height={1200}
-          />
-          {/* oxlint-disable-next-line next/no-img-element */}
-          <img
-            className="result-character-second"
-            data-capture-exclude="true"
-            src={assetPath(
-              mode.image[initialCharacterVariant(modeKey) === 'a' ? 'b' : 'a'],
-            )}
-            alt=""
-            width={1200}
-            height={1200}
-          />
-        </div>
-      </div>
-      <div className="mt-9 grid gap-6 lg:grid-cols-[1.04fr_.96fr]">
-        <article className="result-panel min-w-0">
-          <div className="panel-heading">
-            <div>
-              <div className="panel-eyebrow">SIX COMPETENCIES</div>
-              <h2 className="mt-1 font-serif text-2xl font-semibold">
-                How you currently work
-              </h2>
-            </div>
-            <span className="text-xs text-muted-foreground">
-              0–100 profile scale
-            </span>
-          </div>
-          <ChartContainer
-            config={chartConfig}
-            className="mx-auto mt-3 aspect-square max-h-[470px] w-full"
+          <div
+            className="mode-hero"
+            style={
+              {
+                '--mode-accent': mode.accent,
+                '--mode-tint': mode.tint,
+              } as React.CSSProperties
+            }
           >
-            <RadarChart data={competencyScores} outerRadius="70%">
-              <PolarGrid stroke="#d8e2dc" />
-              <PolarAngleAxis
-                dataKey="subject"
-                tick={{ fill: '#496158', fontSize: 11, fontWeight: 650 }}
-              />
-              <Radar
-                dataKey="score"
-                stroke="var(--color-score)"
-                fill="var(--color-score)"
-                fillOpacity={0.16}
-                strokeWidth={2.5}
-                dot={{ r: 4, fill: '#163f27', strokeWidth: 0 }}
-              />
-            </RadarChart>
-          </ChartContainer>
-          <p className="result-footnote">{workingAnalysis}</p>
-        </article>
-        <article className="result-panel">
-          <div className="panel-heading">
-            <div>
-              <div className="panel-eyebrow">TECHNICAL TOOLKIT</div>
-              <h2 className="mt-1 font-serif text-2xl font-semibold">
-                Experience & independence
-              </h2>
-            </div>
-            <Wrench className="size-5 text-primary" />
-          </div>
-          <div className="mt-7 space-y-4">
-            {toolkitScores.map((item) => {
-              const level = getToolkitExperienceLevel(item.score);
-              return (
-                <div key={item.key}>
-                  <div className="mb-1.5 flex items-end justify-between gap-4 text-sm">
-                    <span className="font-medium">{item.name}</span>
-                    <span className="toolkit-score-meta">
-                      <span>
-                        Level {level.number}/5 · {level.label}
-                      </span>
-                      <strong>{item.score}</strong>
-                    </span>
-                  </div>
-                  <div className="h-2 overflow-hidden rounded-full bg-secondary">
-                    <div
-                      className="h-full rounded-full bg-primary transition-all"
-                      style={{ width: `${item.score}%` }}
-                    />
-                  </div>
-                </div>
-              );
-            })}
-          </div>
-          <p className="result-footnote mt-6">
-            Each level reflects your selected experience and independence in
-            that area. Use it as a practice starting point, not proof of
-            mastery.
-          </p>
-        </article>
-      </div>
-      <div className="result-growth-stack mt-6 grid gap-6">
-        <article className="result-panel">
-          <div className="panel-eyebrow">CURRENT STRENGTHS</div>
-          <h2 className="mt-1 font-serif text-2xl font-semibold">
-            Capabilities to build on
-          </h2>
-          <div className="mt-6 grid gap-3 sm:grid-cols-2">
-            {interpretation.strengths.map((item) => (
-              <div className="insight-tile" key={item.key}>
-                <span className="score-pill">{item.score}</span>
-                <h3 className="mt-4 font-serif text-lg font-semibold">
-                  {item.fullLabel}
-                </h3>
-                <p className="mt-2 text-sm leading-6 text-muted-foreground">
-                  {item.description}
-                </p>
+            <div className="mode-copy">
+              <div className="mode-eyebrow">
+                <Sparkles className="size-4" />{' '}
+                {proReflection
+                  ? 'PRO · CURRENT ENGINEERING ROLE'
+                  : 'CURRENT ENGINEERING ROLE'}
               </div>
-            ))}
+              <div className="mode-stage-row">
+                <span className="growth-stage-pill">
+                  ENGINEERING EXPERIENCE LEVEL{' '}
+                  {String(stage.number).padStart(2, '0')}/04 · {stage.name}
+                </span>
+                {yearLabel && (
+                  <span className="year-context-pill">
+                    <GraduationCap className="size-3.5" /> {yearLabel}
+                  </span>
+                )}
+              </div>
+              <h1>{mode.name}</h1>
+              <p className="mode-lead">{mode.shortDescription}</p>
+              <div className="mode-contribution">
+                <span>YOUR CONTRIBUTION</span>
+                <p>{mode.contribution}</p>
+              </div>
+              <p className="mode-disclaimer">
+                A current role lens, not a fixed personality type or
+                professional rank. If several scores are close, another role may
+                fit just as well.
+              </p>
+              <div className="mode-actions" data-capture-exclude="true">
+                <Button
+                  variant="outline"
+                  className="rounded-full"
+                  disabled={isSaving}
+                  onClick={async () => {
+                    setIsSaving(true);
+                    setSaveError(null);
+                    try {
+                      await onDownload();
+                    } catch {
+                      setSaveError(
+                        'The image could not be saved. Please let the illustrations finish loading and try again.',
+                      );
+                    } finally {
+                      setIsSaving(false);
+                    }
+                  }}
+                >
+                  <Download className="mr-1 size-4" />
+                  {isSaving ? 'Preparing image…' : 'Save profile as image'}
+                </Button>
+                <Button
+                  variant="ghost"
+                  className="rounded-full"
+                  onClick={onRestart}
+                >
+                  <RefreshCw className="mr-1 size-4" /> Take assessment again
+                </Button>
+              </div>
+              {saveError && (
+                <p
+                  role="alert"
+                  className="mt-3 text-sm text-white"
+                  data-capture-exclude="true"
+                >
+                  {saveError}
+                </p>
+              )}
+            </div>
+            <div
+              className="mode-art"
+              aria-label={`${mode.name} character illustration`}
+            >
+              {/* oxlint-disable-next-line next/no-img-element */}
+              <img
+                className="result-character-first"
+                src={assetPath(mode.image[initialCharacterVariant(modeKey)])}
+                alt=""
+                width={1200}
+                height={1200}
+              />
+              {/* oxlint-disable-next-line next/no-img-element */}
+              <img
+                className="result-character-second"
+                data-capture-exclude="true"
+                src={assetPath(
+                  mode.image[
+                    initialCharacterVariant(modeKey) === 'a' ? 'b' : 'a'
+                  ],
+                )}
+                alt=""
+                width={1200}
+                height={1200}
+              />
+            </div>
           </div>
-        </article>
-        <article className="result-panel">
-          <div className="panel-eyebrow">CHOSEN GROWTH PRIORITIES</div>
-          <h2 className="mt-1 font-serif text-2xl font-semibold">
-            What you want to develop next
-          </h2>
-          <div className="growth-actions-grid mt-6">
-            {interpretation.growth.map((item) => (
-              <div className="growth-row" key={item.id}>
-                <Target className="mt-0.5 size-4 shrink-0 text-primary" />
-                <div className="min-w-0 flex-1">
-                  <div className="font-semibold">{item.label}</div>
-                  <p className="mt-1 text-sm text-muted-foreground">
-                    {item.action}
+          <div className="mt-9 grid gap-6 lg:grid-cols-[1.04fr_.96fr]">
+            <article className="result-panel min-w-0">
+              <div className="panel-heading">
+                <div>
+                  <div className="panel-eyebrow">SIX COMPETENCIES</div>
+                  <h2 className="mt-1 font-serif text-2xl font-semibold">
+                    How you currently work
+                  </h2>
+                </div>
+                <span className="text-xs text-muted-foreground">
+                  0–100 profile scale
+                </span>
+              </div>
+              <ChartContainer
+                config={chartConfig}
+                className="mx-auto mt-3 aspect-square max-h-[470px] w-full"
+              >
+                <RadarChart
+                  data={competencyScores.map((item) => ({
+                    ...item,
+                    subject: t(item.subject),
+                  }))}
+                  outerRadius="70%"
+                >
+                  <PolarGrid stroke="#d8e2dc" />
+                  <PolarAngleAxis
+                    dataKey="subject"
+                    tick={{ fill: '#496158', fontSize: 11, fontWeight: 650 }}
+                  />
+                  <Radar
+                    dataKey="score"
+                    stroke="var(--color-score)"
+                    fill="var(--color-score)"
+                    fillOpacity={0.16}
+                    strokeWidth={2.5}
+                    dot={{ r: 4, fill: '#163f27', strokeWidth: 0 }}
+                  />
+                </RadarChart>
+              </ChartContainer>
+              <p className="result-footnote">{workingAnalysis}</p>
+            </article>
+            <article className="result-panel">
+              <div className="panel-heading">
+                <div>
+                  <div className="panel-eyebrow">TECHNICAL TOOLKIT</div>
+                  <h2 className="mt-1 font-serif text-2xl font-semibold">
+                    Experience & independence
+                  </h2>
+                </div>
+                <Wrench className="size-5 text-primary" />
+              </div>
+              <div className="mt-7 space-y-4">
+                {toolkitScores.map((item) => {
+                  const level = getToolkitExperienceLevel(item.score);
+                  return (
+                    <div key={item.key}>
+                      <div className="mb-1.5 flex items-end justify-between gap-4 text-sm">
+                        <span className="font-medium">{item.name}</span>
+                        <span className="toolkit-score-meta">
+                          <span>
+                            Level {level.number}/5 · {level.label}
+                          </span>
+                          <strong>{item.score}</strong>
+                        </span>
+                      </div>
+                      <div className="h-2 overflow-hidden rounded-full bg-secondary">
+                        <div
+                          className="h-full rounded-full bg-primary transition-all"
+                          style={{ width: `${item.score}%` }}
+                        />
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+              <p className="result-footnote mt-6">
+                Each level reflects your selected experience and independence in
+                that area. Use it as a practice starting point, not proof of
+                mastery.
+              </p>
+            </article>
+          </div>
+          <div className="result-growth-stack mt-6 grid gap-6">
+            <article className="result-panel">
+              <div className="panel-eyebrow">CURRENT STRENGTHS</div>
+              <h2 className="mt-1 font-serif text-2xl font-semibold">
+                Capabilities to build on
+              </h2>
+              <div className="mt-6 grid gap-3 sm:grid-cols-2">
+                {interpretation.strengths.map((item) => (
+                  <div className="insight-tile" key={item.key}>
+                    <span className="score-pill">{item.score}</span>
+                    <h3 className="mt-4 font-serif text-lg font-semibold">
+                      {item.fullLabel}
+                    </h3>
+                    <p className="mt-2 text-sm leading-6 text-muted-foreground">
+                      {item.description}
+                    </p>
+                  </div>
+                ))}
+              </div>
+            </article>
+            <article className="result-panel">
+              <div className="panel-eyebrow">CHOSEN GROWTH PRIORITIES</div>
+              <h2 className="mt-1 font-serif text-2xl font-semibold">
+                What you want to develop next
+              </h2>
+              <div className="growth-actions-grid mt-6">
+                {interpretation.growth.map((item) => (
+                  <div className="growth-row" key={item.id}>
+                    <Target className="mt-0.5 size-4 shrink-0 text-primary" />
+                    <div className="min-w-0 flex-1">
+                      <div className="font-semibold">{item.label}</div>
+                      <p className="mt-1 text-sm text-muted-foreground">
+                        {item.action}
+                      </p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </article>
+          </div>
+          <div className="mt-6 grid gap-4 md:grid-cols-3">
+            <article className="context-card md:col-span-2">
+              <div className="flex items-start gap-3">
+                <Lightbulb className="mt-0.5 size-5 shrink-0 text-primary" />
+                <div>
+                  <div className="panel-eyebrow">EVIDENCE PRACTICE</div>
+                  <p className="mt-2 leading-7">
+                    {interpretation.evidenceReflection}
+                  </p>
+                  <p className="mt-2 text-xs text-muted-foreground">
+                    Based on two scenarios; interpreted qualitatively and never
+                    shown as a numerical score.
                   </p>
                 </div>
               </div>
-            ))}
+            </article>
+            <article className="context-card">
+              <div className="panel-eyebrow">YOUR PROJECT EXPERIENCE</div>
+              <div className="mt-3 font-semibold">
+                {interpretation.projectLabel}
+              </div>
+              <p className="mt-1 text-sm leading-5 text-muted-foreground">
+                <span className="block mt-3 mb-1 font-semibold text-foreground">
+                  Highest responsibility you described
+                </span>
+                {interpretation.responsibilityLabel}
+              </p>
+            </article>
           </div>
-        </article>
-      </div>
-      <div className="mt-6 grid gap-4 md:grid-cols-3">
-        <article className="context-card md:col-span-2">
-          <div className="flex items-start gap-3">
-            <Lightbulb className="mt-0.5 size-5 shrink-0 text-primary" />
-            <div>
-              <div className="panel-eyebrow">EVIDENCE PRACTICE</div>
-              <p className="mt-2 leading-7">
-                {interpretation.evidenceReflection}
-              </p>
-              <p className="mt-2 text-xs text-muted-foreground">
-                Based on two scenarios; interpreted qualitatively and never
-                shown as a numerical score.
-              </p>
+          {proReflection && <ProReflection reflection={proReflection} />}
+          {interpretation.interests.length > 0 && (
+            <div className="mt-4 flex flex-wrap items-center gap-2 rounded-2xl border bg-card p-4">
+              <span className="mr-1 text-xs font-semibold uppercase tracking-[.13em] text-muted-foreground">
+                Interested in
+              </span>
+              {interpretation.interests.map((item) => (
+                <span className="interest-chip" key={item}>
+                  {item}
+                </span>
+              ))}
             </div>
+          )}
+          <div className="mt-7 flex items-start gap-3 rounded-2xl bg-secondary/70 p-5 text-sm leading-6 text-muted-foreground">
+            <CircleHelp className="mt-0.5 size-5 shrink-0 text-primary" />
+            <p>
+              Use this profile to choose a project role, learning activity, or
+              conversation—not to compare students across years or departments.
+              {proReflection &&
+                ' Pro is a pilot edition. Its additional scenarios and practice reflections complement the core profile; they do not change its scores or establish professional competence.'}
+            </p>
           </div>
-        </article>
-        <article className="context-card">
-          <div className="panel-eyebrow">YOUR PROJECT EXPERIENCE</div>
-          <div className="mt-3 font-semibold">
-            {interpretation.projectLabel}
-          </div>
-          <p className="mt-1 text-sm leading-5 text-muted-foreground">
-            <span className="block mt-3 mb-1 font-semibold text-foreground">
-              Highest responsibility you described
-            </span>
-            {interpretation.responsibilityLabel}
-          </p>
-        </article>
-      </div>
-      {proReflection && <ProReflection reflection={proReflection} />}
-      {interpretation.interests.length > 0 && (
-        <div className="mt-4 flex flex-wrap items-center gap-2 rounded-2xl border bg-card p-4">
-          <span className="mr-1 text-xs font-semibold uppercase tracking-[.13em] text-muted-foreground">
-            Interested in
-          </span>
-          {interpretation.interests.map((item) => (
-            <span className="interest-chip" key={item}>
-              {item}
-            </span>
-          ))}
-        </div>
-      )}
-      <div className="mt-7 flex items-start gap-3 rounded-2xl bg-secondary/70 p-5 text-sm leading-6 text-muted-foreground">
-        <CircleHelp className="mt-0.5 size-5 shrink-0 text-primary" />
-        <p>
-          Use this profile to choose a project role, learning activity, or
-          conversation—not to compare students across years or departments.
-          {proReflection &&
-            ' Pro is a pilot edition. Its additional scenarios and practice reflections complement the core profile; they do not change its scores or establish professional competence.'}
-        </p>
-      </div>
-    </section>
+        </section>
+      }
+    </LocalizedContent>
   );
 }
 
@@ -1640,63 +1715,68 @@ function ProReflection({
   reflection: ReturnType<typeof interpretPro>;
 }) {
   return (
-    <div className="mt-6 grid gap-6">
-      <article className="result-panel">
-        <div className="panel-eyebrow">PRO · TEAM DECISIONS</div>
-        <h2 className="mt-1 text-2xl font-semibold">
-          How you approach project situations
-        </h2>
-        <p className="mt-3 text-sm leading-6 text-muted-foreground">
-          Feedback on your 12 scenario choices—not an additional score. The
-          six-competency profile above uses the same core questions as Standard.
-        </p>
-        <div className="pro-reflection-grid mt-6">
-          {reflection.scenariosByArea.map((group) => (
-            <div className="insight-tile" key={group.area}>
-              <h3 className="font-semibold">{group.label}</h3>
-              {group.reflections.map((item) => (
-                <div key={item.id} className="pro-scenario-feedback">
-                  <p className="text-sm font-medium">{item.prompt}</p>
-                  <p className="mt-2 text-sm text-muted-foreground">
-                    <span className="font-medium">Your choice: </span>
-                    {item.choice?.label}
-                  </p>
-                  <p className="mt-2 text-sm leading-6">
-                    {item.choice?.feedback}
+    <LocalizedContent>
+      {
+        <div className="mt-6 grid gap-6">
+          <article className="result-panel">
+            <div className="panel-eyebrow">PRO · TEAM DECISIONS</div>
+            <h2 className="mt-1 text-2xl font-semibold">
+              How you approach project situations
+            </h2>
+            <p className="mt-3 text-sm leading-6 text-muted-foreground">
+              Feedback on your 12 scenario choices—not an additional score. The
+              six-competency profile above uses the same core questions as
+              Standard.
+            </p>
+            <div className="pro-reflection-grid mt-6">
+              {reflection.scenariosByArea.map((group) => (
+                <div className="insight-tile" key={group.area}>
+                  <h3 className="font-semibold">{group.label}</h3>
+                  {group.reflections.map((item) => (
+                    <div key={item.id} className="pro-scenario-feedback">
+                      <p className="text-sm font-medium">{item.prompt}</p>
+                      <p className="mt-2 text-sm text-muted-foreground">
+                        <span className="font-medium">Your choice: </span>
+                        {item.choice?.label}
+                      </p>
+                      <p className="mt-2 text-sm leading-6">
+                        {item.choice?.feedback}
+                      </p>
+                    </div>
+                  ))}
+                </div>
+              ))}
+            </div>
+          </article>
+          <article className="result-panel">
+            <div className="panel-eyebrow">PRO · PRACTICE EVIDENCE</div>
+            <h2 className="mt-1 text-2xl font-semibold">
+              Your experience in specific tasks
+            </h2>
+            <p className="mt-3 text-sm leading-6 text-muted-foreground">
+              Two practical reflections per toolkit area help you compare your
+              broad rating with work you can describe. This is self-reported
+              evidence, not a verified skills test.
+            </p>
+            <div className="pro-reflection-grid mt-6">
+              {reflection.evidence.map((item) => (
+                <div key={item.area} className="insight-tile">
+                  <h3 className="font-semibold">{item.label}</h3>
+                  <p className="mt-2 text-sm leading-6">{item.summary}</p>
+                  {item.crossCheck && (
+                    <p className="mt-3 text-sm leading-6 pro-cross-check">
+                      {item.crossCheck}
+                    </p>
+                  )}
+                  <p className="mt-3 text-sm leading-6 text-muted-foreground">
+                    {item.next}
                   </p>
                 </div>
               ))}
             </div>
-          ))}
+          </article>
         </div>
-      </article>
-      <article className="result-panel">
-        <div className="panel-eyebrow">PRO · PRACTICE EVIDENCE</div>
-        <h2 className="mt-1 text-2xl font-semibold">
-          Your experience in specific tasks
-        </h2>
-        <p className="mt-3 text-sm leading-6 text-muted-foreground">
-          Two practical reflections per toolkit area help you compare your broad
-          rating with work you can describe. This is self-reported evidence, not
-          a verified skills test.
-        </p>
-        <div className="pro-reflection-grid mt-6">
-          {reflection.evidence.map((item) => (
-            <div key={item.area} className="insight-tile">
-              <h3 className="font-semibold">{item.label}</h3>
-              <p className="mt-2 text-sm leading-6">{item.summary}</p>
-              {item.crossCheck && (
-                <p className="mt-3 text-sm leading-6 pro-cross-check">
-                  {item.crossCheck}
-                </p>
-              )}
-              <p className="mt-3 text-sm leading-6 text-muted-foreground">
-                {item.next}
-              </p>
-            </div>
-          ))}
-        </div>
-      </article>
-    </div>
+      }
+    </LocalizedContent>
   );
 }

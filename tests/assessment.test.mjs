@@ -7,6 +7,10 @@ import ts from 'typescript';
 // Test the source modules without introducing a new build/test dependency.
 registerHooks({
   resolve(specifier, context, nextResolve) {
+    if (specifier.startsWith('@/')) {
+      const path = new URL('../' + specifier.slice(2) + '.ts', import.meta.url);
+      return nextResolve(path.href, context);
+    }
     try {
       return nextResolve(specifier, context);
     } catch (error) {
@@ -16,7 +20,7 @@ registerHooks({
     }
   },
   load(url, context, nextLoad) {
-    if (url.endsWith('.ts'))
+    if (/\.tsx?$/.test(url))
       return {
         format: 'module',
         shortCircuit: true,
@@ -24,6 +28,7 @@ registerHooks({
           compilerOptions: {
             module: ts.ModuleKind.ESNext,
             target: ts.ScriptTarget.ES2022,
+            jsx: ts.JsxEmit.ReactJSX,
           },
         }).outputText,
       };
@@ -43,6 +48,143 @@ const { calculateResults } = await import('../lib/assessment/scoring.ts');
 const { interpretResults } =
   await import('../lib/assessment/interpretation.ts');
 const { growthActions } = await import('../lib/assessment/growth-actions.ts');
+const { translate } = await import('../lib/i18n/translate.ts');
+const { zhHant } = await import('../lib/i18n/catalog.ts');
+const { competencies } = await import('../lib/assessment/competencies.ts');
+const { toolkit } = await import('../lib/assessment/toolkit.ts');
+const { engineeringModes: translatedModes, growthStages: translatedStages } =
+  await import('../lib/assessment/profile.ts');
+const { studyYears } = await import('../lib/assessment/years.ts');
+const { behaviourScale, technicalScale } =
+  await import('../lib/assessment/questions.ts');
+
+function assertTranslated(text) {
+  if (!text || ['CAD'].includes(text)) return;
+  assert.notEqual(
+    translate(text, 'zh-Hant'),
+    text,
+    `Missing Traditional Chinese: ${text}`,
+  );
+  assert.equal(translate(text, 'en'), text, 'English must remain unchanged');
+}
+function checkCopy(object) {
+  for (const [key, value] of Object.entries(object)) {
+    if (
+      [
+        'prompt',
+        'helper',
+        'label',
+        'short',
+        'description',
+        'shortDescription',
+        'contribution',
+        'note',
+        'feedback',
+        'summary',
+        'crossCheck',
+        'next',
+        'action',
+        'projectLabel',
+        'responsibilityLabel',
+        'evidenceReflection',
+        'fullLabel',
+      ].includes(key) &&
+      typeof value === 'string'
+    )
+      assertTranslated(value);
+    else if (key === 'skills' || key === 'details' || key === 'interests')
+      value.forEach(assertTranslated);
+    else if (value && typeof value === 'object') checkCopy(value);
+  }
+}
+test('Traditional Chinese covers every Standard and Pro prompt, option and feedback', () => {
+  checkCopy(proQuestions);
+  checkCopy([behaviourScale, technicalScale]);
+  checkCopy(competencies);
+  checkCopy(toolkit);
+  checkCopy(translatedModes);
+  checkCopy(translatedStages);
+  checkCopy(studyYears);
+  Object.values(growthActions).forEach(assertTranslated);
+  for (let value = 1; value <= 5; value++) {
+    const answers = Object.fromEntries(
+      proQuestions
+        .filter((q) => !['interest', 'growth'].includes(q.kind))
+        .map((q) => [q.id, Math.min(value, q.kind === 'proCheck' ? 4 : 5)]),
+    );
+    answers.I01 = ['robotics', 'data-ai'];
+    answers.G01 = growthOptions.map((o) => o.id);
+    const results = calculateResults(answers);
+    checkCopy(
+      interpretResults(
+        answers,
+        results.competencyScores,
+        results.toolkitScores,
+      ),
+    );
+    checkCopy(interpretPro(answers));
+  }
+  assert.ok(Object.keys(zhHant).length > 450);
+});
+test('All static JSX copy is covered, including accessible labels and modal text', () => {
+  const source = readFileSync(
+    new URL('../app/page.tsx', import.meta.url),
+    'utf8',
+  );
+  const ast = ts.createSourceFile(
+    'page.tsx',
+    source,
+    ts.ScriptTarget.Latest,
+    true,
+    ts.ScriptKind.TSX,
+  );
+  const allowed = new Set(['N', 'E', 'S', 'W', 'Standard', 'Pro']);
+  const missing = new Set();
+  function visit(node) {
+    if (ts.isJsxText(node)) {
+      const text = node.text
+        .replace(/&apos;/g, "'")
+        .replace(/&amp;/g, '&')
+        .replace(/\s+/g, ' ')
+        .trim();
+      if (
+        /[a-z]/i.test(text) &&
+        !allowed.has(text) &&
+        translate(text, 'zh-Hant') === text
+      )
+        missing.add(text);
+    }
+    ts.forEachChild(node, visit);
+  }
+  visit(ast);
+  assert.deepEqual([...missing], []);
+});
+test('Dynamic Chinese labels preserve counts and translate strength analysis', () => {
+  assert.equal(translate('Question 55 of 60', 'zh-Hant'), '第 55 題，共 60 題');
+  assert.equal(translate('4 selected', 'zh-Hant'), '已選 4 項');
+  assert.equal(
+    translate('Preview Problem Framer', 'zh-Hant'),
+    '預覽問題定義者',
+  );
+  assert.equal(
+    translate('Team Connector character illustration', 'zh-Hant'),
+    '團隊連結者角色插圖',
+  );
+  const analysis =
+    'Your answers point most strongly to Problem Identification, with Interdisciplinary Collaboration as a supporting strength. Hands-on Skills is the clearest area to practise next.';
+  const chinese = translate(analysis, 'zh-Hant');
+  assert.ok(
+    chinese.includes('問題識別') &&
+      chinese.includes('跨學科協作') &&
+      chinese.includes('實作技能'),
+  );
+  assert.ok(!chinese.includes('Your answers'));
+  assert.equal(
+    translate(chinese, 'zh-Hant'),
+    chinese,
+    'Repeated presentation boundaries must be idempotent',
+  );
+});
 const { initialCharacterVariant, engineeringModes } =
   await import('../lib/assessment/profile.ts');
 const { compassSpringStep, shuffledCompassTargets, compassRetargetDelay } =
@@ -275,5 +417,45 @@ test('Long-image export removes page centering and captures explicit complete bo
     assert.ok(width * height * options.pixelRatio ** 2 <= 12_000_001);
     assert.ok(height * options.pixelRatio <= 16001);
     assert.ok(options.pixelRatio > 0);
+  }
+});
+test('Language presentation preserves control identity, handlers, values and complete rendered text', async () => {
+  const React = await import('react');
+  const { renderToStaticMarkup } = await import('react-dom/server');
+  const { localizeTree } = await import('../components/language.tsx');
+  const choose = () => {};
+  const original = React.createElement(
+    'button',
+    { key: 'B01-answer-4', onClick: choose, value: 4, 'aria-label': '4 of 5' },
+    React.createElement('span', null, 'How you currently work'),
+    React.createElement('strong', null, 75),
+  );
+  const translated = localizeTree(original, 'zh-Hant');
+  assert.equal(translated.type, original.type);
+  assert.equal(translated.key, original.key);
+  assert.equal(translated.props.onClick, choose);
+  assert.equal(translated.props.value, 4);
+  const html = renderToStaticMarkup(translated);
+  assert.ok(html.includes('你目前的工作方式') && html.includes('75'));
+  assert.ok(html.includes('4 分（共 5 分）'));
+  for (const question of proQuestions) {
+    const tree = React.createElement(
+      'article',
+      null,
+      React.createElement('h1', null, question.prompt),
+      React.createElement('p', null, question.helper),
+      ...('options' in question
+        ? question.options.map((o) =>
+            React.createElement('button', { key: o.id }, o.label),
+          )
+        : []),
+    );
+    const zh = renderToStaticMarkup(localizeTree(tree, 'zh-Hant'));
+    assert.ok(!zh.includes(question.prompt), question.id);
+    assert.ok(/[\u3400-\u9fff]/.test(zh), question.id);
+    assert.equal(
+      renderToStaticMarkup(localizeTree(tree, 'en')),
+      renderToStaticMarkup(tree),
+    );
   }
 });

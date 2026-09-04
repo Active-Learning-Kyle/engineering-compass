@@ -1408,3 +1408,73 @@
     animation: none;
   }
 }
+/* Compact bilingual control: same placement and hit areas on every step. */
+.language-toolbar {
+  position: relative;
+  z-index: 35;
+  display: flex;
+  justify-content: flex-end;
+  max-width: 1280px;
+  margin-inline: auto;
+  padding: 14px 24px 0;
+}
+.language-switch {
+  display: inline-flex;
+  padding: 3px;
+  gap: 3px;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  background: var(--card);
+}
+.language-switch button {
+  min-height: 40px;
+  padding: 8px 15px;
+  border-radius: 999px;
+  color: var(--muted-foreground);
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+}
+.language-switch button[aria-pressed='true'] {
+  color: var(--primary-foreground);
+  background: var(--primary);
+}
+.language-switch button:focus-visible {
+  outline: 2px solid var(--primary);
+  outline-offset: 3px;
+}
+html:lang(zh-Hant) body {
+  font-family:
+    Arial, 'PingFang TC', 'Microsoft JhengHei', 'Noto Sans TC', sans-serif;
+}
+html:lang(zh-Hant)
+  :is(
+    h1,
+    h2,
+    h3,
+    .font-serif,
+    .panel-eyebrow,
+    .eyebrow,
+    .mode-eyebrow,
+    .version-status
+  ) {
+  font-family: inherit;
+  letter-spacing: 0.02em;
+}
+html:lang(zh-Hant) :is(.display-title, .mode-copy h1) {
+  line-height: 1.2;
+}
+html:lang(zh-Hant) .mode-copy h1 {
+  font-size: clamp(2.6rem, 5vw, 5.4rem);
+}
+html:lang(zh-Hant) .question-card h1 {
+  line-height: 1.5;
+}
+html:lang(zh-Hant) .toolkit-score-meta {
+  white-space: normal;
+}
+@media (min-width: 1024px) {
+  .language-toolbar {
+    padding-inline: 48px;
+  }
+}

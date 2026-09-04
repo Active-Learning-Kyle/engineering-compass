@@ -22,11 +22,11 @@
   --color-input: var(--input);
   --color-ring: var(--ring);
   --font-sans:
-    -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'SF Pro Display',
-    'Helvetica Neue', Helvetica, Arial, sans-serif;
+    var(--font-geist-sans), -apple-system, BlinkMacSystemFont, 'Helvetica Neue',
+    Helvetica, Arial, sans-serif;
   --font-serif:
-    -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'SF Pro Display',
-    'Helvetica Neue', Helvetica, Arial, sans-serif;
+    var(--font-geist-sans), -apple-system, BlinkMacSystemFont, 'Helvetica Neue',
+    Helvetica, Arial, sans-serif;
   --font-mono: var(--font-geist-mono);
   --radius-sm: calc(var(--radius) * 0.6);
   --radius-md: calc(var(--radius) * 0.8);
@@ -186,6 +186,53 @@
 .version-meta {
   margin-top: 0.15rem;
   font-size: 0.78rem;
+}
+.version-purpose {
+  font-size: 0.9rem;
+  line-height: 1.5;
+  color: var(--muted-foreground);
+}
+.scale-frequency {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  justify-content: center;
+  padding: 0.6rem 0.2rem;
+  min-height: 90px;
+}
+.scale-frequency span {
+  font-size: clamp(0.65rem, 1.2vw, 0.8rem);
+  line-height: 1.3;
+  font-weight: 550;
+}
+.mode-secondary,
+.mode-scope-description {
+  margin-top: 0.7rem;
+  color: #c1d5c7;
+  font-size: 0.8rem;
+  line-height: 1.5;
+}
+.mode-quick-insights {
+  display: grid;
+  gap: 1.1rem;
+  margin-top: 1.25rem;
+}
+.toolkit-evidence {
+  margin-top: 0.7rem;
+  padding: 0.8rem;
+  border-radius: 0.7rem;
+  background: var(--secondary);
+  color: var(--muted-foreground);
+  font-size: 0.78rem;
+  line-height: 1.55;
+}
+.toolkit-evidence p {
+  margin-top: 0.35rem;
+}
+@media (min-width: 640px) {
+  .mode-quick-insights {
+    grid-template-columns: 1fr 1fr;
+  }
 }
 .version-action {
   display: flex;
@@ -759,7 +806,7 @@
 .mode-hero {
   position: relative;
   display: grid;
-  min-height: 520px;
+  min-height: 440px;
   overflow: hidden;
   border: 1px solid rgba(22, 63, 39, 0.18);
   border-radius: 2rem;
@@ -769,7 +816,7 @@
 .mode-copy {
   position: relative;
   z-index: 2;
-  padding: clamp(1.6rem, 5vw, 4rem);
+  padding: clamp(1.4rem, 3vw, 2.5rem);
 }
 .mode-eyebrow {
   display: inline-flex;
@@ -814,22 +861,22 @@
   max-width: 710px;
   color: #d7f43c;
   font-family: var(--font-sans);
-  font-size: clamp(3rem, 7vw, 6.4rem);
+  font-size: clamp(2.5rem, 4.4vw, 4.3rem);
   font-weight: 700;
-  line-height: 0.92;
+  line-height: 1.02;
   letter-spacing: -0.055em;
 }
 .mode-lead {
   max-width: 650px;
-  margin-top: 1.25rem;
+  margin-top: 0.9rem;
   color: white;
   font-family: var(--font-sans);
-  font-size: clamp(1.2rem, 2vw, 1.55rem);
+  font-size: clamp(1rem, 1.3vw, 1.2rem);
   line-height: 1.45;
 }
 .mode-contribution {
   max-width: 640px;
-  margin-top: 1.6rem;
+  margin-top: 0;
   border-left: 3px solid #d7f43c;
   padding-left: 1rem;
 }
@@ -1445,7 +1492,12 @@
 }
 html:lang(zh-Hant) body {
   font-family:
-    Arial, 'PingFang TC', 'Microsoft JhengHei', 'Noto Sans TC', sans-serif;
+    'PingFang TC', 'Noto Sans TC', 'Microsoft JhengHei', system-ui, sans-serif;
+}
+html:lang(zh-Hant) {
+  --font-sans:
+    'PingFang TC', 'Noto Sans TC', 'Microsoft JhengHei', system-ui, sans-serif;
+  --font-serif: var(--font-sans);
 }
 html:lang(zh-Hant)
   :is(
@@ -1465,7 +1517,7 @@ html:lang(zh-Hant) :is(.display-title, .mode-copy h1) {
   line-height: 1.2;
 }
 html:lang(zh-Hant) .mode-copy h1 {
-  font-size: clamp(2.6rem, 5vw, 5.4rem);
+  font-size: clamp(2.2rem, 4vw, 4rem);
 }
 html:lang(zh-Hant) .question-card h1 {
   line-height: 1.5;

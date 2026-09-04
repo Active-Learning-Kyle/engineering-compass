@@ -8,7 +8,9 @@ import ts from 'typescript';
 registerHooks({
   resolve(specifier, context, nextResolve) {
     if (specifier.startsWith('@/')) {
-      const path = new URL('../' + specifier.slice(2) + '.ts', import.meta.url);
+      let path = new URL('../' + specifier.slice(2) + '.ts', import.meta.url);
+      if (!existsSync(path))
+        path = new URL('../' + specifier.slice(2) + '.tsx', import.meta.url);
       return nextResolve(path.href, context);
     }
     try {
@@ -20,17 +22,26 @@ registerHooks({
     }
   },
   load(url, context, nextLoad) {
-    if (/\.tsx?$/.test(url))
+    if (/\.tsx?(?:\?unit)?$/.test(url))
       return {
         format: 'module',
         shortCircuit: true,
-        source: ts.transpileModule(readFileSync(new URL(url), 'utf8'), {
-          compilerOptions: {
-            module: ts.ModuleKind.ESNext,
-            target: ts.ScriptTarget.ES2022,
-            jsx: ts.JsxEmit.ReactJSX,
+        source: ts.transpileModule(
+          readFileSync(new URL(url), 'utf8').replaceAll(
+            'import.meta.env.BASE_URL',
+            "'/'",
+          ) +
+            (url.endsWith('page.tsx?unit')
+              ? '\nexport { Results, Assessment, Welcome };'
+              : ''),
+          {
+            compilerOptions: {
+              module: ts.ModuleKind.ESNext,
+              target: ts.ScriptTarget.ES2022,
+              jsx: ts.JsxEmit.ReactJSX,
+            },
           },
-        }).outputText,
+        ).outputText,
       };
     return nextLoad(url, context);
   },
@@ -43,13 +54,16 @@ const {
   getQuestions,
   interpretPro,
   restoreQuestionIndex,
+  currentVersion,
 } = await import('../lib/assessment/pro.ts');
 const { calculateResults } = await import('../lib/assessment/scoring.ts');
 const { interpretResults } =
   await import('../lib/assessment/interpretation.ts');
 const { growthActions } = await import('../lib/assessment/growth-actions.ts');
-const { translate } = await import('../lib/i18n/translate.ts');
-const { zhHant } = await import('../lib/i18n/catalog.ts');
+const { translate, messages, isMessageReference } =
+  await import('../lib/i18n/translate.ts');
+const { readDraft, progressStorageKey, legacyStorageKey } =
+  await import('../lib/assessment/drafts.ts');
 const { competencies } = await import('../lib/assessment/competencies.ts');
 const { toolkit } = await import('../lib/assessment/toolkit.ts');
 const { engineeringModes: translatedModes, growthStages: translatedStages } =
@@ -59,13 +73,18 @@ const { behaviourScale, technicalScale } =
   await import('../lib/assessment/questions.ts');
 
 function assertTranslated(text) {
-  if (!text || ['CAD'].includes(text)) return;
+  if (!text) return;
+  assert.ok(isMessageReference(text), `Expected stable key: ${text}`);
   assert.notEqual(
     translate(text, 'zh-Hant'),
     text,
     `Missing Traditional Chinese: ${text}`,
   );
-  assert.equal(translate(text, 'en'), text, 'English must remain unchanged');
+  assert.notEqual(
+    translate(text, 'en'),
+    text,
+    'English must resolve from a key',
+  );
 }
 function checkCopy(object) {
   for (const [key, value] of Object.entries(object)) {
@@ -88,6 +107,10 @@ function checkCopy(object) {
         'responsibilityLabel',
         'evidenceReflection',
         'fullLabel',
+        'name',
+        'low',
+        'high',
+        'consistency',
       ].includes(key) &&
       typeof value === 'string'
     )
@@ -110,7 +133,13 @@ test('Traditional Chinese covers every Standard and Pro prompt, option and feedb
     const answers = Object.fromEntries(
       proQuestions
         .filter((q) => !['interest', 'growth'].includes(q.kind))
-        .map((q) => [q.id, Math.min(value, q.kind === 'proCheck' ? 4 : 5)]),
+        .map((q) => [
+          q.id,
+          Math.min(
+            value,
+            q.phase === 'proScenarios' ? 2 : q.kind === 'proCheck' ? 4 : 5,
+          ),
+        ]),
     );
     answers.I01 = ['robotics', 'data-ai'];
     answers.G01 = growthOptions.map((o) => o.id);
@@ -124,7 +153,7 @@ test('Traditional Chinese covers every Standard and Pro prompt, option and feedb
     );
     checkCopy(interpretPro(answers));
   }
-  assert.ok(Object.keys(zhHant).length > 450);
+  assert.ok(Object.keys(messages['zh-Hant']).length > 450);
 });
 test('All static JSX copy is covered, including accessible labels and modal text', () => {
   const source = readFileSync(
@@ -147,43 +176,64 @@ test('All static JSX copy is covered, including accessible labels and modal text
         .replace(/&amp;/g, '&')
         .replace(/\s+/g, ' ')
         .trim();
-      if (
-        /[a-z]/i.test(text) &&
-        !allowed.has(text) &&
-        translate(text, 'zh-Hant') === text
-      )
-        missing.add(text);
+      if (/[a-z]/i.test(text) && !allowed.has(text)) missing.add(text);
+    }
+    if (ts.isStringLiteral(node) && isMessageReference(node.text)) {
+      assert.ok(
+        Object.hasOwn(messages.en, node.text),
+        `Unknown source key ${node.text}`,
+      );
+      assert.ok(
+        Object.hasOwn(messages['zh-Hant'], node.text),
+        `Missing Chinese ${node.text}`,
+      );
     }
     ts.forEachChild(node, visit);
   }
   visit(ast);
   assert.deepEqual([...missing], []);
 });
-test('Dynamic Chinese labels preserve counts and translate strength analysis', () => {
-  assert.equal(translate('Question 55 of 60', 'zh-Hant'), '第 55 題，共 60 題');
-  assert.equal(translate('4 selected', 'zh-Hant'), '已選 4 項');
+test('Stable bilingual keys and named parameters never silently fall back to English', () => {
   assert.equal(
-    translate('Preview Problem Framer', 'zh-Hant'),
+    translate('assessment.questionCount', 'zh-Hant', {
+      current: 55,
+      total: 60,
+    }),
+    '第 55 題，共 60 題',
+  );
+  assert.equal(
+    translate('assessment.selectedCount', 'zh-Hant', { count: 4 }),
+    '已選 4 項',
+  );
+  assert.equal(
+    translate('role.preview', 'zh-Hant', {
+      name: translate('role.problem.name', 'zh-Hant'),
+    }),
     '預覽問題定義者',
   );
-  assert.equal(
-    translate('Team Connector character illustration', 'zh-Hant'),
-    '團隊連結者角色插圖',
+  assert.throws(() => translate('unknown.key', 'zh-Hant'), /Missing/);
+  assert.throws(() => translate('assessment.questionCount', 'en'), /Missing/);
+  assert.deepEqual(
+    Object.keys(messages.en).sort(),
+    Object.keys(messages['zh-Hant']).sort(),
   );
-  const analysis =
-    'Your answers point most strongly to Problem Identification, with Interdisciplinary Collaboration as a supporting strength. Hands-on Skills is the clearest area to practise next.';
-  const chinese = translate(analysis, 'zh-Hant');
-  assert.ok(
-    chinese.includes('問題識別') &&
-      chinese.includes('跨學科協作') &&
-      chinese.includes('實作技能'),
-  );
-  assert.ok(!chinese.includes('Your answers'));
-  assert.equal(
-    translate(chinese, 'zh-Hant'),
-    chinese,
-    'Repeated presentation boundaries must be idempotent',
-  );
+  for (const key of Object.keys(messages.en)) {
+    const params = (text) =>
+      [...text.matchAll(/\{(\w+)\}/g)].map((m) => m[1]).sort();
+    assert.deepEqual(
+      params(messages.en[key]),
+      params(messages['zh-Hant'][key]),
+      key,
+    );
+  }
+  const before = translate('home.hero.title', 'zh-Hant');
+  const english = messages.en['home.hero.title'];
+  try {
+    messages.en['home.hero.title'] = 'Revised punctuation, same stable key.';
+    assert.equal(translate('home.hero.title', 'zh-Hant'), before);
+  } finally {
+    messages.en['home.hero.title'] = english;
+  }
 });
 const { initialCharacterVariant, engineeringModes } =
   await import('../lib/assessment/profile.ts');
@@ -212,8 +262,12 @@ test('Standard has 30 items; Pro has 60 sequential, unique, fully answerable ite
   assert.equal(new Set(proQuestions.map((item) => item.id)).size, 60);
   proQuestions.forEach((item, index) => assert.equal(item.number, index + 1));
   for (const item of proChecks) {
-    assert.equal(item.options.length, 4);
-    assert.equal(new Set(item.options.map((option) => option.value)).size, 4);
+    const count = item.phase === 'proScenarios' ? 2 : 4;
+    assert.equal(item.options.length, count);
+    assert.equal(
+      new Set(item.options.map((option) => option.value)).size,
+      count,
+    );
     assert.ok(item.options.every((option) => option.label && option.feedback));
   }
 });
@@ -250,7 +304,12 @@ test('Pro additional answers never silently change core scores', () => {
   for (const value of [1, 2, 3, 4]) {
     const answers = {
       ...coreAnswers,
-      ...Object.fromEntries(proChecks.map((item) => [item.id, value])),
+      ...Object.fromEntries(
+        proChecks.map((item) => [
+          item.id,
+          item.phase === 'proScenarios' ? (value % 2) + 1 : value,
+        ]),
+      ),
     };
     assert.deepEqual(calculateResults(answers), expected);
     const reflection = interpretPro(answers);
@@ -284,7 +343,10 @@ test('Growth choices each have a distinct action, including an unlimited full se
   );
   assert.equal(result.growth.length, growthOptions.length);
   assert.ok(result.growth.every((item) => item.action));
-  assert.equal(result.projectLabel, 'Three or four completed projects');
+  assert.equal(
+    translate(result.projectLabel, 'en'),
+    'Three or four completed projects',
+  );
 });
 
 test('Home and results use the requested starting portraits, and all assets exist', () => {
@@ -385,16 +447,50 @@ test('Compass retargets rapidly, before it can settle', () => {
   assert.ok(crossings >= 2);
 });
 
-test('Old Pro drafts resume missing middle questions without losing closing answers', () => {
-  const answers = { ...coreAnswers };
-  assert.equal(restoreQuestionIndex('pro', 'pro-v0.1', 29, answers), 24);
-  for (const item of proChecks) answers[item.id] = 2;
-  delete answers.C02;
-  assert.equal(restoreQuestionIndex('pro', 'pro-v0.1', 25, answers), 55);
-  assert.equal(restoreQuestionIndex('pro', 'pro-v0.2', 40, answers), 40);
+test('Changed question meanings cannot reuse old drafts; current drafts resume with stable IDs', () => {
+  assert.notEqual(progressStorageKey, legacyStorageKey);
+  for (const [edition, version] of [
+    ['pro', 'pro-v0.1'],
+    ['pro', 'pro-v0.2'],
+    ['standard', 'standard-v1.6'],
+  ]) {
+    assert.equal(restoreQuestionIndex(edition, version, 25, coreAnswers), 0);
+    assert.equal(
+      readDraft(
+        JSON.stringify({ edition, version, current: 25, answers: coreAnswers }),
+      ).status,
+      'legacy',
+    );
+  }
+  for (const edition of ['standard', 'pro']) {
+    const draft = {
+      edition,
+      version: currentVersion(edition),
+      year: 'year-1',
+      current: 25,
+      answers: coreAnswers,
+    };
+    assert.deepEqual(readDraft(JSON.stringify(draft)), {
+      status: 'current',
+      draft,
+    });
+    assert.equal(
+      restoreQuestionIndex(edition, currentVersion(edition), 25, coreAnswers),
+      25,
+    );
+  }
+  assert.equal(readDraft('{').status, 'invalid');
   assert.equal(
-    restoreQuestionIndex('standard', 'standard-v1.6', 25, answers),
-    25,
+    readDraft(
+      JSON.stringify({
+        edition: 'pro',
+        version: currentVersion('pro'),
+        current: 25,
+        year: null,
+        answers: { PS01: 4 },
+      }),
+    ).status,
+    'invalid',
   );
 });
 
@@ -426,8 +522,13 @@ test('Language presentation preserves control identity, handlers, values and com
   const choose = () => {};
   const original = React.createElement(
     'button',
-    { key: 'B01-answer-4', onClick: choose, value: 4, 'aria-label': '4 of 5' },
-    React.createElement('span', null, 'How you currently work'),
+    {
+      key: 'B01-answer-4',
+      onClick: choose,
+      value: 4,
+      'aria-label': 'scale.behaviour.details.3',
+    },
+    React.createElement('span', null, 'result.radar.title'),
     React.createElement('strong', null, 75),
   );
   const translated = localizeTree(original, 'zh-Hant');
@@ -437,7 +538,8 @@ test('Language presentation preserves control identity, handlers, values and com
   assert.equal(translated.props.value, 4);
   const html = renderToStaticMarkup(translated);
   assert.ok(html.includes('你目前的工作方式') && html.includes('75'));
-  assert.ok(html.includes('4 分（共 5 分）'));
+  assert.ok(html.includes('經常'));
+  assert.equal(renderToStaticMarkup(localizeTree(translated, 'zh-Hant')), html);
   for (const question of proQuestions) {
     const tree = React.createElement(
       'article',
@@ -453,9 +555,165 @@ test('Language presentation preserves control identity, handlers, values and com
     const zh = renderToStaticMarkup(localizeTree(tree, 'zh-Hant'));
     assert.ok(!zh.includes(question.prompt), question.id);
     assert.ok(/[\u3400-\u9fff]/.test(zh), question.id);
-    assert.equal(
-      renderToStaticMarkup(localizeTree(tree, 'en')),
-      renderToStaticMarkup(tree),
+    const en = renderToStaticMarkup(localizeTree(tree, 'en'));
+    assert.ok(!en.includes(question.prompt), question.id);
+    assert.ok(
+      en.includes(
+        renderToStaticMarkup(
+          React.createElement('h1', null, translate(question.prompt, 'en')),
+        ),
+      ),
+      question.id,
     );
+  }
+});
+
+test('Behaviour items keep five numeric frequency anchors tied to recent actual work', () => {
+  const items = questions.filter((q) => q.kind === 'behaviour');
+  assert.equal(items.length, 15);
+  for (const item of items)
+    assert.match(translate(item.prompt, 'en'), /how often/i);
+  assert.deepEqual(
+    behaviourScale.details.map((k) => translate(k, 'en')),
+    ['Never', 'Rarely', 'Sometimes', 'Often', 'Almost always'],
+  );
+  assert.match(translate('assessment.behaviour.helper', 'en'), /most recent/);
+  for (const value of [1, 2, 3, 4, 5]) {
+    const answers = Object.fromEntries(
+      questions.map((q) => [
+        q.id,
+        ['growth', 'interest'].includes(q.kind) ? [] : value,
+      ]),
+    );
+    assert.ok(
+      calculateResults(answers).competencyScores.every(
+        (s) => s.score === (value - 1) * 25,
+      ),
+    );
+  }
+});
+
+test('Trade-off options have comparable lengths and no merit score metadata', () => {
+  for (const item of proChecks.filter((q) => q.phase === 'proScenarios')) {
+    for (const locale of ['en', 'zh-Hant']) {
+      const lengths = item.options.map((o) =>
+        locale === 'en'
+          ? translate(o.label, locale).split(/\s+/).length
+          : translate(o.label, locale).length,
+      );
+      assert.ok(
+        Math.max(...lengths) / Math.min(...lengths) <= 1.55,
+        `${item.id} ${locale}: ${lengths}`,
+      );
+    }
+    for (const option of item.options) {
+      assert.deepEqual(Object.keys(option).sort(), [
+        'feedback',
+        'id',
+        'label',
+        'value',
+      ]);
+      assert.ok(translate(option.feedback, 'en').length > 80);
+    }
+  }
+});
+
+test('Leading mode presentation preserves ties without an arbitrary near-tie threshold', async () => {
+  const { deriveLeadingModes } = await import('../lib/assessment/profile.ts');
+  const scores = calculateResults(coreAnswers).competencyScores;
+  assert.equal(deriveLeadingModes(scores).balanced, true);
+  assert.equal(deriveLeadingModes(scores).leading.length, 6);
+  const close = scores.map((s, i) => ({
+    ...s,
+    score: i === 0 ? 96 : i === 1 ? 95 : 50,
+  }));
+  assert.equal(deriveLeadingModes(close).leading.length, 1);
+  assert.equal(deriveLeadingModes(close).supporting[0].score, 95);
+  close[1].score = 96;
+  assert.equal(deriveLeadingModes(close).leading.length, 2);
+  const interpretation = interpretResults(coreAnswers, scores, []);
+  assert.equal(interpretation.strengths.length, 6);
+});
+
+test('Pro evidence reports factual task counts, distinguishes incomplete responses, and does not claim validation', () => {
+  const answers = { ...coreAnswers, T01: 5, PE01: 4, PE02: 4 };
+  let evidence = interpretPro(answers).evidence[0];
+  assert.equal(evidence.independent, 2);
+  assert.equal(evidence.experienced, 2);
+  assert.equal(evidence.consistency, 'evidence.consistency.aligned');
+  answers.PE02 = 1;
+  evidence = interpretPro(answers).evidence[0];
+  assert.equal(evidence.independent, 1);
+  assert.equal(evidence.consistency, 'evidence.consistency.mixed');
+  delete answers.PE02;
+  evidence = interpretPro(answers).evidence[0];
+  assert.equal(evidence.answered, 1);
+  assert.equal(evidence.summary, 'result.evidence.incomplete');
+  assert.equal(evidence.consistency, 'result.evidence.incomplete');
+  assert.match(
+    translate('result.evidence.selfReport', 'en'),
+    /not externally verified/,
+  );
+});
+
+test('Result components render complete single, joint and balanced profiles without unresolved keys', async () => {
+  // Pure server-rendered component test: no browser, DOM inspection or screenshot.
+  const React = await import('react');
+  const { renderToStaticMarkup } = await import('react-dom/server');
+  const { Results } = await import('../app/page.tsx?unit');
+  for (const pattern of ['single', 'joint', 'balanced']) {
+    const answers = {
+      ...coreAnswers,
+      ...Object.fromEntries(
+        proChecks.map((q) => [q.id, q.phase === 'proScenarios' ? 1 : 4]),
+      ),
+    };
+    const scores = calculateResults(answers);
+    const competencyScores = scores.competencyScores.map((s, i) => ({
+      ...s,
+      score:
+        pattern === 'balanced'
+          ? 50
+          : i === 0
+            ? 96
+            : i === 1
+              ? pattern === 'joint'
+                ? 96
+                : 95
+              : 50,
+    }));
+    for (const pro of [false, true]) {
+      const html = renderToStaticMarkup(
+        React.createElement(Results, {
+          competencyScores,
+          toolkitScores: scores.toolkitScores,
+          interpretation: interpretResults(
+            answers,
+            competencyScores,
+            scores.toolkitScores,
+          ),
+          year: 'year-1',
+          proReflection: pro ? interpretPro(answers) : null,
+          modeKey: 'problem',
+          growthStageKey: 'integrating',
+          onRestart: () => {},
+          onDownload: async () => {},
+        }),
+      );
+      assert.ok(html.includes('CURRENT EXPERIENCE SCOPE'));
+      assert.ok(!html.includes('04/04'));
+      assert.ok(html.includes('ONE NEXT STEP'));
+      assert.ok(html.includes(currentVersion(pro ? 'pro' : 'standard')));
+      if (pro) assert.ok(html.includes('not externally verified'));
+      if (pattern === 'balanced')
+        assert.ok(html.includes('A balanced current profile'));
+      if (pattern === 'joint') assert.ok(html.includes('Joint leading modes'));
+      if (pattern === 'single')
+        assert.ok(html.includes('Next-highest current mode(s)'));
+      assert.doesNotMatch(
+        html,
+        /(?:question\.(?:PS|PE|B)\d+|result\.(?:role|scope|quick|evidence)|common\.)/,
+      );
+    }
   }
 });

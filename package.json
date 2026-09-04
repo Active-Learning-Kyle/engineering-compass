@@ -9,7 +9,8 @@
     "dev": "vinext dev",
     "build": "node scripts/build.mjs",
     "start": "wrangler dev --config dist/server/wrangler.json",
-    "lint": "oxlint app vite.config.ts next.config.ts",
+    "lint": "oxlint app components/language.tsx lib/assessment lib/i18n vite.config.ts next.config.ts",
+    "test": "node --test tests/assessment.test.mjs",
     "format": "oxfmt"
   },
   "dependencies": {

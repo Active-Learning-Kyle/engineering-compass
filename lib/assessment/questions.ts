@@ -1,93 +1,99 @@
 import type { AssessmentItem, AssessmentVersion } from './types';
 
-export const assessmentVersion: AssessmentVersion = 'standard-v1.6';
+export const assessmentVersion: AssessmentVersion = 'standard-v1.7';
 
 export const behaviourScale = {
-  prompt: 'How well does this describe how you usually work?',
-  low: 'Not like me yet',
-  high: 'Consistently like me',
+  prompt: 'scale.behaviour.prompt',
+  low: 'scale.behaviour.low',
+  high: 'scale.behaviour.high',
+  details: [
+    'scale.behaviour.details.0',
+    'scale.behaviour.details.1',
+    'scale.behaviour.details.2',
+    'scale.behaviour.details.3',
+    'scale.behaviour.details.4',
+  ],
 };
 
 export const technicalScale = {
-  prompt: 'Choose the description closest to your current experience.',
-  low: 'No direct experience yet',
-  high: 'Independent and adaptable',
+  prompt: 'scale.technical.prompt',
+  low: 'scale.technical.low',
+  high: 'scale.technical.high',
   details: [
-    'No direct experience yet',
-    'Tried with step-by-step guidance',
-    'Familiar tasks with some help',
-    'Independent with common troubleshooting',
-    'Can adapt, integrate, or guide others',
+    'scale.technical.details.0',
+    'scale.technical.details.1',
+    'scale.technical.details.2',
+    'scale.technical.details.3',
+    'scale.technical.details.4',
   ],
 };
 
 const projectCountOptions = [
-  { id: 'none', label: 'None yet', value: 1 },
-  { id: 'one', label: 'One', value: 2 },
-  { id: 'two', label: 'Two', value: 3 },
-  { id: 'three-four', label: 'Three or four', value: 4 },
-  { id: 'five-plus', label: 'Five or more', value: 5 },
+  { id: 'none', label: 'projectCount.none.label', value: 1 },
+  { id: 'one', label: 'projectCount.one.label', value: 2 },
+  { id: 'two', label: 'projectCount.two.label', value: 3 },
+  { id: 'three-four', label: 'projectCount.three-four.label', value: 4 },
+  { id: 'five-plus', label: 'projectCount.five-plus.label', value: 5 },
 ];
 
 const responsibilityOptions = [
-  { id: 'observed', label: 'Observed or followed a demonstration', value: 1 },
+  { id: 'observed', label: 'responsibility.observed.label', value: 1 },
   {
     id: 'guided',
-    label: 'Completed a defined task with close, step-by-step guidance',
+    label: 'responsibility.guided.label',
     value: 2,
   },
   {
     id: 'owned-familiar',
-    label: 'Owned a familiar task with occasional help or review',
+    label: 'responsibility.owned-familiar.label',
     value: 3,
   },
   {
     id: 'owned-subsystem',
-    label: 'Independently owned a subsystem, test, or major deliverable',
+    label: 'responsibility.owned-subsystem.label',
     value: 4,
   },
   {
     id: 'integrated',
-    label:
-      'Coordinated interfaces or integrated work across people or subsystems',
+    label: 'responsibility.integrated.label',
     value: 5,
   },
 ];
 
 export const interestOptions = [
-  { id: 'built-environment', label: 'Built environment & infrastructure' },
-  { id: 'robotics', label: 'Robotics & automation' },
-  { id: 'product-design', label: 'Mechanical & product design' },
-  { id: 'connected-devices', label: 'Electronics & connected devices' },
-  { id: 'software', label: 'Software & digital systems' },
-  { id: 'data-ai', label: 'Data, AI & computer vision' },
-  { id: 'energy', label: 'Energy & sustainability' },
-  { id: 'health', label: 'Health, accessibility & assistive technology' },
-  { id: 'operations', label: 'Operations, logistics & complex systems' },
-  { id: 'other-interest', label: 'Other / not sure yet' },
+  { id: 'built-environment', label: 'interest.built-environment.label' },
+  { id: 'robotics', label: 'interest.robotics.label' },
+  { id: 'product-design', label: 'interest.product-design.label' },
+  { id: 'connected-devices', label: 'interest.connected-devices.label' },
+  { id: 'software', label: 'interest.software.label' },
+  { id: 'data-ai', label: 'interest.data-ai.label' },
+  { id: 'energy', label: 'interest.energy.label' },
+  { id: 'health', label: 'interest.health.label' },
+  { id: 'operations', label: 'interest.operations.label' },
+  { id: 'other-interest', label: 'interest.other-interest.label' },
 ];
 
 export const growthOptions = [
-  { id: 'problem', label: 'Identifying and framing problems' },
-  { id: 'planning', label: 'Turning proposals into realistic plans' },
-  { id: 'collaboration', label: 'Collaborating across roles and disciplines' },
-  { id: 'handsOn', label: 'Building and troubleshooting systems' },
-  { id: 'design', label: 'Prototyping, testing, and iterating' },
-  { id: 'pitch', label: 'Pitching engineering solutions' },
-  { id: 'mechanical', label: 'Mechanical Assembly & Mechanisms' },
-  { id: 'cad', label: 'CAD & 3D Modelling' },
-  { id: 'fabrication', label: 'Digital Fabrication' },
-  { id: 'electronics', label: 'Electronics' },
-  { id: 'programming', label: 'Programming' },
-  { id: 'physicalComputing', label: 'Physical Computing' },
-  { id: 'sensorsIot', label: 'Sensors, Data & IoT' },
-  { id: 'aiVision', label: 'AI / Computer Vision' },
-  { id: 'integration', label: 'System Integration & Automation' },
+  { id: 'problem', label: 'growth.problem.label' },
+  { id: 'planning', label: 'growth.planning.label' },
+  { id: 'collaboration', label: 'growth.collaboration.label' },
+  { id: 'handsOn', label: 'growth.handsOn.label' },
+  { id: 'design', label: 'growth.design.label' },
+  { id: 'pitch', label: 'growth.pitch.label' },
+  { id: 'mechanical', label: 'growth.mechanical.label' },
+  { id: 'cad', label: 'growth.cad.label' },
+  { id: 'fabrication', label: 'growth.fabrication.label' },
+  { id: 'electronics', label: 'growth.electronics.label' },
+  { id: 'programming', label: 'growth.programming.label' },
+  { id: 'physicalComputing', label: 'growth.physicalComputing.label' },
+  { id: 'sensorsIot', label: 'growth.sensorsIot.label' },
+  { id: 'aiVision', label: 'growth.aiVision.label' },
+  { id: 'integration', label: 'growth.integration.label' },
   {
     id: 'unfamiliarTools',
-    label: 'Learning unfamiliar engineering tools and methods',
+    label: 'growth.unfamiliarTools.label',
   },
-  { id: 'not-sure', label: 'Not sure yet' },
+  { id: 'not-sure', label: 'growth.not-sure.label' },
 ];
 
 export const questions: AssessmentItem[] = [
@@ -97,8 +103,7 @@ export const questions: AssessmentItem[] = [
     phase: 'behaviour',
     kind: 'behaviour',
     competency: 'problem',
-    prompt:
-      'Before proposing a solution, I investigate what is actually happening.',
+    prompt: 'question.B01.prompt',
     activeLearningEssentialTags: ['problemSolving'],
   },
   {
@@ -107,8 +112,7 @@ export const questions: AssessmentItem[] = [
     phase: 'behaviour',
     kind: 'behaviour',
     competency: 'collaboration',
-    prompt:
-      'In team projects, I take ownership of my responsibilities and deliver work others can rely on.',
+    prompt: 'question.B02.prompt',
     activeLearningEssentialTags: ['valueAndAttitude'],
   },
   {
@@ -117,8 +121,7 @@ export const questions: AssessmentItem[] = [
     phase: 'behaviour',
     kind: 'behaviour',
     competency: 'pitch',
-    prompt:
-      'I adapt my explanation of an engineering problem and solution to the needs of a particular audience.',
+    prompt: 'question.B03.prompt',
     activeLearningEssentialTags: ['communication'],
   },
   {
@@ -127,8 +130,7 @@ export const questions: AssessmentItem[] = [
     phase: 'behaviour',
     kind: 'behaviour',
     competency: 'planning',
-    prompt:
-      "I compare alternative solutions against the project's requirements before choosing one.",
+    prompt: 'question.B04.prompt',
     activeLearningEssentialTags: ['problemSolving', 'designAndInnovation'],
   },
   {
@@ -137,8 +139,7 @@ export const questions: AssessmentItem[] = [
     phase: 'behaviour',
     kind: 'behaviour',
     competency: 'design',
-    prompt:
-      'I make an early prototype while there is still time for what I learn to change the design.',
+    prompt: 'question.B05.prompt',
     activeLearningEssentialTags: ['designAndInnovation', 'lifelongLearning'],
   },
   {
@@ -147,8 +148,7 @@ export const questions: AssessmentItem[] = [
     phase: 'behaviour',
     kind: 'behaviour',
     competency: 'collaboration',
-    prompt:
-      'I combine relevant ideas and methods from people with different technical backgrounds.',
+    prompt: 'question.B06.prompt',
     activeLearningEssentialTags: ['interdisciplinaryThinking'],
   },
   {
@@ -157,10 +157,8 @@ export const questions: AssessmentItem[] = [
     phase: 'behaviour',
     kind: 'behaviour',
     competency: 'problem',
-    prompt:
-      'I use evidence to check whether a proposed engineering problem is worth solving.',
-    helper:
-      'Evidence might include observation, user input, measurements, or research.',
+    prompt: 'question.B07.prompt',
+    helper: 'question.B07.helper',
     activeLearningEssentialTags: ['problemSolving', 'valueAndAttitude'],
   },
   {
@@ -169,8 +167,7 @@ export const questions: AssessmentItem[] = [
     phase: 'behaviour',
     kind: 'behaviour',
     competency: 'design',
-    prompt:
-      'I design tests to answer a specific question or check a clear success criterion.',
+    prompt: 'question.B08.prompt',
     activeLearningEssentialTags: ['designAndInnovation', 'problemSolving'],
   },
   {
@@ -179,8 +176,7 @@ export const questions: AssessmentItem[] = [
     phase: 'behaviour',
     kind: 'behaviour',
     competency: 'planning',
-    prompt:
-      'I turn an idea into an actionable plan with clear milestones and ownership.',
+    prompt: 'question.B09.prompt',
     activeLearningEssentialTags: ['problemSolving'],
   },
   {
@@ -189,8 +185,7 @@ export const questions: AssessmentItem[] = [
     phase: 'behaviour',
     kind: 'behaviour',
     competency: 'pitch',
-    prompt:
-      'I support important claims about an engineering solution with relevant evidence.',
+    prompt: 'question.B10.prompt',
     activeLearningEssentialTags: ['communication', 'valueAndAttitude'],
   },
   {
@@ -199,8 +194,7 @@ export const questions: AssessmentItem[] = [
     phase: 'behaviour',
     kind: 'behaviour',
     competency: 'design',
-    prompt:
-      'When a prototype fails, I diagnose the likely cause before deciding what to change.',
+    prompt: 'question.B11.prompt',
     activeLearningEssentialTags: ['designAndInnovation', 'lifelongLearning'],
   },
   {
@@ -209,8 +203,7 @@ export const questions: AssessmentItem[] = [
     phase: 'behaviour',
     kind: 'behaviour',
     competency: 'collaboration',
-    prompt:
-      'When a team disagrees, I help clarify the issue and move toward a workable decision.',
+    prompt: 'question.B12.prompt',
     activeLearningEssentialTags: [
       'interdisciplinaryThinking',
       'valueAndAttitude',
@@ -222,10 +215,8 @@ export const questions: AssessmentItem[] = [
     phase: 'behaviour',
     kind: 'behaviour',
     competency: 'planning',
-    prompt:
-      'Before work begins, I identify important risks that could affect the safety, feasibility, or responsible use of the solution.',
-    helper:
-      'Risks may be technical, safety-related, environmental, social, financial, or practical.',
+    prompt: 'question.B13.prompt',
+    helper: 'question.B13.helper',
     activeLearningEssentialTags: ['problemSolving', 'valueAndAttitude'],
   },
   {
@@ -234,8 +225,7 @@ export const questions: AssessmentItem[] = [
     phase: 'behaviour',
     kind: 'behaviour',
     competency: 'problem',
-    prompt:
-      'I turn a broad concern into a specific engineering problem that a team can act on.',
+    prompt: 'question.B14.prompt',
     activeLearningEssentialTags: ['problemSolving'],
   },
   {
@@ -244,8 +234,7 @@ export const questions: AssessmentItem[] = [
     phase: 'behaviour',
     kind: 'behaviour',
     competency: 'pitch',
-    prompt:
-      "I explain a solution's important limitations and trade-offs honestly.",
+    prompt: 'question.B15.prompt',
     activeLearningEssentialTags: ['communication', 'valueAndAttitude'],
   },
   {
@@ -254,8 +243,7 @@ export const questions: AssessmentItem[] = [
     phase: 'technical',
     kind: 'technical',
     toolkit: 'mechanical',
-    prompt:
-      'How independently can you assemble, adjust, and troubleshoot a basic mechanical system using suitable tools?',
+    prompt: 'question.T01.prompt',
   },
   {
     id: 'T02',
@@ -263,8 +251,7 @@ export const questions: AssessmentItem[] = [
     phase: 'technical',
     kind: 'technical',
     toolkit: 'cad',
-    prompt:
-      'How independently can you turn measurements or a sketch into an editable 3D model that accounts for fit and manufacture?',
+    prompt: 'question.T02.prompt',
   },
   {
     id: 'T03',
@@ -272,8 +259,7 @@ export const questions: AssessmentItem[] = [
     phase: 'technical',
     kind: 'technical',
     toolkit: 'fabrication',
-    prompt:
-      'How independently can you prepare and produce a part using a process such as 3D printing or laser cutting?',
+    prompt: 'question.T03.prompt',
   },
   {
     id: 'T04',
@@ -281,8 +267,7 @@ export const questions: AssessmentItem[] = [
     phase: 'technical',
     kind: 'technical',
     toolkit: 'electronics',
-    prompt:
-      'How independently can you build, measure, and troubleshoot a basic electronic circuit using breadboards or soldered connections?',
+    prompt: 'question.T04.prompt',
   },
   {
     id: 'T05',
@@ -290,8 +275,7 @@ export const questions: AssessmentItem[] = [
     phase: 'technical',
     kind: 'technical',
     toolkit: 'programming',
-    prompt:
-      'How independently can you develop and debug code to achieve a defined behaviour?',
+    prompt: 'question.T05.prompt',
     activeLearningEssentialTags: ['lifelongLearning'],
   },
   {
@@ -300,8 +284,7 @@ export const questions: AssessmentItem[] = [
     phase: 'technical',
     kind: 'technical',
     toolkit: 'physicalComputing',
-    prompt:
-      'How independently can you use a Raspberry Pi, Arduino, ESP32, or similar platform to read inputs and control outputs?',
+    prompt: 'question.T06.prompt',
   },
   {
     id: 'T07',
@@ -309,8 +292,7 @@ export const questions: AssessmentItem[] = [
     phase: 'technical',
     kind: 'technical',
     toolkit: 'sensorsIot',
-    prompt:
-      'How independently can you connect and calibrate sensors, then collect or transmit data reliably?',
+    prompt: 'question.T07.prompt',
   },
   {
     id: 'T08',
@@ -318,8 +300,7 @@ export const questions: AssessmentItem[] = [
     phase: 'technical',
     kind: 'technical',
     toolkit: 'aiVision',
-    prompt:
-      'How independently can you apply or adapt an AI or computer-vision workflow and evaluate whether its output is useful?',
+    prompt: 'question.T08.prompt',
     activeLearningEssentialTags: ['designAndInnovation', 'lifelongLearning'],
   },
   {
@@ -328,10 +309,8 @@ export const questions: AssessmentItem[] = [
     phase: 'technical',
     kind: 'technical',
     toolkit: 'integration',
-    prompt:
-      'How independently can you connect subsystems into a reliable end-to-end or automated system?',
-    helper:
-      'Think about mechanical, electronic, sensing, and software interfaces.',
+    prompt: 'question.T09.prompt',
+    helper: 'question.T09.helper',
     activeLearningEssentialTags: [
       'designAndInnovation',
       'interdisciplinaryThinking',
@@ -342,10 +321,8 @@ export const questions: AssessmentItem[] = [
     number: 25,
     phase: 'context',
     kind: 'context',
-    prompt:
-      'How many engineering projects have you completed that involved making, testing, analysing, or integrating a solution?',
-    helper:
-      'Course, competition, personal, internship, research, and community projects may all count.',
+    prompt: 'question.C01.prompt',
+    helper: 'question.C01.helper',
     options: projectCountOptions,
   },
   {
@@ -353,8 +330,7 @@ export const questions: AssessmentItem[] = [
     number: 26,
     phase: 'context',
     kind: 'context',
-    prompt:
-      'What is the highest level of responsibility you have taken in an engineering project?',
+    prompt: 'question.C02.prompt',
     options: responsibilityOptions,
   },
   {
@@ -362,9 +338,8 @@ export const questions: AssessmentItem[] = [
     number: 27,
     phase: 'priorities',
     kind: 'interest',
-    prompt:
-      'Which kinds of engineering work would you most like to explore next?',
-    helper: 'Optional · select any that interest you.',
+    prompt: 'question.I01.prompt',
+    helper: 'question.I01.helper',
     options: interestOptions,
     min: 0,
   },
@@ -373,8 +348,8 @@ export const questions: AssessmentItem[] = [
     number: 28,
     phase: 'priorities',
     kind: 'growth',
-    prompt: 'What would you most like to become better at next?',
-    helper: 'Select any that matter to you, or choose Not sure yet.',
+    prompt: 'question.G01.prompt',
+    helper: 'question.G01.helper',
     options: growthOptions,
     min: 1,
     activeLearningEssentialTags: ['lifelongLearning'],
@@ -384,37 +359,31 @@ export const questions: AssessmentItem[] = [
     number: 29,
     phase: 'judgment',
     kind: 'judgment',
-    prompt:
-      "A prototype's sensor readings suddenly become inconsistent. What would you be most likely to do first?",
+    prompt: 'question.J01.prompt',
     options: [
       {
         id: 'adjust',
-        label:
-          'Adjust several parts of the setup at once and see whether the readings improve.',
+        label: 'question.J01.options.adjust.label',
         value: 1,
       },
       {
         id: 'replace',
-        label:
-          'Restart the system or replace the sensor before checking the rest of the setup.',
+        label: 'question.J01.options.replace.label',
         value: 2,
       },
       {
         id: 'repeat',
-        label:
-          'Repeat the same test to see whether the inconsistent pattern continues.',
+        label: 'question.J01.options.repeat.label',
         value: 3,
       },
       {
         id: 'isolate',
-        label:
-          'Check the setup, expected range, connections, and calibration, changing one likely cause at a time.',
+        label: 'question.J01.options.isolate.label',
         value: 4,
       },
       {
         id: 'diagnose',
-        label:
-          'Define a short diagnostic test, compare evidence with expected behaviour, isolate variables, and document the conclusion.',
+        label: 'question.J01.options.diagnose.label',
         value: 5,
       },
     ],
@@ -425,37 +394,31 @@ export const questions: AssessmentItem[] = [
     number: 30,
     phase: 'judgment',
     kind: 'judgment',
-    prompt:
-      'Your team prefers its current design, but a fair test shows that it misses an important success criterion. What would you be most likely to do?',
+    prompt: 'question.J02.prompt',
     options: [
       {
         id: 'hide',
-        label:
-          'Keep the current design because the schedule is fixed and treat the result as an anomaly.',
+        label: 'question.J02.options.hide.label',
         value: 1,
       },
       {
         id: 'repeat-win',
-        label:
-          'Repeat the test with small adjustments until the design reaches the criterion.',
+        label: 'question.J02.options.repeat-win.label',
         value: 2,
       },
       {
         id: 'continue',
-        label:
-          'Continue with the current design but report that it did not meet this criterion.',
+        label: 'question.J02.options.continue.label',
         value: 3,
       },
       {
         id: 'review',
-        label:
-          'Review the test quality and criterion, then revise the design or justify an explicit trade-off.',
+        label: 'question.J02.options.review.label',
         value: 4,
       },
       {
         id: 'decide',
-        label:
-          'Verify the evidence, compare feasible alternatives, document the decision, and communicate the limitation.',
+        label: 'question.J02.options.decide.label',
         value: 5,
       },
     ],

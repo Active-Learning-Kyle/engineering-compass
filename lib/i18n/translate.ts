@@ -1,26 +1,50 @@
-import { addUiTranslations, normalize, zhHant, type Locale } from './catalog';
-import { uiZh } from './ui-zh';
-addUiTranslations(uiZh);
-export type { Locale };
-export function translate(text: string, locale: Locale): string {
-  if (locale === 'en' || !text.trim()) return text;
-  const key = normalize(text);
-  const exact = zhHant[key.toLowerCase()];
-  if (exact) return exact;
-  let match = key.match(/^Question (\d+) of (\d+)$/);
-  if (match) return `第 ${match[1]} 題，共 ${match[2]} 題`;
-  match = key.match(/^(\d+) selected$/);
-  if (match) return `已選 ${match[1]} 項`;
-  match = key.match(/^(\d+) of 5$/);
-  if (match) return `${match[1]} 分（共 5 分）`;
-  match = key.match(/^Preview (.+)$/);
-  if (match) return `預覽${translate(match[1], locale)}`;
-  match = key.match(/^(.+) character illustration$/);
-  if (match) return `${translate(match[1], locale)}角色插圖`;
-  match = key.match(
-    /^Your answers point most strongly to (.+?), with (.+?) as a supporting strength\.\s*(?:(.+?) is the clearest area to practise next\.)?$/,
+import { en as baseEn, zhHant as baseZh } from './messages';
+import { refinementMessages } from './refinement-messages';
+import { scenarioMessages } from './scenario-messages';
+export type Locale = 'en' | 'zh-Hant';
+export type MessageParams = Record<string, string | number>;
+export const messages: Record<Locale, Record<string, string>> = {
+  en: { ...baseEn },
+  'zh-Hant': { ...baseZh },
+};
+function register(key: string, en: string, zh: string) {
+  if (Object.hasOwn(messages.en, key))
+    throw new Error(`Duplicate message key: ${key}`);
+  messages.en[key] = en;
+  messages['zh-Hant'][key] = zh;
+}
+for (const [key, [en, zh]] of Object.entries(refinementMessages))
+  register(key, en, zh);
+for (const [id, copy] of Object.entries(scenarioMessages)) {
+  register(`question.${id}.prompt`, copy.prompt[0], copy.prompt[1]);
+  for (const option of ['a', 'b'] as const) {
+    const [en, zh, feedbackEn, feedbackZh] = copy[option];
+    register(`question.${id}.option.${option}.label`, en, zh);
+    register(
+      `question.${id}.option.${option}.feedback`,
+      feedbackEn,
+      feedbackZh,
+    );
+  }
+}
+export function isMessageReference(value: string) {
+  return /^(brand|home|common|result|pro|evidence|assessment|scale|question|role|scope|year|projectCount|responsibility|interest|growth|growthAction|toolkit|competency)\./.test(
+    value,
   );
-  if (match)
-    return `你的答案顯示，「${translate(match[1], locale)}」是最突出的優勢，「${translate(match[2], locale)}」則是另一項支持能力。${match[3] ? `「${translate(match[3], locale)}」是最值得優先練習的領域。` : ''}`;
-  return text;
+}
+export function translate(
+  key: string,
+  locale: Locale,
+  params: MessageParams = {},
+) {
+  if (!Object.hasOwn(messages[locale], key))
+    throw new Error(`Missing ${locale} message: ${key}`);
+  return messages[locale][key].replace(
+    /\{([A-Za-z]+)\}/g,
+    (_, name: string) => {
+      if (!(name in params))
+        throw new Error(`Missing parameter ${name} in ${key}`);
+      return String(params[name]);
+    },
+  );
 }

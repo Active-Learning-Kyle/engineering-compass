@@ -6,11 +6,11 @@ Engineering Compass is a standalone formative self-assessment for engineering le
 
 The public site is hosted directly from this repository with GitHub Pages.
 
-## MVP flow
+## Assessment flow
 
 - Choose Standard (30 questions) or Pro pilot (60 questions)
 - Optional Year 1–4 study context, or Skip
-- 15 mixed behavioural statements across five non-hands-on competencies
+- 15 mixed recent-project behaviour questions across five non-hands-on competencies
 - Nine independent Technical Toolkit items
 - Project calibration, interests, selected growth areas, and two engineering-judgment scenarios
 - Separate five-level behaviour and technical-independence scales
@@ -20,12 +20,12 @@ The public site is hosted directly from this repository with GitHub Pages.
 - Six-competency radar profile
 - Nine-area technical toolkit profile
 - Downloadable long-image profile
-- A six-role current Engineering Role card with a compact four-stage Engineering Experience Level
+- Leading current modes, shared-score ties, a next-highest direction, and a compact Current Experience Scope
 - Five-level experience descriptors for every Technical Toolkit result
 
 Study year is never included in scoring. Answers and an unfinished draft remain on the current browser/device and are not submitted to a server.
 
-## Standard V1.6 identity and pedagogical alignment
+## Standard v1.7 / Pro v0.3 — pilot refinement
 
 The results layer adds six current Engineering Roles: Problem Framer, Project Navigator, Team Connector, Practical Builder, Prototype Explorer, and Solution Storyteller. Each maps directly to one of the six measured competencies and uses the shared HKU-inspired green/white visual system. The current role is a formative lens on the six-axis profile—not a personality type, grade, professional rank, or team assignment.
 
@@ -33,7 +33,11 @@ The homepage hero uses role icons rather than character portraits. Role cards re
 
 The homepage offers Standard (30) and Pro (60) with live question counts. Pro adds 12 team-decision scenarios and 18 concrete practice-evidence reflections. These produce qualitative feedback without changing Standard core scores. See [Pro pilot design](docs/pro-pilot.md) for the draft's interpretation rules and review priorities. The animated compass points to all six role directions once per shuffled cycle, with repeated spring overshoots and continuous flutter.
 
-The compact Engineering Experience Level (Exploring, Building, Practising, or Integrating) uses project context and current Technical Toolkit experience to describe the learner's present scope of experience. It is not a junior/mid/senior engineer designation. Each toolkit bar also shows the learner's selected five-level experience descriptor.
+Current Experience Scope (Exploring, Building, Practising, or Integrating) uses the existing project/context/toolkit heuristic, without a visible “04/04” rank. It is approximate, not a qualification or seniority designation. Each toolkit bar shows the five-level self-rating and score. Pro adds descriptive counts from two self-reported tasks and a broad/specific consistency reflection—not another score or externally verified evidence.
+
+Behaviour items now ask about the most recent engineering project or practical learning task, using Never / Rarely / Sometimes / Often / Almost always. Core item-to-competency mappings and numeric formulas are unchanged. Changed response meanings are versioned: earlier drafts remain in their original storage key and are not silently interpreted with the new questions. Old and new responses should not be treated as directly equivalent longitudinal measurements.
+
+Pro PS01–PS12 now offer two professionally defensible trade-offs with similar-length options and explicit opportunity costs. Feedback describes each choice's benefit and cost; it is not an answer key. All six equal scores produce a balanced profile, exact displayed ties show joint modes, and a single leader is accompanied by the next-highest mode(s). No unvalidated near-tie threshold is applied.
 
 The six Engineering Compass competencies are the observable engineering behaviours being assessed and reported. Relevant questions also carry hidden alignment metadata for the six [HKU Active Learning Essentials](https://activelearning.engg.hku.hk/#about). These Essentials are a higher-level pedagogical mapping only: they create no additional scores, never change the radar or toolkit calculations, and are not shown as a second learner-facing framework.
 
@@ -60,6 +64,14 @@ Every toolkit area has its own direct item. Project context, interests, growth c
 npm install
 npm run dev
 ```
+
+## Language and checks
+
+English and Traditional Chinese share stable message IDs (for example `home.hero.title`, `question.PS01.option.a.label`, `result.scope.label`). General copy lives in `lib/i18n/messages.ts`, revision copy in `refinement-messages.ts`, and the twelve scenarios in `scenario-messages.ts`. Keys are unique across bundles; changing English punctuation does not affect Chinese lookup. `translate(key, locale, params)` rejects missing messages/parameters rather than silently showing English. React presentation boundaries resolve only message references and preserve answer IDs, keys and handlers.
+
+English uses Geist with system fallbacks; Traditional Chinese explicitly uses PingFang TC / Noto Sans TC / Microsoft JhengHei / system sans. Language preference remains independent of answers in local storage.
+
+Run `node --test tests/assessment.test.mjs` on Node 24, `npx tsc --noEmit`, and `npm run lint`. These checks cover both language catalogs, item coverage/order, score invariance, evidence counts, tie handling, versioned drafts and existing export/motion behaviour. Content still requires a student pilot; tests do not establish assessment validity.
 
 ## Production build
 

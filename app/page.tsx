@@ -48,6 +48,7 @@ import { competencyOrder } from '@/lib/assessment/competencies';
 import { interpretResults } from '@/lib/assessment/interpretation';
 import {
   deriveEngineeringMode,
+  deriveLeadingModes,
   deriveGrowthStage,
   engineeringModes,
   initialCharacterVariant,
@@ -65,7 +66,7 @@ import { calculateResults } from '@/lib/assessment/scoring';
 import {
   getQuestions,
   interpretPro,
-  restoreQuestionIndex,
+  currentVersion,
 } from '@/lib/assessment/pro';
 import {
   compassSpringStep,
@@ -101,22 +102,42 @@ declare global {
   }
 }
 
-const progressStorageKey = 'engineering-compass-progress-v1.6';
+import {
+  readDraft,
+  progressStorageKey,
+  legacyStorageKey,
+} from '@/lib/assessment/drafts';
 const assetPath = (path: string) => `${import.meta.env.BASE_URL}${path}`;
 const phases: Array<{ key: PhaseKey; label: string; range: string }> = [
-  { key: 'behaviour', label: 'How you work', range: '01–15' },
-  { key: 'technical', label: 'Technical toolkit', range: '16–24' },
-  { key: 'context', label: 'Project context', range: '25–26' },
-  { key: 'priorities', label: 'Interests & growth', range: '27–28' },
-  { key: 'judgment', label: 'Engineering judgment', range: '29–30' },
+  { key: 'behaviour', label: 'common.howYouWork', range: '01–15' },
+  { key: 'technical', label: 'common.technicalToolkit', range: '16–24' },
+  { key: 'context', label: 'common.projectContext', range: '25–26' },
+  { key: 'priorities', label: 'common.interestsGrowth', range: '27–28' },
+  { key: 'judgment', label: 'common.engineeringJudgment', range: '29–30' },
 ];
 const proPhases = [
   ...phases.slice(0, 2),
-  { key: 'proScenarios' as const, label: 'Team decisions', range: '25–36' },
-  { key: 'proEvidence' as const, label: 'Practice evidence', range: '37–54' },
-  { key: 'context' as const, label: 'Project context', range: '55–56' },
-  { key: 'priorities' as const, label: 'Interests & growth', range: '57–58' },
-  { key: 'judgment' as const, label: 'Engineering judgment', range: '59–60' },
+  {
+    key: 'proScenarios' as const,
+    label: 'common.teamDecisions',
+    range: '25–36',
+  },
+  {
+    key: 'proEvidence' as const,
+    label: 'common.practiceEvidence',
+    range: '37–54',
+  },
+  { key: 'context' as const, label: 'common.projectContext', range: '55–56' },
+  {
+    key: 'priorities' as const,
+    label: 'common.interestsGrowth',
+    range: '57–58',
+  },
+  {
+    key: 'judgment' as const,
+    label: 'common.engineeringJudgment',
+    range: '59–60',
+  },
 ];
 const toolkitIcons: Record<ToolkitKey, typeof Compass> = {
   mechanical: Cog,
@@ -130,7 +151,7 @@ const toolkitIcons: Record<ToolkitKey, typeof Compass> = {
   integration: Workflow,
 };
 const chartConfig = {
-  score: { label: 'Profile', color: '#163f27' },
+  score: { label: 'common.profile', color: '#163f27' },
 } satisfies ChartConfig;
 const roleIcons: Record<EngineeringModeKey, typeof Compass> = {
   problem: CircleHelp,
@@ -253,11 +274,11 @@ function CompassRose() {
 }
 
 const toolkitExperienceLevels = [
-  'New to this',
-  'Guided',
-  'Developing',
-  'Independent',
-  'Adaptable',
+  'common.newToThis',
+  'common.guided',
+  'common.developing',
+  'common.independent',
+  'common.adaptable',
 ] as const;
 
 function getToolkitExperienceLevel(score: number) {
@@ -269,38 +290,38 @@ const phaseCopy: Record<
   { eyebrow: string; note: string; icon: typeof Compass }
 > = {
   proScenarios: {
-    eyebrow: 'PRO · TEAM DECISIONS',
-    note: 'Consider the situation and choose your first action. Feedback complements your profile without adding points.',
+    eyebrow: 'common.proTeamDecisions',
+    note: 'assessment.scenarios.note',
     icon: Lightbulb,
   },
   proEvidence: {
-    eyebrow: 'PRO · PRACTICE EVIDENCE',
-    note: 'Recall work you have actually done and how you checked it. No uploads are needed.',
+    eyebrow: 'common.proPracticeEvidence',
+    note: 'common.recallWorkYouHaveActuallyDoneAndHowYou',
     icon: Wrench,
   },
   behaviour: {
-    eyebrow: 'HOW YOU WORK',
-    note: 'Think of what you usually do in a real project. The competency behind each statement stays hidden.',
+    eyebrow: 'common.howYouWork',
+    note: 'assessment.behaviour.helper',
     icon: Compass,
   },
   technical: {
-    eyebrow: 'TECHNICAL TOOLKIT',
-    note: 'Rate your current experience and independence—not how interested you are in learning the skill.',
+    eyebrow: 'common.technicalToolkit',
+    note: 'common.rateYourCurrentExperienceAndIndependenceNotHowInterested',
     icon: Wrench,
   },
   context: {
-    eyebrow: 'PROJECT CONTEXT',
-    note: 'These factual answers help frame your reflection. They never add points to your profile.',
+    eyebrow: 'common.projectContext',
+    note: 'common.theseFactualAnswersHelpFrameYourReflectionTheyNever',
     icon: BookOpenCheck,
   },
   priorities: {
-    eyebrow: 'INTERESTS & GROWTH',
-    note: 'Your choices personalise the result. They do not change your radar or technical scores.',
+    eyebrow: 'common.interestsGrowth',
+    note: 'common.yourChoicesPersonaliseTheResultTheyDoNotChange',
     icon: Target,
   },
   judgment: {
-    eyebrow: 'ENGINEERING JUDGMENT',
-    note: 'Choose the response closest to what you would genuinely do. These scenarios are interpreted, not graded.',
+    eyebrow: 'common.engineeringJudgment',
+    note: 'common.chooseTheResponseClosestToWhatYouWouldGenuinely',
     icon: Lightbulb,
   },
 };
@@ -324,7 +345,7 @@ function HomeContent() {
   const [edition, setEdition] = useState<AssessmentEdition>('standard');
   const questions = getQuestions(edition);
   const activePhases = edition === 'pro' ? proPhases : phases;
-  const version = edition === 'pro' ? 'pro-v0.2' : assessmentVersion;
+  const version = currentVersion(edition);
   const [step, setStep] = useState<Step>('welcome');
   const [year, setYear] = useState<string | null>(null);
   const [current, setCurrent] = useState(0);
@@ -337,6 +358,7 @@ function HomeContent() {
   } | null>(null);
   const [responseMs, setResponseMs] = useState<number | null>(null);
   const [showNudge, setShowNudge] = useState(false);
+  const [hasLegacyDraft, setHasLegacyDraft] = useState(false);
   const questionStarted = useRef(0);
   const fastStreak = useRef(0);
   const lastNudgeAt = useRef(-10);
@@ -344,38 +366,15 @@ function HomeContent() {
   useEffect(() => {
     try {
       const raw = window.localStorage.getItem(progressStorageKey);
-      if (!raw) return;
-      const parsed = JSON.parse(raw) as {
-        edition?: AssessmentEdition;
-        version?: string;
-        year?: string | null;
-        current?: number;
-        answers?: AssessmentAnswers;
-      };
-      if (
-        (parsed.version === assessmentVersion ||
-          parsed.version === 'pro-v0.1' ||
-          parsed.version === 'pro-v0.2') &&
-        typeof parsed.current === 'number' &&
-        Number.isFinite(parsed.current) &&
-        parsed.answers
-      ) {
-        queueMicrotask(() =>
-          setSavedDraft({
-            edition: parsed.version?.startsWith('pro-') ? 'pro' : 'standard',
-            year: typeof parsed.year === 'string' ? parsed.year : null,
-            current: restoreQuestionIndex(
-              parsed.version?.startsWith('pro-') ? 'pro' : 'standard',
-              parsed.version ?? '',
-              parsed.current ?? 0,
-              parsed.answers ?? {},
-            ),
-            answers: parsed.answers ?? { I01: [] },
-          }),
-        );
-      }
+      const result = raw ? readDraft(raw) : null;
+      if (result?.status === 'current')
+        queueMicrotask(() => setSavedDraft(result.draft));
+      const hasOld =
+        Boolean(window.localStorage.getItem(legacyStorageKey)) ||
+        result?.status === 'legacy';
+      if (hasOld) queueMicrotask(() => setHasLegacyDraft(true));
     } catch {
-      window.localStorage.removeItem(progressStorageKey);
+      // Private browsing may disable storage. Do not delete older responses.
     }
   }, []);
 
@@ -600,6 +599,7 @@ function HomeContent() {
           onBegin={() => setStep('year')}
           onResume={resumeAssessment}
           hasSavedProgress={Boolean(savedDraft)}
+          hasLegacyDraft={hasLegacyDraft}
         />
       )}
       {step === 'year' && (
@@ -656,16 +656,16 @@ function Header({ progress }: { progress: number | null }) {
               </div>
               <div>
                 <div className="font-serif text-lg font-semibold leading-none">
-                  Engineering Compass
+                  {'brand.name'}
                 </div>
                 <div className="mt-1 text-[10px] font-semibold uppercase tracking-[.18em] text-muted-foreground">
-                  Active Learning · HKU Engineering
+                  {'common.activeLearningHkuEngineering'}
                 </div>
               </div>
             </div>
             <div className="hidden items-center gap-2 text-xs text-muted-foreground sm:flex">
-              <span className="size-2 rounded-full bg-emerald-600" /> Responses
-              stay in this browser
+              <span className="size-2 rounded-full bg-emerald-600" />{' '}
+              {'common.responsesStayInThisBrowser'}
             </div>
           </div>
           {progress !== null && (
@@ -686,13 +686,16 @@ function Welcome({
   onBegin,
   onResume,
   hasSavedProgress,
+  hasLegacyDraft,
 }: {
   edition: AssessmentEdition;
   onEditionChange: (edition: AssessmentEdition) => void;
   onBegin: () => void;
   onResume: () => void;
   hasSavedProgress: boolean;
+  hasLegacyDraft: boolean;
 }) {
+  const { t } = useLanguage();
   return (
     <LocalizedContent>
       {
@@ -704,14 +707,13 @@ function Welcome({
                 <span className="home-product-mark">
                   <Compass className="size-4" />
                 </span>
-                <span>Engineering Compass</span>
+                <span>{'brand.name'}</span>
               </div>
               <h1 className="display-title text-[clamp(3.2rem,6vw,6.3rem)] leading-[.94] tracking-[-.055em]">
-                Find Your Role in an Engineering Team
+                {'home.hero.title'}
               </h1>
               <p className="mt-7 max-w-xl text-lg leading-8 text-muted-foreground sm:text-xl">
-                A short self-assessment to explore your engineering strengths,
-                hands-on experience, and growth directions.
+                {'home.hero.description'}
               </p>
               <div className="assessment-version-grid mt-8">
                 <button
@@ -719,13 +721,20 @@ function Welcome({
                   aria-pressed={edition === 'standard'}
                   onClick={() => onEditionChange('standard')}
                 >
-                  <span className="version-status">AVAILABLE NOW</span>
+                  <span className="version-status">
+                    {'common.availableNow'}
+                  </span>
                   <span className="version-title">Standard</span>
+                  <span className="version-purpose">
+                    {'home.standard.purpose'}
+                  </span>
                   <span className="version-meta">
-                    30 questions · 8–10 minutes
+                    {'common.30Questions810Minutes'}
                   </span>
                   <span className="version-action">
-                    {edition === 'standard' ? 'Selected' : 'Choose Standard'}{' '}
+                    {edition === 'standard'
+                      ? 'common.selected'
+                      : 'common.chooseStandard'}{' '}
                     <Check className="size-4" />
                   </span>
                 </button>
@@ -734,13 +743,16 @@ function Welcome({
                   aria-pressed={edition === 'pro'}
                   onClick={() => onEditionChange('pro')}
                 >
-                  <span className="version-status">PILOT EDITION</span>
+                  <span className="version-status">
+                    {'common.pilotEdition'}
+                  </span>
                   <span className="version-title">Pro</span>
+                  <span className="version-purpose">{'home.pro.purpose'}</span>
                   <span className="version-meta">
-                    60 questions · about 18–25 minutes
+                    {'common.60QuestionsAbout1825Minutes'}
                   </span>
                   <span className="version-action">
-                    {edition === 'pro' ? 'Selected' : 'Choose Pro'}{' '}
+                    {edition === 'pro' ? 'common.selected' : 'common.choosePro'}{' '}
                     <Check className="size-4" />
                   </span>
                 </button>
@@ -751,7 +763,9 @@ function Welcome({
                   className="home-begin-button h-13 w-full rounded-full px-6"
                   onClick={onBegin}
                 >
-                  Begin {edition === 'pro' ? 'Pro' : 'Standard'}{' '}
+                  {t('home.begin', {
+                    edition: edition === 'pro' ? 'Pro' : 'Standard',
+                  })}{' '}
                   <ArrowRight className="size-4" />
                 </Button>
                 {hasSavedProgress && (
@@ -761,16 +775,21 @@ function Welcome({
                     className="h-13 rounded-full px-6"
                     onClick={onResume}
                   >
-                    Resume saved progress
+                    {'common.resumeSavedProgress'}
                   </Button>
                 )}
                 <div className="flex items-center gap-2 px-3 text-sm text-muted-foreground">
                   <Gauge className="size-4" />{' '}
                   {edition === 'pro'
-                    ? 'Core profile + team scenarios + practice evidence'
-                    : 'Your core engineering profile'}
+                    ? 'common.coreProfileTeamScenariosPracticeEvidence'
+                    : 'common.yourCoreEngineeringProfile'}
                 </div>
               </div>
+              {hasLegacyDraft && (
+                <output className="block mt-4 text-sm leading-6 text-muted-foreground">
+                  {'draft.previous'}
+                </output>
+              )}
             </div>
             <div className="home-compass-column mx-auto w-full max-w-lg">
               <div className="profile-orbit" aria-hidden="true">
@@ -787,7 +806,7 @@ function Welcome({
                 <span className="orbit-dot orbit-dot-3" />
                 <div className="orbit-center">
                   <Compass className="size-11" strokeWidth={1.5} />
-                  <span>YOUR PROFILE</span>
+                  <span>{'common.yourProfile'}</span>
                 </div>
                 {competencyOrder.map((key, index) => (
                   <div
@@ -808,10 +827,12 @@ function Welcome({
                 {[
                   [
                     edition === 'pro' ? '60' : '30',
-                    edition === 'pro' ? 'Pro questions' : 'Standard questions',
+                    edition === 'pro'
+                      ? 'common.proQuestions'
+                      : 'common.standardQuestions',
                   ],
-                  ['6', 'competencies'],
-                  ['9', 'toolkit areas'],
+                  ['6', 'common.competencies'],
+                  ['9', 'common.toolkitAreas'],
                 ].map(([value, label]) => (
                   <div key={label} className="px-3 text-center">
                     <div className="font-serif text-2xl font-semibold text-primary">
@@ -825,42 +846,29 @@ function Welcome({
               </div>
               <div className="home-assessment-notes">
                 {edition === 'pro' && (
-                  <p>
-                    Pro is an initial pilot for feedback and revision, not a
-                    validated assessment.
-                  </p>
+                  <p>{'common.proIsAnInitialPilotForFeedbackAndRevision'}</p>
                 )}
-                <p>
-                  Your responses are private and stay on this device. The role
-                  is a reflection prompt—not a grade, selection test, or fixed
-                  type.
-                </p>
+                <p>{'common.yourResponsesArePrivateAndStayOnThisDevice'}</p>
               </div>
             </div>
           </div>
           <div className="relative mx-auto max-w-7xl px-6 pb-14 lg:px-12">
             <div id="how-it-works" className="method-strip scroll-mt-24">
               <div>
-                <div className="panel-eyebrow">HOW THE COMPASS WORKS</div>
-                <h2>Discover your strengths and what to practise next.</h2>
+                <div className="panel-eyebrow">{'home.method.eyebrow'}</div>
+                <h2>{'common.discoverYourStrengthsAndWhatToPractiseNext'}</h2>
               </div>
               <p>
-                These responses help you explore six ways of contributing to an
-                engineering team and your experience with nine technical toolkit
-                areas. Your results highlight a current team role, your
-                practical experience, and actions for the skills you want to
-                develop. They describe where you are now—not a grade or a fixed
-                type of engineer.
+                {'common.theseResponsesHelpYouExploreSixWaysOfContributing'}
               </p>
             </div>
             <div id="roles" className="modes-preview-heading scroll-mt-24">
               <div>
-                <div className="panel-eyebrow">SIX ENGINEERING ROLES</div>
-                <h2>Explore how you may currently contribute to a team.</h2>
+                <div className="panel-eyebrow">{'home.roles.eyebrow'}</div>
+                <h2>{'common.exploreHowYouMayCurrentlyContributeToATeam'}</h2>
               </div>
               <span>
-                Different roles are useful in different moments—not higher or
-                lower.
+                {'common.differentRolesAreUsefulInDifferentMomentsNotHigher'}
               </span>
             </div>
             <div className="modes-preview-grid">
@@ -876,7 +884,7 @@ function Welcome({
                   type="button"
                   className="role-preview-card"
                   key={key}
-                  aria-label={`Preview ${mode.name}`}
+                  aria-label={t('role.preview', { name: t(mode.name) })}
                 >
                   <div className="role-preview-default">
                     <div className="role-preview-icon" aria-hidden="true">
@@ -910,7 +918,7 @@ function Welcome({
                       alt=""
                     />
                     <div className="role-hover-copy">
-                      <span>ENGINEERING ROLE</span>
+                      <span>{'common.engineeringRole'}</span>
                       <h3>{mode.name}</h3>
                       <p>{mode.contribution}</p>
                     </div>
@@ -920,14 +928,9 @@ function Welcome({
             </div>
             <div id="toolkit" className="home-toolkit scroll-mt-24">
               <div>
-                <div className="panel-eyebrow">
-                  NINE TECHNICAL TOOLKIT AREAS
-                </div>
-                <h2>See where your experience is growing.</h2>
-                <p>
-                  Each area is reflected separately, so the result shows both
-                  breadth and the tools you may want to practise next.
-                </p>
+                <div className="panel-eyebrow">{'home.toolkit.eyebrow'}</div>
+                <h2>{'home.toolkit.title'}</h2>
+                <p>{'common.eachAreaIsReflectedSeparatelySoTheResultShows'}</p>
               </div>
               <div className="toolkit-chip-grid">
                 {toolkitOrder.map((key) => {
@@ -956,15 +959,16 @@ function Welcome({
             <div className="home-footer-brand">
               <Compass className="size-5" />
               <span>
-                <strong>Engineering Compass</strong>
-                <small>Reflect on how you think, build, and contribute.</small>
+                <strong>{'brand.name'}</strong>
+                <small>{'common.reflectOnHowYouThinkBuildAndContribute'}</small>
               </span>
             </div>
             <span className="home-footer-privacy">
-              Private by design · responses stay on your device
+              {'common.privateByDesignResponsesStayOnYourDevice'}
             </span>
             <a href="https://activelearning.engg.hku.hk/#about">
-              Learn about Active Learning <ArrowRight className="size-4" />
+              {'common.learnAboutActiveLearning'}
+              <ArrowRight className="size-4" />
             </a>
           </footer>
         </section>
@@ -989,16 +993,15 @@ function YearSelection({
       {
         <section className="mx-auto max-w-6xl px-6 py-12 lg:px-12 lg:py-18">
           <button className="back-link" onClick={onBack}>
-            <ArrowLeft className="size-4" /> Back
+            <ArrowLeft className="size-4" /> {'common.back'}
           </button>
           <div className="max-w-2xl">
-            <div className="eyebrow mb-5">OPTIONAL BACKGROUND</div>
+            <div className="eyebrow mb-5">{'common.optionalBackground'}</div>
             <h1 className="font-serif text-4xl font-semibold tracking-tight sm:text-5xl">
-              What year of undergraduate study are you in?
+              {'common.whatYearOfUndergraduateStudyAreYouIn'}
             </h1>
             <p className="mt-4 text-lg leading-7 text-muted-foreground">
-              This helps you revisit the Compass across different years. It is
-              optional and never changes your scores.
+              {'common.thisHelpsYouRevisitTheCompassAcrossDifferentYears'}
             </p>
           </div>
           <div className="mt-9 grid gap-4 md:grid-cols-2">
@@ -1041,7 +1044,7 @@ function YearSelection({
                 onContinue();
               }}
             >
-              Skip this step
+              {'common.skipThisStep'}
             </button>
           </div>
           <div className="mt-9 flex justify-end">
@@ -1050,7 +1053,8 @@ function YearSelection({
               className="h-12 rounded-full px-7"
               onClick={onContinue}
             >
-              Continue <ArrowRight className="ml-1 size-4" />
+              {'common.continue'}
+              <ArrowRight className="ml-1 size-4" />
             </Button>
           </div>
         </section>
@@ -1088,6 +1092,7 @@ function Assessment({
   onHome: () => void;
   onAdvance: () => void;
 }) {
+  const { t } = useLanguage();
   const phase = phaseCopy[question.phase];
   const PhaseIcon = phase.icon;
   const scale = question.kind === 'behaviour' ? behaviourScale : technicalScale;
@@ -1098,7 +1103,7 @@ function Assessment({
           <aside className="hidden lg:block">
             <div className="sticky top-27">
               <div className="text-xs font-semibold uppercase tracking-[.16em] text-muted-foreground">
-                Assessment path
+                {'common.assessmentPath'}
               </div>
               <div className="mt-4 space-y-1.5">
                 {phases.map((item, index) => (
@@ -1135,12 +1140,15 @@ function Assessment({
                   {phase.eyebrow}
                 </div>
                 <div className="mt-1 text-sm text-muted-foreground">
-                  {`Question ${current + 1} of ${total}`}
+                  {t('assessment.questionCount', {
+                    current: current + 1,
+                    total,
+                  })}
                 </div>
               </div>
               <div className="flex items-center gap-2">
                 <button className="assessment-home" onClick={onHome}>
-                  <House className="size-4" /> Return home
+                  <House className="size-4" /> {'common.returnHome'}
                 </button>
                 <div className="rounded-full border bg-card px-3 py-1.5 text-sm font-semibold tabular-nums text-primary">
                   {Math.round(((current + 1) / total) * 100)}%
@@ -1161,12 +1169,10 @@ function Assessment({
                   </div>
                   <div>
                     <h2 id="nudge-title">
-                      You&apos;re answering a little quickly
+                      {'common.youReAnsweringALittleQuickly'}
                     </h2>
                     <p id="nudge-description">
-                      Take a moment to read each question before choosing. A
-                      more considered response is more likely to give you a
-                      result that reflects your current experience.
+                      {'common.takeAMomentToReadEachQuestionBeforeChoosing'}
                     </p>
                   </div>
                   <Button
@@ -1174,7 +1180,7 @@ function Assessment({
                     size="lg"
                     onClick={onAdvance}
                   >
-                    Skip Answer and Continue{' '}
+                    {'common.skipAnswerAndContinue'}{' '}
                     <ArrowRight className="ml-1 size-4" />
                   </Button>
                 </div>
@@ -1190,6 +1196,11 @@ function Assessment({
               <h1 className="mt-6 font-serif text-3xl font-semibold leading-tight tracking-tight sm:text-[2.35rem]">
                 {question.prompt}
               </h1>
+              {question.kind === 'behaviour' && (
+                <p className="mt-4 text-sm leading-6 text-muted-foreground">
+                  {'assessment.behaviour.helper'}
+                </p>
+              )}
               {question.helper && (
                 <p className="mt-4 max-w-2xl leading-7 text-muted-foreground">
                   {question.helper}
@@ -1202,6 +1213,11 @@ function Assessment({
                   prompt={scale.prompt}
                   low={scale.low}
                   high={scale.high}
+                  labels={
+                    question.kind === 'behaviour'
+                      ? behaviourScale.details
+                      : undefined
+                  }
                   onChoose={onChooseNumber}
                 />
               )}
@@ -1226,7 +1242,7 @@ function Assessment({
               )}
               <div className="mt-8 flex items-center justify-between border-t pt-6">
                 <Button variant="ghost" size="lg" onClick={onBack}>
-                  <ArrowLeft className="mr-1 size-4" /> Previous
+                  <ArrowLeft className="mr-1 size-4" /> {'common.previous'}
                 </Button>
                 <Button
                   size="lg"
@@ -1234,7 +1250,9 @@ function Assessment({
                   disabled={!canContinue}
                   onClick={onAdvance}
                 >
-                  {current === total - 1 ? 'View my profile' : 'Next'}
+                  {current === total - 1
+                    ? 'common.viewMyProfile'
+                    : 'common.next'}
                   <ArrowRight className="ml-1 size-4" />
                 </Button>
               </div>
@@ -1251,14 +1269,17 @@ function ScaleQuestion({
   prompt,
   low,
   high,
+  labels,
   onChoose,
 }: {
   selected?: number;
   prompt: string;
   low: string;
   high: string;
+  labels?: readonly string[];
   onChoose: (value: number) => void;
 }) {
+  const { t } = useLanguage();
   return (
     <LocalizedContent>
       {
@@ -1269,19 +1290,26 @@ function ScaleQuestion({
               <button
                 type="button"
                 key={value}
-                className={`scale-position ${selected === value ? 'scale-position-selected' : ''}`}
+                className={`scale-position ${labels ? 'scale-frequency' : ''} ${selected === value ? 'scale-position-selected' : ''}`}
                 onClick={() => onChoose(value)}
-                aria-label={`${value} of 5`}
+                aria-label={
+                  labels
+                    ? t(labels[value - 1])
+                    : t('assessment.scaleValue', { value })
+                }
                 aria-pressed={selected === value}
               >
                 {value}
+                {labels && <span>{labels[value - 1]}</span>}
               </button>
             ))}
           </div>
-          <div className="mt-2 flex justify-between gap-4 text-xs text-muted-foreground">
-            <span>{low}</span>
-            <span className="text-right">{high}</span>
-          </div>
+          {!labels && (
+            <div className="mt-2 flex justify-between gap-4 text-xs text-muted-foreground">
+              <span>{low}</span>
+              <span className="text-right">{high}</span>
+            </div>
+          )}
         </fieldset>
       }
     </LocalizedContent>
@@ -1303,7 +1331,7 @@ function OrderedChoices({
     <LocalizedContent>
       {
         <fieldset className="mt-8">
-          <legend className="sr-only">Choose one response</legend>
+          <legend className="sr-only">{'common.chooseOneResponse'}</legend>
           <div className="grid gap-2.5">
             {options.map((option) => (
               <button
@@ -1338,11 +1366,12 @@ function MultiChoices({
   selected: string[];
   onToggle: (id: string) => void;
 }) {
+  const { t } = useLanguage();
   return (
     <LocalizedContent>
       {
         <fieldset className="mt-8">
-          <legend className="sr-only">Select any that apply</legend>
+          <legend className="sr-only">{'common.selectAnyThatApply'}</legend>
           <div className="grid gap-2.5 sm:grid-cols-2">
             {options.map((option) => {
               const checked = selected.includes(option.id);
@@ -1363,7 +1392,7 @@ function MultiChoices({
             })}
           </div>
           <div className="mt-3 text-right text-xs font-medium text-muted-foreground">
-            {`${selected.length} selected`}
+            {t('assessment.selectedCount', { count: selected.length })}
           </div>
         </fieldset>
       }
@@ -1404,20 +1433,19 @@ function Results({
   const strongest = rankedCompetencies[0];
   const supporting = rankedCompetencies[1];
   const growthEdge = rankedCompetencies.at(-1);
-  const workingAnalysis =
-    strongest?.score === growthEdge?.score
-      ? 'Your responses are evenly balanced across the six competencies. No single area stands out; choose your next practice from your interests and project needs.'
-      : strongest
-        ? `Your answers point most strongly to ${strongest.fullLabel}${
-            supporting
-              ? `, with ${supporting.fullLabel} as a supporting strength`
-              : ''
-          }. ${
-            growthEdge && growthEdge.score < supporting.score
-              ? `${growthEdge.fullLabel} is the clearest area to practise next.`
-              : ''
-          }`
-        : 'Your profile shows how you currently approach engineering work.';
+  const modes = deriveLeadingModes(competencyScores);
+  const nextAction =
+    interpretation.growth[0]?.action ?? 'growthAction.not-sure';
+  const workingAnalysis = modes.balanced
+    ? t('result.analysis.balanced')
+    : t('result.analysis.leading', {
+        first: t(strongest.fullLabel),
+        second: t(supporting.fullLabel),
+      }) +
+      (growthEdge && growthEdge.score < supporting.score
+        ? ' ' + t('result.analysis.practice', { area: t(growthEdge.fullLabel) })
+        : '');
+
   return (
     <LocalizedContent>
       {
@@ -1438,13 +1466,12 @@ function Results({
               <div className="mode-eyebrow">
                 <Sparkles className="size-4" />{' '}
                 {proReflection
-                  ? 'PRO · CURRENT ENGINEERING ROLE'
-                  : 'CURRENT ENGINEERING ROLE'}
+                  ? 'result.role.proEyebrow'
+                  : 'result.role.eyebrow'}
               </div>
               <div className="mode-stage-row">
                 <span className="growth-stage-pill">
-                  ENGINEERING EXPERIENCE LEVEL{' '}
-                  {String(stage.number).padStart(2, '0')}/04 · {stage.name}
+                  {'result.scope.label'} · {stage.name}
                 </span>
                 {yearLabel && (
                   <span className="year-context-pill">
@@ -1452,17 +1479,58 @@ function Results({
                   </span>
                 )}
               </div>
-              <h1>{mode.name}</h1>
-              <p className="mode-lead">{mode.shortDescription}</p>
-              <div className="mode-contribution">
-                <span>YOUR CONTRIBUTION</span>
-                <p>{mode.contribution}</p>
-              </div>
-              <p className="mode-disclaimer">
-                A current role lens, not a fixed personality type or
-                professional rank. If several scores are close, another role may
-                fit just as well.
+              <h1>
+                {modes.balanced
+                  ? 'result.role.balanced'
+                  : modes.leading
+                      .map((item) => t(engineeringModes[item.key].name))
+                      .join(' + ')}
+              </h1>
+              {modes.leading.length > 1 && !modes.balanced && (
+                <p className="mode-secondary">
+                  {'result.role.tied'} · {modes.leading[0].score}
+                </p>
+              )}
+              <p className="mode-lead">
+                {modes.balanced
+                  ? 'result.role.balancedNote'
+                  : modes.leading.length === 1
+                    ? mode.shortDescription
+                    : 'result.role.sharedNote'}
               </p>
+              {modes.supporting.length > 0 && (
+                <p className="mode-secondary">
+                  {'result.role.also'}:{' '}
+                  {modes.supporting
+                    .map(
+                      (item) =>
+                        `${t(engineeringModes[item.key].name)} · ${item.score}`,
+                    )
+                    .join(' / ')}
+                </p>
+              )}
+              <p className="mode-scope-description">{stage.description}</p>
+              <div className="mode-quick-insights">
+                <div className="mode-contribution">
+                  <span>
+                    {modes.leading.length === 1
+                      ? 'result.quick.strength'
+                      : 'result.quick.strengths'}
+                  </span>
+                  <p>
+                    {modes.leading.length === 1
+                      ? mode.contribution
+                      : modes.leading
+                          .map((item) => t(item.fullLabel))
+                          .join(' · ')}
+                  </p>
+                </div>
+                <div className="mode-contribution">
+                  <span>{'result.quick.next'}</span>
+                  <p>{nextAction}</p>
+                </div>
+              </div>
+              <p className="mode-disclaimer">{'result.role.disclaimer'}</p>
               <div className="mode-actions" data-capture-exclude="true">
                 <Button
                   variant="outline"
@@ -1474,23 +1542,22 @@ function Results({
                     try {
                       await onDownload();
                     } catch {
-                      setSaveError(
-                        'The image could not be saved. Please let the illustrations finish loading and try again.',
-                      );
+                      setSaveError('result.export.error');
                     } finally {
                       setIsSaving(false);
                     }
                   }}
                 >
                   <Download className="mr-1 size-4" />
-                  {isSaving ? 'Preparing image…' : 'Save profile as image'}
+                  {isSaving ? 'result.export.preparing' : 'result.export.save'}
                 </Button>
                 <Button
                   variant="ghost"
                   className="rounded-full"
                   onClick={onRestart}
                 >
-                  <RefreshCw className="mr-1 size-4" /> Take assessment again
+                  <RefreshCw className="mr-1 size-4" />{' '}
+                  {'common.takeAssessmentAgain'}
                 </Button>
               </div>
               {saveError && (
@@ -1505,7 +1572,7 @@ function Results({
             </div>
             <div
               className="mode-art"
-              aria-label={`${mode.name} character illustration`}
+              aria-label={t('role.illustration', { name: t(mode.name) })}
             >
               {/* oxlint-disable-next-line next/no-img-element */}
               <img
@@ -1530,17 +1597,22 @@ function Results({
               />
             </div>
           </div>
-          <div className="mt-9 grid gap-6 lg:grid-cols-[1.04fr_.96fr]">
+          <p className="mt-3 text-xs leading-5 text-muted-foreground">
+            {'result.scope.note'}
+          </p>
+          <div className="mt-7 grid items-start gap-6 lg:grid-cols-[1.04fr_.96fr]">
             <article className="result-panel min-w-0">
               <div className="panel-heading">
                 <div>
-                  <div className="panel-eyebrow">SIX COMPETENCIES</div>
+                  <div className="panel-eyebrow">
+                    {'common.sixCompetencies'}
+                  </div>
                   <h2 className="mt-1 font-serif text-2xl font-semibold">
-                    How you currently work
+                    {'result.radar.title'}
                   </h2>
                 </div>
                 <span className="text-xs text-muted-foreground">
-                  0–100 profile scale
+                  {'common.0100ProfileScale'}
                 </span>
               </div>
               <ChartContainer
@@ -1574,23 +1646,32 @@ function Results({
             <article className="result-panel">
               <div className="panel-heading">
                 <div>
-                  <div className="panel-eyebrow">TECHNICAL TOOLKIT</div>
+                  <div className="panel-eyebrow">
+                    {'common.technicalToolkit'}
+                  </div>
                   <h2 className="mt-1 font-serif text-2xl font-semibold">
-                    Experience & independence
+                    {'result.toolkit.title'}
                   </h2>
                 </div>
                 <Wrench className="size-5 text-primary" />
               </div>
               <div className="mt-7 space-y-4">
+                <p className="panel-eyebrow">{'result.toolkit.selfRating'}</p>
                 {toolkitScores.map((item) => {
                   const level = getToolkitExperienceLevel(item.score);
+                  const evidence = proReflection?.evidence.find(
+                    (entry) => entry.area === item.key,
+                  );
                   return (
                     <div key={item.key}>
                       <div className="mb-1.5 flex items-end justify-between gap-4 text-sm">
                         <span className="font-medium">{item.name}</span>
                         <span className="toolkit-score-meta">
                           <span>
-                            Level {level.number}/5 · {level.label}
+                            {t('result.toolkit.level', {
+                              number: level.number,
+                              label: t(level.label),
+                            })}
                           </span>
                           <strong>{item.score}</strong>
                         </span>
@@ -1601,22 +1682,43 @@ function Results({
                           style={{ width: `${item.score}%` }}
                         />
                       </div>
+                      {evidence && (
+                        <div className="toolkit-evidence">
+                          <span className="panel-eyebrow">
+                            {'result.evidence.label'}
+                          </span>
+                          {evidence.answered === evidence.total && (
+                            <p>
+                              {t('result.evidence.depth', {
+                                count: evidence.independent,
+                                total: evidence.total,
+                              })}
+                            </p>
+                          )}
+                          <p>{evidence.consistency}</p>
+                        </div>
+                      )}
                     </div>
                   );
                 })}
               </div>
               <p className="result-footnote mt-6">
-                Each level reflects your selected experience and independence in
-                that area. Use it as a practice starting point, not proof of
-                mastery.
+                {
+                  'common.eachLevelReflectsYourSelectedExperienceAndIndependenceIn'
+                }
               </p>
+              {proReflection && (
+                <p className="result-footnote mt-3">
+                  {'result.evidence.selfReport'}
+                </p>
+              )}
             </article>
           </div>
           <div className="result-growth-stack mt-6 grid gap-6">
             <article className="result-panel">
-              <div className="panel-eyebrow">CURRENT STRENGTHS</div>
+              <div className="panel-eyebrow">{'common.currentStrengths'}</div>
               <h2 className="mt-1 font-serif text-2xl font-semibold">
-                Capabilities to build on
+                {'result.strengths.title'}
               </h2>
               <div className="mt-6 grid gap-3 sm:grid-cols-2">
                 {interpretation.strengths.map((item) => (
@@ -1633,9 +1735,11 @@ function Results({
               </div>
             </article>
             <article className="result-panel">
-              <div className="panel-eyebrow">CHOSEN GROWTH PRIORITIES</div>
+              <div className="panel-eyebrow">
+                {'common.chosenGrowthPriorities'}
+              </div>
               <h2 className="mt-1 font-serif text-2xl font-semibold">
-                What you want to develop next
+                {'result.growth.title'}
               </h2>
               <div className="growth-actions-grid mt-6">
                 {interpretation.growth.map((item) => (
@@ -1657,25 +1761,30 @@ function Results({
               <div className="flex items-start gap-3">
                 <Lightbulb className="mt-0.5 size-5 shrink-0 text-primary" />
                 <div>
-                  <div className="panel-eyebrow">EVIDENCE PRACTICE</div>
+                  <div className="panel-eyebrow">
+                    {'common.evidencePractice'}
+                  </div>
                   <p className="mt-2 leading-7">
                     {interpretation.evidenceReflection}
                   </p>
                   <p className="mt-2 text-xs text-muted-foreground">
-                    Based on two scenarios; interpreted qualitatively and never
-                    shown as a numerical score.
+                    {
+                      'common.basedOnTwoScenariosInterpretedQualitativelyAndNeverShown'
+                    }
                   </p>
                 </div>
               </div>
             </article>
             <article className="context-card">
-              <div className="panel-eyebrow">YOUR PROJECT EXPERIENCE</div>
+              <div className="panel-eyebrow">
+                {'common.yourProjectExperience'}
+              </div>
               <div className="mt-3 font-semibold">
                 {interpretation.projectLabel}
               </div>
               <p className="mt-1 text-sm leading-5 text-muted-foreground">
                 <span className="block mt-3 mb-1 font-semibold text-foreground">
-                  Highest responsibility you described
+                  {'common.highestResponsibilityYouDescribed'}
                 </span>
                 {interpretation.responsibilityLabel}
               </p>
@@ -1685,7 +1794,7 @@ function Results({
           {interpretation.interests.length > 0 && (
             <div className="mt-4 flex flex-wrap items-center gap-2 rounded-2xl border bg-card p-4">
               <span className="mr-1 text-xs font-semibold uppercase tracking-[.13em] text-muted-foreground">
-                Interested in
+                {'common.interestedIn'}
               </span>
               {interpretation.interests.map((item) => (
                 <span className="interest-chip" key={item}>
@@ -1697,12 +1806,16 @@ function Results({
           <div className="mt-7 flex items-start gap-3 rounded-2xl bg-secondary/70 p-5 text-sm leading-6 text-muted-foreground">
             <CircleHelp className="mt-0.5 size-5 shrink-0 text-primary" />
             <p>
-              Use this profile to choose a project role, learning activity, or
-              conversation—not to compare students across years or departments.
+              {'common.useThisProfileToChooseAProjectRoleLearning'}
               {proReflection &&
-                ' Pro is a pilot edition. Its additional scenarios and practice reflections complement the core profile; they do not change its scores or establish professional competence.'}
+                'common.proIsAPilotEditionItsAdditionalScenariosAnd'}
             </p>
           </div>
+          <p className="mt-4 text-xs text-muted-foreground">
+            {t('result.version', {
+              version: currentVersion(proReflection ? 'pro' : 'standard'),
+            })}
+          </p>
         </section>
       }
     </LocalizedContent>
@@ -1714,19 +1827,18 @@ function ProReflection({
 }: {
   reflection: ReturnType<typeof interpretPro>;
 }) {
+  const { t } = useLanguage();
   return (
     <LocalizedContent>
       {
         <div className="mt-6 grid gap-6">
           <article className="result-panel">
-            <div className="panel-eyebrow">PRO · TEAM DECISIONS</div>
+            <div className="panel-eyebrow">{'common.proTeamDecisions'}</div>
             <h2 className="mt-1 text-2xl font-semibold">
-              How you approach project situations
+              {'common.howYouApproachProjectSituations'}
             </h2>
             <p className="mt-3 text-sm leading-6 text-muted-foreground">
-              Feedback on your 12 scenario choices—not an additional score. The
-              six-competency profile above uses the same core questions as
-              Standard.
+              {'pro.feedback.intro'}
             </p>
             <div className="pro-reflection-grid mt-6">
               {reflection.scenariosByArea.map((group) => (
@@ -1736,7 +1848,9 @@ function ProReflection({
                     <div key={item.id} className="pro-scenario-feedback">
                       <p className="text-sm font-medium">{item.prompt}</p>
                       <p className="mt-2 text-sm text-muted-foreground">
-                        <span className="font-medium">Your choice: </span>
+                        <span className="font-medium">
+                          {'pro.choice.label'}
+                        </span>
                         {item.choice?.label}
                       </p>
                       <p className="mt-2 text-sm leading-6">
@@ -1749,20 +1863,26 @@ function ProReflection({
             </div>
           </article>
           <article className="result-panel">
-            <div className="panel-eyebrow">PRO · PRACTICE EVIDENCE</div>
+            <div className="panel-eyebrow">{'common.proPracticeEvidence'}</div>
             <h2 className="mt-1 text-2xl font-semibold">
-              Your experience in specific tasks
+              {'common.yourExperienceInSpecificTasks'}
             </h2>
             <p className="mt-3 text-sm leading-6 text-muted-foreground">
-              Two practical reflections per toolkit area help you compare your
-              broad rating with work you can describe. This is self-reported
-              evidence, not a verified skills test.
+              {'common.twoPracticalReflectionsPerToolkitAreaHelpYouCompare'}
             </p>
             <div className="pro-reflection-grid mt-6">
               {reflection.evidence.map((item) => (
                 <div key={item.area} className="insight-tile">
                   <h3 className="font-semibold">{item.label}</h3>
                   <p className="mt-2 text-sm leading-6">{item.summary}</p>
+                  {item.answered === item.total && (
+                    <p className="mt-2 text-sm">
+                      {t('result.evidence.participation', {
+                        count: item.experienced,
+                        total: item.total,
+                      })}
+                    </p>
+                  )}
                   {item.crossCheck && (
                     <p className="mt-3 text-sm leading-6 pro-cross-check">
                       {item.crossCheck}

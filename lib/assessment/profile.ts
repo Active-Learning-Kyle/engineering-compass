@@ -26,11 +26,9 @@ export const engineeringModes: Record<
   }
 > = {
   problem: {
-    name: 'Problem Framer',
-    shortDescription:
-      'You look closely at what is happening before deciding what should be solved.',
-    contribution:
-      'In a team, you are especially good at defining the real need, gathering evidence, and turning a broad concern into an actionable problem.',
+    name: 'role.problem.name',
+    shortDescription: 'role.problem.shortDescription',
+    contribution: 'role.problem.contribution',
     accent: '#163f27',
     tint: '#edf4ed',
     image: {
@@ -39,11 +37,9 @@ export const engineeringModes: Record<
     },
   },
   planning: {
-    name: 'Project Navigator',
-    shortDescription:
-      'You turn a promising direction into a route that people can realistically follow.',
-    contribution:
-      'In a team, you are especially good at turning a promising direction into clear requirements, milestones, ownership, and a realistic plan.',
+    name: 'role.planning.name',
+    shortDescription: 'role.planning.shortDescription',
+    contribution: 'role.planning.contribution',
     accent: '#163f27',
     tint: '#edf4ed',
     image: {
@@ -52,11 +48,9 @@ export const engineeringModes: Record<
     },
   },
   collaboration: {
-    name: 'Team Connector',
-    shortDescription:
-      'You help different people, ideas, and technical contributions work together.',
-    contribution:
-      'In a team, you are especially good at connecting specialisms, clarifying ownership, and helping people resolve disagreements and dependencies.',
+    name: 'role.collaboration.name',
+    shortDescription: 'role.collaboration.shortDescription',
+    contribution: 'role.collaboration.contribution',
     accent: '#163f27',
     tint: '#edf4ed',
     image: {
@@ -65,11 +59,9 @@ export const engineeringModes: Record<
     },
   },
   handsOn: {
-    name: 'Practical Builder',
-    shortDescription:
-      'You learn quickly when an idea becomes something you can assemble, test, and improve.',
-    contribution:
-      'In a team, you are especially good at turning discussion into a working prototype, troubleshooting failures, and making practical constraints visible.',
+    name: 'role.handsOn.name',
+    shortDescription: 'role.handsOn.shortDescription',
+    contribution: 'role.handsOn.contribution',
     accent: '#163f27',
     tint: '#edf4ed',
     image: {
@@ -78,11 +70,9 @@ export const engineeringModes: Record<
     },
   },
   design: {
-    name: 'Prototype Explorer',
-    shortDescription:
-      'You use prototypes and tests to learn what should change next.',
-    contribution:
-      'In a team, you are especially good at creating early prototypes, designing useful tests, and turning evidence into focused improvements.',
+    name: 'role.design.name',
+    shortDescription: 'role.design.shortDescription',
+    contribution: 'role.design.contribution',
     accent: '#163f27',
     tint: '#edf4ed',
     image: {
@@ -91,11 +81,9 @@ export const engineeringModes: Record<
     },
   },
   pitch: {
-    name: 'Solution Storyteller',
-    shortDescription:
-      'You make an engineering solution understandable, credible, and relevant to its audience.',
-    contribution:
-      'In a team, you are especially good at explaining the problem and value clearly, supporting claims with evidence, and communicating limitations honestly.',
+    name: 'role.pitch.name',
+    shortDescription: 'role.pitch.shortDescription',
+    contribution: 'role.pitch.contribution',
     accent: '#163f27',
     tint: '#edf4ed',
     image: {
@@ -110,24 +98,24 @@ export const growthStages: Record<
   { name: string; number: number; description: string }
 > = {
   exploring: {
-    name: 'Exploring',
+    name: 'scope.exploring.name',
     number: 1,
-    description: 'Trying unfamiliar engineering tasks with guidance.',
+    description: 'scope.exploring.description',
   },
   building: {
-    name: 'Building',
+    name: 'scope.building.name',
     number: 2,
-    description: 'Taking ownership of familiar tasks with some support.',
+    description: 'scope.building.description',
   },
   practising: {
-    name: 'Practising',
+    name: 'scope.practising.name',
     number: 3,
-    description: 'Working independently on a subsystem, test, or deliverable.',
+    description: 'scope.practising.description',
   },
   integrating: {
-    name: 'Integrating',
+    name: 'scope.integrating.name',
     number: 4,
-    description: 'Connecting work across people, interfaces, or subsystems.',
+    description: 'scope.integrating.description',
   },
 };
 
@@ -136,6 +124,20 @@ export function deriveEngineeringMode(
 ): EngineeringModeKey {
   const sorted = [...competencyScores].sort((a, b) => b.score - a.score);
   return sorted[0]?.key ?? 'problem';
+}
+
+/** Descriptive display grouping only. No new score or unvalidated near-tie cut-off. */
+export function deriveLeadingModes(scores: CompetencyResult[]) {
+  const ranked = [...scores].sort((a, b) => b.score - a.score);
+  const top = ranked[0]?.score;
+  const leading = ranked.filter((item) => item.score === top);
+  const balanced = leading.length === scores.length;
+  const secondScore = ranked.find((item) => item.score !== top)?.score;
+  const supporting =
+    leading.length === 1
+      ? ranked.filter((item) => item.score === secondScore)
+      : [];
+  return { leading, supporting, balanced };
 }
 
 export function deriveGrowthStage(

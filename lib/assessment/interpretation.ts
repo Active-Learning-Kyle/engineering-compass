@@ -9,9 +9,11 @@ export function interpretResults(
   competencyScores: CompetencyResult[],
   toolkitScores: ToolkitResult[],
 ) {
-  const strengths = [...competencyScores]
-    .sort((a, b) => b.score - a.score)
-    .slice(0, 2);
+  const ranked = [...competencyScores].sort((a, b) => b.score - a.score);
+  // Include ties at the second displayed score rather than breaking them by array order.
+  const strengths = ranked.filter(
+    (item) => item.score >= (ranked[1]?.score ?? ranked[0]?.score ?? 0),
+  );
   const growthIds = Array.isArray(answers.G01) ? answers.G01 : [];
   const growth = growthIds.map((id) => ({
     id,
@@ -32,20 +34,14 @@ export function interpretResults(
     judgmentValues.length;
   const evidenceReflection =
     judgmentMean >= 4.5
-      ? 'You tend to verify evidence, isolate uncertainty, and communicate trade-offs before committing to a decision.'
+      ? 'common.youTendToVerifyEvidenceIsolateUncertaintyAndCommunicate'
       : judgmentMean >= 3.5
-        ? 'You show a developing habit of checking evidence and making uncertainty visible before changing direction.'
-        : 'When evidence is uncertain, try defining one diagnostic question and changing one variable at a time before deciding.';
+        ? 'common.youShowADevelopingHabitOfCheckingEvidenceAnd'
+        : 'common.whenEvidenceIsUncertainTryDefiningOneDiagnosticQuestion';
 
-  const projectItem = questions.find((item) => item.id === 'C01');
   const responsibilityItem = questions.find((item) => item.id === 'C02');
   const projectValue = typeof answers.C01 === 'number' ? answers.C01 : 1;
   const responsibilityValue = typeof answers.C02 === 'number' ? answers.C02 : 1;
-  const projectLabel =
-    projectItem?.kind === 'context'
-      ? projectItem.options.find((option) => option.value === projectValue)
-          ?.label
-      : undefined;
   const responsibilityLabel =
     responsibilityItem?.kind === 'context'
       ? responsibilityItem.options.find(
@@ -58,10 +54,7 @@ export function interpretResults(
     growth,
     interests,
     evidenceReflection,
-    projectLabel:
-      projectValue === 1
-        ? 'No completed projects yet'
-        : `${projectLabel} completed project${projectValue === 2 ? '' : 's'}`,
+    projectLabel: `result.projects.${Math.min(5, Math.max(1, projectValue))}`,
     responsibilityLabel,
   };
 }

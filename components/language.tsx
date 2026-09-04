@@ -9,7 +9,12 @@ import {
   type ReactNode,
   type ReactElement,
 } from 'react';
-import { translate, type Locale } from '@/lib/i18n/translate';
+import {
+  translate,
+  isMessageReference,
+  type Locale,
+  type MessageParams,
+} from '@/lib/i18n/translate';
 
 const storageKey = 'engineering-compass-language';
 const LanguageContext = createContext<{
@@ -49,7 +54,11 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
 }
 export function useLanguage() {
   const context = useContext(LanguageContext);
-  return { ...context, t: (text: string) => translate(text, context.locale) };
+  return {
+    ...context,
+    t: (key: string, params?: MessageParams) =>
+      translate(key, context.locale, params),
+  };
 }
 export function LanguageSwitcher() {
   const { locale, setLocale } = useLanguage();
@@ -82,7 +91,8 @@ export function LanguageSwitcher() {
  * Each page component owns a boundary so independently rendered child components
  * receive locale updates too. No DOM rewriting or extra layout elements. */
 export function localizeTree(node: ReactNode, locale: Locale): ReactNode {
-  if (typeof node === 'string') return translate(node, locale);
+  if (typeof node === 'string')
+    return isMessageReference(node) ? translate(node, locale) : node;
   if (Array.isArray(node))
     return node.map((child, index) => {
       const translated = localizeTree(child, locale);
@@ -96,7 +106,10 @@ export function localizeTree(node: ReactNode, locale: Locale): ReactNode {
   const element = node as ReactElement<Record<string, unknown>>;
   const props: Record<string, unknown> = {};
   for (const name of ['aria-label', 'title', 'alt'])
-    if (typeof element.props[name] === 'string')
+    if (
+      typeof element.props[name] === 'string' &&
+      isMessageReference(element.props[name] as string)
+    )
       props[name] = translate(element.props[name] as string, locale);
   if ('children' in element.props)
     props.children = localizeTree(element.props.children as ReactNode, locale);

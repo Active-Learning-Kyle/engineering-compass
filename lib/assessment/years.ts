@@ -1,23 +1,23 @@
 export const studyYears = [
   {
     id: 'year-1',
-    label: 'Year 1',
-    note: 'Beginning undergraduate engineering study',
+    label: 'year.year-1.label',
+    note: 'year.year-1.note',
   },
   {
     id: 'year-2',
-    label: 'Year 2',
-    note: 'Developing disciplinary and project experience',
+    label: 'year.year-2.label',
+    note: 'year.year-2.note',
   },
   {
     id: 'year-3',
-    label: 'Year 3',
-    note: 'Taking on deeper technical and team responsibilities',
+    label: 'year.year-3.label',
+    note: 'year.year-3.note',
   },
   {
     id: 'year-4',
-    label: 'Year 4',
-    note: 'Integrating experience through advanced project work',
+    label: 'year.year-4.label',
+    note: 'year.year-4.note',
   },
 ] as const;
 

@@ -29,6 +29,12 @@ jobs:
           node-version: 24
       - name: Install dependencies
         run: npm install
+      - name: Check TypeScript
+        run: npx tsc --noEmit
+      - name: Check code and bilingual assessment rules
+        run: |
+          npm run lint
+          npm test
       - name: Build static site
         run: npm run build
       - name: Configure Pages

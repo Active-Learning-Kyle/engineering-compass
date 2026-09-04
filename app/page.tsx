@@ -696,7 +696,14 @@ function Header({ progress }: { progress: number | null }) {
           <div className="mx-auto flex min-h-[74px] flex-wrap gap-3 max-w-7xl items-center justify-between px-5 py-3 lg:px-12">
             <div className="flex items-center gap-3">
               <div className="brand-mark">
-                <Compass className="size-5" />
+                {/* oxlint-disable-next-line next/no-img-element -- Shared static SVG needs no raster optimisation. */}
+                <img
+                  src={assetPath('compass.svg')}
+                  alt=""
+                  className="size-full"
+                  width={64}
+                  height={64}
+                />
               </div>
               <div>
                 <div className="font-serif text-lg font-semibold leading-none">
@@ -753,7 +760,14 @@ function Welcome({
             <div className="max-w-3xl">
               <div className="home-product-kicker mb-6">
                 <span className="home-product-mark">
-                  <Compass className="size-4" />
+                  {/* oxlint-disable-next-line next/no-img-element -- Shared static SVG favicon. */}
+                  <img
+                    src={assetPath('compass.svg')}
+                    alt=""
+                    className="size-full"
+                    width={64}
+                    height={64}
+                  />
                 </span>
                 <span>{'brand.name'}</span>
               </div>
@@ -851,7 +865,14 @@ function Welcome({
                 <span className="orbit-dot orbit-dot-2" />
                 <span className="orbit-dot orbit-dot-3" />
                 <div className="orbit-center">
-                  <Compass className="size-11" strokeWidth={1.5} />
+                  {/* oxlint-disable-next-line next/no-img-element -- Shared static SVG favicon. */}
+                  <img
+                    src={assetPath('compass.svg')}
+                    alt=""
+                    className="size-11"
+                    width={64}
+                    height={64}
+                  />
                   <span>{'common.yourProfile'}</span>
                 </div>
                 {competencyOrder.map((key, index) => (
@@ -1017,7 +1038,14 @@ function Welcome({
           </div>
           <footer className="home-footer">
             <div className="home-footer-brand">
-              <Compass className="size-5" />
+              {/* oxlint-disable-next-line next/no-img-element -- Shared static SVG favicon. */}
+              <img
+                src={assetPath('compass.svg')}
+                alt=""
+                className="size-9 shrink-0"
+                width={64}
+                height={64}
+              />
               <span>
                 <strong>{'brand.name'}</strong>
                 <small>{'common.reflectOnHowYouThinkBuildAndContribute'}</small>

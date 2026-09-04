@@ -815,7 +815,9 @@ test('Language controls render within the sticky assessment/results header', asy
     const html = renderToStaticMarkup(
       React.createElement(Header, { progress }),
     );
-    assert.match(html, /^<header class="sticky top-0/);
+    // React may emit the shared SVG image preload before the header.
+    assert.match(html, /<header class="sticky top-0/);
+    assert.match(html, /src="\/compass.svg"/);
     assert.match(html, /language-toolbar-inline/);
     assert.ok(html.includes('English') && html.includes('繁體中文'));
     assert.equal((html.match(/language-switch"/g) ?? []).length, 1);

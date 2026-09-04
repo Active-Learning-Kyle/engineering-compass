@@ -22,11 +22,11 @@
   --color-input: var(--input);
   --color-ring: var(--ring);
   --font-sans:
-    var(--font-geist-sans), -apple-system, BlinkMacSystemFont, 'Helvetica Neue',
-    Helvetica, Arial, sans-serif;
+    var(--font-geist-sans, Arial), -apple-system, BlinkMacSystemFont,
+    'Helvetica Neue', Helvetica, Arial, sans-serif;
   --font-serif:
-    var(--font-geist-sans), -apple-system, BlinkMacSystemFont, 'Helvetica Neue',
-    Helvetica, Arial, sans-serif;
+    var(--font-geist-sans, Arial), -apple-system, BlinkMacSystemFont,
+    'Helvetica Neue', Helvetica, Arial, sans-serif;
   --font-mono: var(--font-geist-mono);
   --radius-sm: calc(var(--radius) * 0.6);
   --radius-md: calc(var(--radius) * 0.8);
@@ -1333,10 +1333,6 @@
   border-bottom: 1px solid var(--border);
   padding-bottom: 0.9rem;
 }
-.growth-row:last-child {
-  border-bottom: 0;
-  padding-bottom: 0;
-}
 .context-card {
   border: 1px solid var(--border);
   border-radius: 1.1rem;
@@ -1478,7 +1474,7 @@
   padding: 8px 15px;
   border-radius: 999px;
   color: var(--muted-foreground);
-  font-size: 13px;
+  font-size: 0.875rem;
   font-weight: 600;
   cursor: pointer;
 }
@@ -1529,4 +1525,90 @@ html:lang(zh-Hant) .toolkit-score-meta {
   .language-toolbar {
     padding-inline: 48px;
   }
+}
+.home-language-bar {
+  position: sticky;
+  top: 0;
+  z-index: 30;
+  background: var(--background);
+  padding-bottom: 0.75rem;
+}
+.header-controls {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 1.25rem;
+  margin-left: auto;
+}
+.language-toolbar.language-toolbar-inline {
+  padding: 0;
+  margin: 0;
+  max-width: none;
+}
+.radar-axis-label {
+  font-family: var(--font-sans);
+  font-size: 1rem;
+  font-weight: 650;
+  fill: var(--foreground);
+}
+/* Keep regular labels readable; retain smaller sizes only for secondary metadata. */
+.version-meta,
+.version-purpose,
+.reflection-note,
+.question-kicker,
+.result-footnote,
+.toolkit-score-meta span,
+.toolkit-evidence,
+.mode-secondary,
+.mode-scope-description,
+.mode-disclaimer {
+  font-size: 0.875rem;
+  line-height: 1.6;
+}
+.version-status,
+.panel-eyebrow,
+.mode-eyebrow,
+.mode-contribution span {
+  font-size: 0.75rem;
+}
+.mode-contribution p,
+.question-card .text-sm,
+.results-capture .growth-row p,
+.results-capture .insight-tile p {
+  font-size: 1rem;
+  line-height: 1.6;
+}
+.scale-frequency span {
+  font-size: 0.875rem;
+  line-height: 1.3;
+  overflow-wrap: anywhere;
+}
+.scale-frequency {
+  min-height: 6.5rem;
+  height: auto;
+}
+.toolkit-score-heading {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.35rem 1rem;
+}
+.toolkit-score-meta {
+  flex: 0 1 auto;
+  min-width: 0;
+  max-width: 100%;
+  margin-left: auto;
+  justify-content: flex-end;
+}
+.toolkit-score-meta span {
+  min-width: 0;
+}
+.toolkit-score-meta span {
+  white-space: normal;
+}
+.ordered-choice,
+.multi-choice {
+  font-size: 1rem;
+  line-height: 1.5;
 }

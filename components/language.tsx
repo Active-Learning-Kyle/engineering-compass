@@ -60,10 +60,12 @@ export function useLanguage() {
       translate(key, context.locale, params),
   };
 }
-export function LanguageSwitcher() {
+export function LanguageSwitcher({ embedded = false }: { embedded?: boolean }) {
   const { locale, setLocale } = useLanguage();
   return (
-    <div className="language-toolbar">
+    <div
+      className={`language-toolbar${embedded ? ' language-toolbar-inline' : ''}`}
+    >
       <fieldset className="language-switch">
         <legend className="sr-only">Language / 語言</legend>
         <button

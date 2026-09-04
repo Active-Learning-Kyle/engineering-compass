@@ -299,7 +299,7 @@ export const en = {
   'common.responsesStayInThisBrowser': 'Responses stay in this browser',
   'home.hero.title': 'Find Your Role in an Engineering Team',
   'home.hero.description':
-    'A short self-assessment to explore your engineering strengths, hands-on experience, and growth directions.',
+    'A self-assessment to explore your engineering strengths, hands-on experience, and growth directions.',
   'common.availableNow': 'AVAILABLE NOW',
   'common.pilotEdition': 'PILOT EDITION',
   'common.30Questions810Minutes': '30 questions · 8–10 minutes',
@@ -1068,8 +1068,7 @@ export const zhHant: Record<MessageKey, string> = {
   'common.activeLearningHkuEngineering': '主動學習 · 香港大學工程學院',
   'common.responsesStayInThisBrowser': '答案只儲存於此瀏覽器',
   'home.hero.title': '探索你在工程團隊中的角色',
-  'home.hero.description':
-    '透過簡短自評，了解你的工程優勢、實作經驗及成長方向。',
+  'home.hero.description': '透過自評，了解你的工程優勢、實作經驗及成長方向。',
   'common.availableNow': '現已提供',
   'common.pilotEdition': '試行版本',
   'common.30Questions810Minutes': '30 題 · 約 8–10 分鐘',

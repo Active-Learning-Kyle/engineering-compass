@@ -32,7 +32,7 @@ registerHooks({
             "'/'",
           ) +
             (url.endsWith('page.tsx?unit')
-              ? '\nexport { Results, Assessment, Welcome };'
+              ? '\nexport { Results, Assessment, Welcome, Header };'
               : ''),
           {
             compilerOptions: {
@@ -654,6 +654,40 @@ test('Pro evidence reports factual task counts, distinguishes incomplete respons
     translate('result.evidence.selfReport', 'en'),
     /not externally verified/,
   );
+});
+
+test('Independent growth cards retain their final border and padding', () => {
+  const css = readFileSync(
+    new URL('../app/globals.css', import.meta.url),
+    'utf8',
+  );
+  assert.doesNotMatch(css, /\.growth-row:last-child\s*\{/);
+  assert.match(
+    css,
+    /\.growth-actions-grid \.growth-row\s*\{[^}]*border: 1px solid var\(--border\);[^}]*padding: 1\.2rem;/s,
+  );
+  assert.match(css, /\.radar-axis-label\s*\{[^}]*font-size: 1rem;/s);
+  assert.match(css, /var\(--font-geist-sans, Arial\)/);
+});
+
+test('Language controls render within the sticky assessment/results header', async () => {
+  const React = await import('react');
+  const { renderToStaticMarkup } = await import('react-dom/server');
+  const { Header } = await import('../app/page.tsx?unit');
+  for (const progress of [null, 55]) {
+    const html = renderToStaticMarkup(
+      React.createElement(Header, { progress }),
+    );
+    assert.match(html, /^<header class="sticky top-0/);
+    assert.match(html, /language-toolbar-inline/);
+    assert.ok(html.includes('English') && html.includes('繁體中文'));
+    assert.equal((html.match(/language-switch"/g) ?? []).length, 1);
+  }
+});
+
+test('Home introduction is neutral about assessment length in both languages', () => {
+  assert.doesNotMatch(translate('home.hero.description', 'en'), /short/i);
+  assert.doesNotMatch(translate('home.hero.description', 'zh-Hant'), /簡短/);
 });
 
 test('Result components render complete single, joint and balanced profiles without unresolved keys', async () => {

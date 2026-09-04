@@ -335,7 +335,6 @@ function isComplete(item: AssessmentItem, answer: unknown) {
 export default function Home() {
   return (
     <LanguageProvider>
-      <LanguageSwitcher />
       <HomeContent />
     </LanguageProvider>
   );
@@ -583,6 +582,11 @@ function HomeContent() {
 
   return (
     <main className="min-h-screen bg-background text-foreground">
+      {step === 'welcome' && (
+        <div className="home-language-bar">
+          <LanguageSwitcher />
+        </div>
+      )}
       {step !== 'welcome' && (
         <Header
           progress={
@@ -649,7 +653,7 @@ function Header({ progress }: { progress: number | null }) {
     <LocalizedContent>
       {
         <header className="sticky top-0 z-30 border-b bg-background/92 backdrop-blur-xl">
-          <div className="mx-auto flex h-[74px] max-w-7xl items-center justify-between px-5 lg:px-12">
+          <div className="mx-auto flex min-h-[74px] flex-wrap gap-3 max-w-7xl items-center justify-between px-5 py-3 lg:px-12">
             <div className="flex items-center gap-3">
               <div className="brand-mark">
                 <Compass className="size-5" />
@@ -658,14 +662,17 @@ function Header({ progress }: { progress: number | null }) {
                 <div className="font-serif text-lg font-semibold leading-none">
                   {'brand.name'}
                 </div>
-                <div className="mt-1 text-[10px] font-semibold uppercase tracking-[.18em] text-muted-foreground">
+                <div className="mt-1 text-xs font-semibold uppercase tracking-[.12em] text-muted-foreground">
                   {'common.activeLearningHkuEngineering'}
                 </div>
               </div>
             </div>
-            <div className="hidden items-center gap-2 text-xs text-muted-foreground sm:flex">
-              <span className="size-2 rounded-full bg-emerald-600" />{' '}
-              {'common.responsesStayInThisBrowser'}
+            <div className="header-controls">
+              <div className="hidden items-center gap-2 text-sm text-muted-foreground lg:flex">
+                <span className="size-2 rounded-full bg-emerald-600" />{' '}
+                {'common.responsesStayInThisBrowser'}
+              </div>
+              <LanguageSwitcher embedded />
             </div>
           </div>
           {progress !== null && (
@@ -1121,7 +1128,7 @@ function Assessment({
                       )}
                     </span>
                     <span className="min-w-0 flex-1 text-sm">{item.label}</span>
-                    <span className="text-[10px] tabular-nums text-muted-foreground">
+                    <span className="text-xs tabular-nums text-muted-foreground">
                       {item.range}
                     </span>
                   </div>
@@ -1624,12 +1631,29 @@ function Results({
                     ...item,
                     subject: t(item.subject),
                   }))}
-                  outerRadius="70%"
+                  outerRadius="60%"
                 >
                   <PolarGrid stroke="#d8e2dc" />
                   <PolarAngleAxis
                     dataKey="subject"
-                    tick={{ fill: '#496158', fontSize: 11, fontWeight: 650 }}
+                    tick={({ x, y, payload, textAnchor }) => (
+                      <text
+                        x={x}
+                        y={y}
+                        dx={
+                          textAnchor === 'start'
+                            ? -12
+                            : textAnchor === 'end'
+                              ? 12
+                              : 0
+                        }
+                        textAnchor="middle"
+                        dominantBaseline="central"
+                        className="radar-axis-label"
+                      >
+                        {payload.value}
+                      </text>
+                    )}
                   />
                   <Radar
                     dataKey="score"
@@ -1664,7 +1688,7 @@ function Results({
                   );
                   return (
                     <div key={item.key}>
-                      <div className="mb-1.5 flex items-end justify-between gap-4 text-sm">
+                      <div className="toolkit-score-heading mb-1.5 text-sm">
                         <span className="font-medium">{item.name}</span>
                         <span className="toolkit-score-meta">
                           <span>

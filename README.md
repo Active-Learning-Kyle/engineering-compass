@@ -8,6 +8,7 @@ The public site is hosted directly from this repository with GitHub Pages.
 
 ## MVP flow
 
+- Choose Standard (30 questions) or Pro pilot (60 questions)
 - Optional Year 1–4 study context, or Skip
 - 15 mixed behavioural statements across five non-hands-on competencies
 - Nine independent Technical Toolkit items
@@ -28,9 +29,9 @@ Study year is never included in scoring. Answers and an unfinished draft remain 
 
 The results layer adds six current Engineering Roles: Problem Framer, Project Navigator, Team Connector, Practical Builder, Prototype Explorer, and Solution Storyteller. Each maps directly to one of the six measured competencies and uses the shared HKU-inspired green/white visual system. The current role is a formative lens on the six-axis profile—not a personality type, grade, professional rank, or team assignment.
 
-The homepage hero uses role icons rather than character portraits. Role cards reveal a natural-colour illustration and fuller explanation on hover or keyboard focus. One of two character-presentation variants appears after completion and remains stable for a saved/completed attempt; the visual choice never affects results.
+The homepage hero uses role icons rather than character portraits. Role cards reveal natural-colour illustrations on hover or keyboard focus; male/female portraits crossfade continuously. The result uses the same crossfade and prescribed initial portrait: male first for Problem Framer, Team Connector and Prototype Explorer; female first for the other three. Reduced-motion preferences keep the initial portrait. Image exports capture that initial portrait without blending. The visual choice never affects results.
 
-The homepage makes the available 30-question Standard route and the future 50–60-question Pro route explicit. Pro is a labelled architecture and content placeholder only; no Pro questions or scoring are implemented. The animated compass points to all six role directions once per shuffled cycle.
+The homepage offers Standard (30) and Pro (60) with live question counts. Pro adds 12 team-decision scenarios and 18 concrete practice-evidence reflections. These produce qualitative feedback without changing Standard core scores. See [Pro pilot design](docs/pro-pilot.md) for the draft's interpretation rules and review priorities. The animated compass points to all six role directions once per shuffled cycle, with repeated spring overshoots and continuous flutter.
 
 The compact Engineering Experience Level (Exploring, Building, Practising, or Integrating) uses project context and current Technical Toolkit experience to describe the learner's present scope of experience. It is not a junior/mid/senior engineer designation. Each toolkit bar also shows the learner's selected five-level experience descriptor.
 

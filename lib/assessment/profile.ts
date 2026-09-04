@@ -3,6 +3,11 @@ import type { CompetencyResult, ToolkitResult } from './scoring';
 
 export type EngineeringModeKey = CompetencyKey;
 export type CharacterVariant = 'a' | 'b';
+export function initialCharacterVariant(
+  key: EngineeringModeKey,
+): CharacterVariant {
+  return ['problem', 'collaboration', 'design'].includes(key) ? 'a' : 'b';
+}
 export type GrowthStageKey =
   | 'exploring'
   | 'building'

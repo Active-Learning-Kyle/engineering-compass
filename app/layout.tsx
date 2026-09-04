@@ -16,9 +16,10 @@ export const metadata: Metadata = {
   metadataBase: new URL(
     'https://active-learning-kyle.github.io/engineering-compass/',
   ),
-  title: 'Engineering Compass | Standard Assessment',
+  title: 'Engineering Compass | Standard & Pro',
+  icons: { icon: `${import.meta.env.BASE_URL}compass.svg` },
   description:
-    'A formative 30-question reflection across six engineering competencies and nine technical toolkit areas.',
+    'Explore your role in an engineering team with Standard (30 questions) or Pro (60 questions), across six competencies and nine technical toolkit areas.',
   openGraph: {
     title: 'Engineering Compass',
     description: 'Reflect on how you think, build and grow as an engineer.',

@@ -212,6 +212,8 @@ Do not present these signals as dishonesty detection.
 
 ## Future Pro compatibility
 
+**Update, 4 September 2026:** The owner subsequently requested a working 60-question Pro pilot. It is implemented with the unchanged Standard core plus 12 decision scenarios and 18 practice-evidence checks. See [Pro pilot specification](docs/pro-pilot.md). The historical scope notes below describe the earlier Standard-only round, not the current availability.
+
 Pro is not part of this implementation round. The data model should nevertheless support an `assessmentVersion`, item type, scale type, scoring mappings, optional cross-check relationships, and multiple items per toolkit area.
 
 The future Pro assessment is expected to be approximately 50–60 questions and to add scenario-based decisions, cross-check items, evidence of engineering work, failure diagnosis, teamwork situations, project responsibility, safety/limitations, communication transfer, and possible pre/post comparison. It should not be implemented as a duplicated or merely lengthened Standard bank.

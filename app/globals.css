@@ -242,25 +242,12 @@
 }
 .orbit-compass-rose {
   position: absolute;
-  inset: 12%;
+  inset: 9%;
+  width: 82%;
+  height: 82%;
   z-index: 0;
-  opacity: 0.8;
-}
-.orbit-compass-rose::before,
-.orbit-compass-rose::after {
-  content: '';
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(
-    to bottom,
-    rgba(49, 130, 72, 0.16),
-    rgba(49, 130, 72, 0.025) 48%,
-    rgba(49, 130, 72, 0.13)
-  );
-  clip-path: polygon(50% 0, 57% 50%, 50% 100%, 43% 50%);
-}
-.orbit-compass-rose::after {
-  transform: rotate(90deg);
+  color: var(--primary);
+  opacity: 0.16;
 }
 .orbit-dot {
   position: absolute;
@@ -305,10 +292,10 @@
   left: 50%;
   width: 18px;
   height: 72%;
-  transform: translate(-50%, -50%) rotate(var(--needle-rotation));
+  transform: translate(-50%, -50%) rotate(var(--needle-rotation, 0deg));
   transform-origin: 50% 50%;
   filter: drop-shadow(0 5px 5px rgba(22, 63, 39, 0.18));
-  transition: transform 1.35s cubic-bezier(0.18, 1.28, 0.34, 1);
+  will-change: transform;
 }
 .animated-compass-needle span {
   position: absolute;
@@ -887,10 +874,46 @@
   background: #f6f0df;
 }
 .mode-art img {
+  position: absolute;
+  inset: 0;
   width: 100%;
   height: 100%;
   object-fit: cover;
   object-position: center 24%;
+}
+.mode-art .result-character-second {
+  opacity: 0;
+  animation: role-character-crossfade 7s ease-in-out infinite;
+}
+.assessment-version-card.is-selected {
+  outline: 2px solid var(--primary);
+  outline-offset: -2px;
+}
+.growth-actions-grid,
+.pro-reflection-grid {
+  display: grid;
+  gap: 1rem;
+}
+.growth-actions-grid .growth-row {
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 1.2rem;
+  margin: 0;
+}
+.pro-scenario-feedback {
+  margin-top: 1rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--border);
+}
+.pro-cross-check {
+  border-left: 3px solid var(--primary);
+  padding-left: 0.8rem;
+}
+@media (min-width: 768px) {
+  .growth-actions-grid,
+  .pro-reflection-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
 }
 .method-strip {
   display: grid;
@@ -1384,7 +1407,8 @@
     animation-duration: 0.01ms !important;
   }
   .role-preview-card:hover .role-preview-character-b,
-  .role-preview-card:focus-visible .role-preview-character-b {
+  .role-preview-card:focus-visible .role-preview-character-b,
+  .mode-art .result-character-second {
     animation: none;
   }
 }

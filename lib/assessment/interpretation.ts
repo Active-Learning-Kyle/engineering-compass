@@ -2,6 +2,7 @@ import { growthOptions, interestOptions, questions } from './questions';
 import type { AssessmentAnswers } from './types';
 import type { CompetencyResult, ToolkitResult } from './scoring';
 import { findProfileValue } from './scoring';
+import { growthActions } from './growth-actions';
 
 export function interpretResults(
   answers: AssessmentAnswers,
@@ -16,6 +17,7 @@ export function interpretResults(
     id,
     label: growthOptions.find((option) => option.id === id)?.label ?? id,
     score: findProfileValue(id, competencyScores, toolkitScores),
+    action: growthActions[id],
   }));
   const interestIds = Array.isArray(answers.I01) ? answers.I01 : [];
   const interests = interestIds.map(
@@ -56,7 +58,10 @@ export function interpretResults(
     growth,
     interests,
     evidenceReflection,
-    projectLabel,
+    projectLabel:
+      projectValue === 1
+        ? 'No completed projects yet'
+        : `${projectLabel} completed project${projectValue === 2 ? '' : 's'}`,
     responsibilityLabel,
   };
 }

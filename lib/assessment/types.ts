@@ -4,6 +4,7 @@ export type AssessmentVersion =
   | 'standard-v1.4'
   | 'standard-v1.5'
   | 'standard-v1.6'
+  | 'pro-v0.1'
   | 'pro-future';
 
 export type ActiveLearningEssentialTag =
@@ -38,7 +39,9 @@ export type PhaseKey =
   | 'technical'
   | 'context'
   | 'priorities'
-  | 'judgment';
+  | 'judgment'
+  | 'proScenarios'
+  | 'proEvidence';
 
 export type OrderedOption = {
   id: string;
@@ -81,7 +84,15 @@ export type AssessmentItem =
   | BehaviourItem
   | TechnicalItem
   | OrderedItem
-  | MultiSelectItem;
+  | MultiSelectItem
+  | ProCheckItem;
+
+export type AssessmentEdition = 'standard' | 'pro';
+export type ProCheckItem = BaseItem & {
+  kind: 'proCheck';
+  area: CompetencyKey | ToolkitKey;
+  options: Array<OrderedOption & { feedback: string }>;
+};
 
 export type AssessmentAnswer = number | string[];
 export type AssessmentAnswers = Record<string, AssessmentAnswer>;

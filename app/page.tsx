@@ -35,22 +35,28 @@ import {
   deriveEngineeringMode,
   deriveGrowthStage,
   engineeringModes,
+  initialCharacterVariant,
   growthStages,
-  type CharacterVariant,
   type EngineeringModeKey,
   type GrowthStageKey,
 } from '@/lib/assessment/profile';
 import {
   assessmentVersion,
   behaviourScale,
-  questions,
+  questions as standardQuestions,
   technicalScale,
 } from '@/lib/assessment/questions';
 import { calculateResults } from '@/lib/assessment/scoring';
+import { getQuestions, interpretPro } from '@/lib/assessment/pro';
+import {
+  compassSpringStep,
+  shuffledCompassTargets,
+} from '@/lib/assessment/compass-motion';
 import { toolkit, toolkitOrder } from '@/lib/assessment/toolkit';
 import { getStudyYearLabel, studyYears } from '@/lib/assessment/years';
 import type {
   AssessmentAnswers,
+  AssessmentEdition,
   AssessmentItem,
   PhaseKey,
 } from '@/lib/assessment/types';
@@ -83,6 +89,11 @@ const phases: Array<{ key: PhaseKey; label: string; range: string }> = [
   { key: 'priorities', label: 'Interests & growth', range: '27–28' },
   { key: 'judgment', label: 'Engineering judgment', range: '29–30' },
 ];
+const proPhases = [
+  ...phases,
+  { key: 'proScenarios' as const, label: 'Team decisions', range: '31–42' },
+  { key: 'proEvidence' as const, label: 'Practice evidence', range: '43–60' },
+];
 const chartConfig = {
   score: { label: 'Profile', color: '#163f27' },
 } satisfies ChartConfig;
@@ -94,51 +105,115 @@ const roleIcons: Record<EngineeringModeKey, typeof Compass> = {
   design: Boxes,
   pitch: MessageCircle,
 };
-const compassTargets = [0, 60, 120, 180, 240, 300];
-
-function shuffledCompassTargets() {
-  const targets = [...compassTargets];
-  for (let index = targets.length - 1; index > 0; index -= 1) {
-    const swapWith = Math.floor(Math.random() * (index + 1));
-    [targets[index], targets[swapWith]] = [targets[swapWith], targets[index]];
-  }
-  return targets;
-}
 
 function AnimatedCompassNeedle() {
-  const [rotation, setRotation] = useState(0);
-
+  const needle = useRef<HTMLDivElement>(null);
   useEffect(() => {
+    const preference = window.matchMedia('(prefers-reduced-motion: reduce)');
+    let frame = 0;
     let targets = shuffledCompassTargets();
     let index = 0;
-    const pointToNextRole = () => {
-      if (index >= targets.length) {
-        targets = shuffledCompassTargets();
-        index = 0;
+    let angle = 0;
+    let velocity = 0;
+    let target = 0;
+    let lastTime = 0;
+    let nextMove = 0;
+    let previousTarget = -1;
+    const animate = (time: number) => {
+      if (preference.matches) return;
+      const dt = Math.min((time - (lastTime || time)) / 1000, 0.035);
+      lastTime = time;
+      if (time >= nextMove) {
+        if (index >= targets.length) {
+          targets = shuffledCompassTargets(previousTarget);
+          index = 0;
+        }
+        previousTarget = targets[index++];
+        const normalized = ((angle % 360) + 360) % 360;
+        target = angle + (((previousTarget - normalized + 540) % 360) - 180);
+        nextMove = time + 2100 + Math.random() * 650;
       }
-      const target = targets[index];
-      index += 1;
-      setRotation((previous) => {
-        const current = ((previous % 360) + 360) % 360;
-        let change = target - current;
-        if (change > 180) change -= 360;
-        if (change < -180) change += 360;
-        return previous + change;
-      });
+      // Underdamped spring: several overshoots, with a small continuous flutter.
+      ({ angle, velocity } = compassSpringStep(
+        angle,
+        velocity,
+        target,
+        time,
+        dt,
+      ));
+      needle.current?.style.setProperty('--needle-rotation', `${angle}deg`);
+      frame = window.requestAnimationFrame(animate);
     };
-    pointToNextRole();
-    const interval = window.setInterval(pointToNextRole, 1900);
-    return () => window.clearInterval(interval);
+    const restart = () => {
+      window.cancelAnimationFrame(frame);
+      lastTime = 0;
+      if (!preference.matches) frame = window.requestAnimationFrame(animate);
+    };
+    restart();
+    preference.addEventListener('change', restart);
+    return () => {
+      window.cancelAnimationFrame(frame);
+      preference.removeEventListener('change', restart);
+    };
   }, []);
 
   return (
-    <div
-      className="animated-compass-needle"
-      style={{ '--needle-rotation': `${rotation}deg` } as React.CSSProperties}
-    >
+    <div className="animated-compass-needle" ref={needle}>
       <span className="needle-north" />
       <span className="needle-south" />
     </div>
+  );
+}
+
+function CompassRose() {
+  return (
+    <svg
+      className="orbit-compass-rose"
+      viewBox="0 0 400 400"
+      fill="none"
+      aria-hidden="true"
+    >
+      {[130, 165, 178].map((radius) => (
+        <circle
+          key={radius}
+          cx="200"
+          cy="200"
+          r={radius}
+          stroke="currentColor"
+          strokeWidth="1.5"
+        />
+      ))}
+      {Array.from({ length: 64 }, (_, index) => (
+        <path
+          key={index}
+          d={`M200 22v${index % 4 === 0 ? 19 : 10}`}
+          transform={`rotate(${index * 5.625} 200 200)`}
+          stroke="currentColor"
+          strokeWidth={index % 4 === 0 ? 2 : 1}
+        />
+      ))}
+      {Array.from({ length: 16 }, (_, index) => {
+        const tip = index % 4 === 0 ? 5 : index % 2 === 0 ? 39 : 82;
+        return (
+          <g key={index} transform={`rotate(${index * 22.5} 200 200)`}>
+            <path d={`M200 ${tip}L211 184L200 200Z`} fill="currentColor" />
+            <path
+              d={`M200 ${tip}L189 184L200 200Z`}
+              stroke="currentColor"
+              fill="currentColor"
+              fillOpacity=".12"
+            />
+          </g>
+        );
+      })}
+      <circle
+        cx="200"
+        cy="200"
+        r="15"
+        fill="var(--background)"
+        stroke="currentColor"
+      />
+    </svg>
   );
 }
 
@@ -158,6 +233,16 @@ const phaseCopy: Record<
   PhaseKey,
   { eyebrow: string; note: string; icon: typeof Compass }
 > = {
+  proScenarios: {
+    eyebrow: 'PRO · TEAM DECISIONS',
+    note: 'Consider the situation and choose your first action. Feedback complements your profile without adding points.',
+    icon: Lightbulb,
+  },
+  proEvidence: {
+    eyebrow: 'PRO · PRACTICE EVIDENCE',
+    note: 'Recall work you have actually done and how you checked it. No uploads are needed.',
+    icon: Wrench,
+  },
   behaviour: {
     eyebrow: 'HOW YOU WORK',
     note: 'Think of what you usually do in a real project. The competency behind each statement stays hidden.',
@@ -192,17 +277,19 @@ function isComplete(item: AssessmentItem, answer: unknown) {
 }
 
 export default function Home() {
+  const [edition, setEdition] = useState<AssessmentEdition>('standard');
+  const questions = getQuestions(edition);
+  const activePhases = edition === 'pro' ? proPhases : phases;
+  const version = edition === 'pro' ? 'pro-v0.1' : assessmentVersion;
   const [step, setStep] = useState<Step>('welcome');
   const [year, setYear] = useState<string | null>(null);
   const [current, setCurrent] = useState(0);
   const [answers, setAnswers] = useState<AssessmentAnswers>({ I01: [] });
-  const [characterVariant, setCharacterVariant] =
-    useState<CharacterVariant>('a');
   const [savedDraft, setSavedDraft] = useState<{
+    edition: AssessmentEdition;
     year: string | null;
     current: number;
     answers: AssessmentAnswers;
-    characterVariant: CharacterVariant;
   } | null>(null);
   const [responseMs, setResponseMs] = useState<number | null>(null);
   const [showNudge, setShowNudge] = useState(false);
@@ -215,27 +302,28 @@ export default function Home() {
       const raw = window.localStorage.getItem(progressStorageKey);
       if (!raw) return;
       const parsed = JSON.parse(raw) as {
+        edition?: AssessmentEdition;
         version?: string;
         year?: string | null;
         current?: number;
         answers?: AssessmentAnswers;
-        characterVariant?: CharacterVariant;
       };
       if (
-        parsed.version === assessmentVersion &&
+        (parsed.version === assessmentVersion ||
+          parsed.version === 'pro-v0.1') &&
         typeof parsed.current === 'number' &&
-        parsed.answers &&
-        (parsed.characterVariant === 'a' || parsed.characterVariant === 'b')
+        parsed.answers
       ) {
         queueMicrotask(() =>
           setSavedDraft({
+            edition: parsed.version === 'pro-v0.1' ? 'pro' : 'standard',
             year: typeof parsed.year === 'string' ? parsed.year : null,
             current: Math.min(
               Math.max(parsed.current ?? 0, 0),
-              questions.length - 1,
+              getQuestions(parsed.version === 'pro-v0.1' ? 'pro' : 'standard')
+                .length - 1,
             ),
             answers: parsed.answers ?? { I01: [] },
-            characterVariant: parsed.characterVariant ?? 'a',
           }),
         );
       }
@@ -246,12 +334,12 @@ export default function Home() {
 
   useEffect(() => {
     if (step !== 'assessment') return;
-    const draft = { year, current, answers, characterVariant };
+    const draft = { edition, year, current, answers };
     window.localStorage.setItem(
       progressStorageKey,
-      JSON.stringify({ version: assessmentVersion, ...draft }),
+      JSON.stringify({ version, ...draft }),
     );
-  }, [answers, characterVariant, current, step, year]);
+  }, [answers, current, step, year, edition, version]);
 
   useEffect(() => {
     const context = document.modelContext;
@@ -287,7 +375,7 @@ export default function Home() {
                 : ((requested as string | undefined) ?? null),
             );
             setAnswers({ I01: [] });
-            setCharacterVariant(Math.random() < 0.5 ? 'a' : 'b');
+            setEdition('standard');
             setCurrent(0);
             setStep('assessment');
             questionStarted.current = Date.now();
@@ -295,7 +383,7 @@ export default function Home() {
               status: 'started',
               version: assessmentVersion,
               question: 1,
-              totalQuestions: questions.length,
+              totalQuestions: standardQuestions.length,
             };
           },
         },
@@ -305,7 +393,7 @@ export default function Home() {
     return () => lifecycle.abort();
   }, []);
 
-  const activeQuestion = questions[current];
+  const activeQuestion = questions[Math.min(current, questions.length - 1)];
   const selected = answers[activeQuestion.id];
   const results = useMemo(() => calculateResults(answers), [answers]);
   const interpretation = useMemo(
@@ -317,7 +405,7 @@ export default function Home() {
       ),
     [answers, results],
   );
-  const activePhaseIndex = phases.findIndex(
+  const activePhaseIndex = activePhases.findIndex(
     (phase) => phase.key === activeQuestion.phase,
   );
   const canContinue = isComplete(activeQuestion, selected);
@@ -333,7 +421,6 @@ export default function Home() {
   function beginAssessment() {
     setCurrent(0);
     setAnswers({ I01: [] });
-    setCharacterVariant(Math.random() < 0.5 ? 'a' : 'b');
     fastStreak.current = 0;
     lastNudgeAt.current = -10;
     setShowNudge(false);
@@ -342,10 +429,10 @@ export default function Home() {
   }
   function resumeAssessment() {
     if (!savedDraft) return;
+    setEdition(savedDraft.edition);
     setYear(savedDraft.year);
     setCurrent(savedDraft.current);
     setAnswers(savedDraft.answers);
-    setCharacterVariant(savedDraft.characterVariant);
     fastStreak.current = 0;
     lastNudgeAt.current = -10;
     setShowNudge(false);
@@ -418,11 +505,11 @@ export default function Home() {
     questionStarted.current = Date.now();
   }
   function returnHome() {
-    const draft = { year, current, answers, characterVariant };
+    const draft = { edition, year, current, answers };
     setSavedDraft(draft);
     window.localStorage.setItem(
       progressStorageKey,
-      JSON.stringify({ version: assessmentVersion, ...draft }),
+      JSON.stringify({ version, ...draft }),
     );
     setStep('welcome');
     window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -465,7 +552,7 @@ export default function Home() {
     });
     const anchor = document.createElement('a');
     anchor.href = url;
-    anchor.download = `engineering-compass-${modeKey}-profile.png`;
+    anchor.download = `engineering-compass-${edition}-${modeKey}-profile.png`;
     anchor.click();
   }
 
@@ -482,6 +569,8 @@ export default function Home() {
       )}
       {step === 'welcome' && (
         <Welcome
+          edition={edition}
+          onEditionChange={setEdition}
           onBegin={() => setStep('year')}
           onResume={resumeAssessment}
           hasSavedProgress={Boolean(savedDraft)}
@@ -497,6 +586,8 @@ export default function Home() {
       )}
       {step === 'assessment' && (
         <Assessment
+          total={questions.length}
+          phases={activePhases}
           question={activeQuestion}
           current={current}
           selected={selected}
@@ -516,7 +607,7 @@ export default function Home() {
           toolkitScores={results.toolkitScores}
           interpretation={interpretation}
           year={year}
-          characterVariant={characterVariant}
+          proReflection={edition === 'pro' ? interpretPro(answers) : null}
           modeKey={modeKey}
           growthStageKey={growthStageKey}
           onRestart={restart}
@@ -560,10 +651,14 @@ function Header({ progress }: { progress: number | null }) {
 }
 
 function Welcome({
+  edition,
+  onEditionChange,
   onBegin,
   onResume,
   hasSavedProgress,
 }: {
+  edition: AssessmentEdition;
+  onEditionChange: (edition: AssessmentEdition) => void;
   onBegin: () => void;
   onResume: () => void;
   hasSavedProgress: boolean;
@@ -588,31 +683,43 @@ function Welcome({
           </p>
           <div className="assessment-version-grid mt-8">
             <button
-              className="assessment-version-card is-available"
-              onClick={onBegin}
+              className={`assessment-version-card ${edition === 'standard' ? 'is-available is-selected' : ''}`}
+              aria-pressed={edition === 'standard'}
+              onClick={() => onEditionChange('standard')}
             >
               <span className="version-status">AVAILABLE NOW</span>
               <span className="version-title">Standard</span>
               <span className="version-meta">30 questions · 8–10 minutes</span>
               <span className="version-action">
-                Begin Standard <ArrowRight className="size-4" />
+                {edition === 'standard' ? 'Selected' : 'Choose Standard'}{' '}
+                <Check className="size-4" />
               </span>
             </button>
-            <div
-              className="assessment-version-card is-coming"
-              aria-disabled="true"
+            <button
+              className={`assessment-version-card ${edition === 'pro' ? 'is-available is-selected' : ''}`}
+              aria-pressed={edition === 'pro'}
+              onClick={() => onEditionChange('pro')}
             >
-              <span className="version-status">COMING LATER</span>
+              <span className="version-status">PILOT EDITION</span>
               <span className="version-title">Pro</span>
               <span className="version-meta">
-                50–60 questions · deeper diagnosis
+                60 questions · about 18–25 minutes
               </span>
               <span className="version-action">
-                Scenario and evidence checks
+                {edition === 'pro' ? 'Selected' : 'Choose Pro'}{' '}
+                <Check className="size-4" />
               </span>
-            </div>
+            </button>
           </div>
           <div className="mt-4 flex flex-wrap items-center gap-3">
+            <Button
+              size="lg"
+              className="h-13 rounded-full px-6"
+              onClick={onBegin}
+            >
+              Begin {edition === 'pro' ? 'Pro' : 'Standard'}{' '}
+              <ArrowRight className="size-4" />
+            </Button>
             {hasSavedProgress && (
               <Button
                 variant="outline"
@@ -624,10 +731,18 @@ function Welcome({
               </Button>
             )}
             <div className="flex items-center gap-2 px-3 text-sm text-muted-foreground">
-              <Gauge className="size-4" /> Choose Standard now; Pro is not yet
-              available
+              <Gauge className="size-4" />{' '}
+              {edition === 'pro'
+                ? 'Core profile + team scenarios + practice evidence'
+                : 'Your core engineering profile'}
             </div>
           </div>
+          {edition === 'pro' && (
+            <p className="mt-3 text-sm text-muted-foreground">
+              Pro is an initial pilot for feedback and revision, not a validated
+              assessment.
+            </p>
+          )}
           <p className="mt-5 max-w-lg text-xs leading-5 text-muted-foreground">
             Your responses are private and stay on this device. The role is a
             reflection prompt—not a grade, selection test, or fixed type.
@@ -637,7 +752,7 @@ function Welcome({
           <div className="profile-orbit" aria-hidden="true">
             <div className="orbit-axis orbit-axis-x" />
             <div className="orbit-axis orbit-axis-y" />
-            <div className="orbit-compass-rose" />
+            <CompassRose />
             <span className="compass-cardinal compass-cardinal-n">N</span>
             <span className="compass-cardinal compass-cardinal-e">E</span>
             <span className="compass-cardinal compass-cardinal-s">S</span>
@@ -665,7 +780,10 @@ function Welcome({
           </div>
           <div className="mt-7 grid grid-cols-3 divide-x divide-border rounded-2xl border bg-card/95 py-4 shadow-sm">
             {[
-              ['30', 'Standard questions'],
+              [
+                edition === 'pro' ? '60' : '30',
+                edition === 'pro' ? 'Pro questions' : 'Standard questions',
+              ],
               ['6', 'competencies'],
               ['9', 'toolkit areas'],
             ].map(([value, label]) => (
@@ -685,14 +803,14 @@ function Welcome({
         <div id="how-it-works" className="method-strip scroll-mt-24">
           <div>
             <div className="panel-eyebrow">HOW THE COMPASS WORKS</div>
-            <h2>One profile, two useful lenses.</h2>
+            <h2>Discover your strengths and what to practise next.</h2>
           </div>
           <p>
-            Thirty responses form your six-competency radar and nine-area
-            toolkit. Your leading competency suggests one of six current team
-            roles; project context and toolkit experience provide a compact
-            Engineering Experience Level. Neither is a grade, personality type,
-            or professional rank.
+            These responses help you explore six ways of contributing to an
+            engineering team and your experience with nine technical toolkit
+            areas. Your results highlight a current team role, your practical
+            experience, and actions for the skills you want to develop. They
+            describe where you are now—not a grade or a fixed type of engineer.
           </p>
         </div>
         <div id="roles" className="modes-preview-heading scroll-mt-24">
@@ -735,13 +853,17 @@ function Welcome({
                 {/* oxlint-disable-next-line next/no-img-element */}
                 <img
                   className="role-preview-character role-preview-character-a"
-                  src={assetPath(mode.image.a)}
+                  src={assetPath(mode.image[initialCharacterVariant(key)])}
                   alt=""
                 />
                 {/* oxlint-disable-next-line next/no-img-element */}
                 <img
                   className="role-preview-character role-preview-character-b"
-                  src={assetPath(mode.image.b)}
+                  src={assetPath(
+                    mode.image[
+                      initialCharacterVariant(key) === 'a' ? 'b' : 'a'
+                    ],
+                  )}
                   alt=""
                 />
                 <div className="role-hover-copy">
@@ -900,6 +1022,8 @@ function YearSelection({
 }
 
 function Assessment({
+  total,
+  phases,
   question,
   current,
   selected,
@@ -912,6 +1036,8 @@ function Assessment({
   onHome,
   onAdvance,
 }: {
+  total: number;
+  phases: Array<{ key: PhaseKey; label: string; range: string }>;
   question: AssessmentItem;
   current: number;
   selected: number | string[] | undefined;
@@ -969,7 +1095,7 @@ function Assessment({
               {phase.eyebrow}
             </div>
             <div className="mt-1 text-sm text-muted-foreground">
-              Question {current + 1} of {questions.length}
+              Question {current + 1} of {total}
             </div>
           </div>
           <div className="flex items-center gap-2">
@@ -977,7 +1103,7 @@ function Assessment({
               <House className="size-4" /> Return home
             </button>
             <div className="rounded-full border bg-card px-3 py-1.5 text-sm font-semibold tabular-nums text-primary">
-              {Math.round(((current + 1) / questions.length) * 100)}%
+              {Math.round(((current + 1) / total) * 100)}%
             </div>
           </div>
         </div>
@@ -1031,12 +1157,16 @@ function Assessment({
               onChoose={onChooseNumber}
             />
           )}
-          {(question.kind === 'context' || question.kind === 'judgment') && (
+          {(question.kind === 'context' ||
+            question.kind === 'judgment' ||
+            question.kind === 'proCheck') && (
             <OrderedChoices
               options={question.options}
               selected={typeof selected === 'number' ? selected : undefined}
               onChoose={onChooseNumber}
-              scenario={question.kind === 'judgment'}
+              scenario={
+                question.kind === 'judgment' || question.kind === 'proCheck'
+              }
             />
           )}
           {(question.kind === 'interest' || question.kind === 'growth') && (
@@ -1056,7 +1186,7 @@ function Assessment({
               disabled={!canContinue}
               onClick={onAdvance}
             >
-              {current === questions.length - 1 ? 'View my profile' : 'Next'}
+              {current === total - 1 ? 'View my profile' : 'Next'}
               <ArrowRight className="ml-1 size-4" />
             </Button>
           </div>
@@ -1184,7 +1314,7 @@ function Results({
   toolkitScores,
   interpretation,
   year,
-  characterVariant,
+  proReflection,
   modeKey,
   growthStageKey,
   onRestart,
@@ -1194,7 +1324,7 @@ function Results({
   toolkitScores: ReturnType<typeof calculateResults>['toolkitScores'];
   interpretation: ReturnType<typeof interpretResults>;
   year: string | null;
-  characterVariant: CharacterVariant;
+  proReflection: ReturnType<typeof interpretPro> | null;
   modeKey: EngineeringModeKey;
   growthStageKey: GrowthStageKey;
   onRestart: () => void;
@@ -1210,17 +1340,20 @@ function Results({
   const strongest = rankedCompetencies[0];
   const supporting = rankedCompetencies[1];
   const growthEdge = rankedCompetencies.at(-1);
-  const workingAnalysis = strongest
-    ? `Your answers point most strongly to ${strongest.fullLabel}${
-        supporting
-          ? `, with ${supporting.fullLabel} as a supporting strength`
-          : ''
-      }. ${
-        growthEdge
-          ? `${growthEdge.fullLabel} is the clearest area to practise next.`
-          : ''
-      }`
-    : 'Your profile shows how you currently approach engineering work.';
+  const workingAnalysis =
+    strongest?.score === growthEdge?.score
+      ? 'Your responses are evenly balanced across the six competencies. No single area stands out; choose your next practice from your interests and project needs.'
+      : strongest
+        ? `Your answers point most strongly to ${strongest.fullLabel}${
+            supporting
+              ? `, with ${supporting.fullLabel} as a supporting strength`
+              : ''
+          }. ${
+            growthEdge && growthEdge.score < supporting.score
+              ? `${growthEdge.fullLabel} is the clearest area to practise next.`
+              : ''
+          }`
+        : 'Your profile shows how you currently approach engineering work.';
   return (
     <section
       id="engineering-compass-results"
@@ -1237,7 +1370,10 @@ function Results({
       >
         <div className="mode-copy">
           <div className="mode-eyebrow">
-            <Sparkles className="size-4" /> CURRENT ENGINEERING ROLE
+            <Sparkles className="size-4" />{' '}
+            {proReflection
+              ? 'PRO · CURRENT ENGINEERING ROLE'
+              : 'CURRENT ENGINEERING ROLE'}
           </div>
           <div className="mode-stage-row">
             <span className="growth-stage-pill">
@@ -1293,7 +1429,19 @@ function Results({
         >
           {/* oxlint-disable-next-line next/no-img-element */}
           <img
-            src={assetPath(mode.image[characterVariant])}
+            className="result-character-first"
+            src={assetPath(mode.image[initialCharacterVariant(modeKey)])}
+            alt=""
+            width={1200}
+            height={1200}
+          />
+          {/* oxlint-disable-next-line next/no-img-element */}
+          <img
+            className="result-character-second"
+            data-capture-exclude="true"
+            src={assetPath(
+              mode.image[initialCharacterVariant(modeKey) === 'a' ? 'b' : 'a'],
+            )}
             alt=""
             width={1200}
             height={1200}
@@ -1376,7 +1524,7 @@ function Results({
           </p>
         </article>
       </div>
-      <div className="mt-6 grid gap-6 lg:grid-cols-2">
+      <div className="result-growth-stack mt-6 grid gap-6">
         <article className="result-panel">
           <div className="panel-eyebrow">CURRENT STRENGTHS</div>
           <h2 className="mt-1 font-serif text-2xl font-semibold">
@@ -1401,16 +1549,14 @@ function Results({
           <h2 className="mt-1 font-serif text-2xl font-semibold">
             What you want to develop next
           </h2>
-          <div className="mt-6 space-y-3">
+          <div className="growth-actions-grid mt-6">
             {interpretation.growth.map((item) => (
               <div className="growth-row" key={item.id}>
                 <Target className="mt-0.5 size-4 shrink-0 text-primary" />
                 <div className="min-w-0 flex-1">
                   <div className="font-semibold">{item.label}</div>
                   <p className="mt-1 text-sm text-muted-foreground">
-                    {item.id === 'not-sure'
-                      ? 'Try one unfamiliar project role, then revisit this reflection with new evidence.'
-                      : 'Choose one small project action that gives you direct practice and feedback.'}
+                    {item.action}
                   </p>
                 </div>
               </div>
@@ -1435,15 +1581,19 @@ function Results({
           </div>
         </article>
         <article className="context-card">
-          <div className="panel-eyebrow">PROJECT CONTEXT</div>
+          <div className="panel-eyebrow">YOUR PROJECT EXPERIENCE</div>
           <div className="mt-3 font-semibold">
             {interpretation.projectLabel}
           </div>
           <p className="mt-1 text-sm leading-5 text-muted-foreground">
+            <span className="block mt-3 mb-1 font-semibold text-foreground">
+              Highest responsibility you described
+            </span>
             {interpretation.responsibilityLabel}
           </p>
         </article>
       </div>
+      {proReflection && <ProReflection reflection={proReflection} />}
       {interpretation.interests.length > 0 && (
         <div className="mt-4 flex flex-wrap items-center gap-2 rounded-2xl border bg-card p-4">
           <span className="mr-1 text-xs font-semibold uppercase tracking-[.13em] text-muted-foreground">
@@ -1460,10 +1610,78 @@ function Results({
         <CircleHelp className="mt-0.5 size-5 shrink-0 text-primary" />
         <p>
           Use this profile to choose a project role, learning activity, or
-          conversation—not to compare students across years or departments. A
-          future Pro version will add deeper scenario and evidence checks.
+          conversation—not to compare students across years or departments.
+          {proReflection &&
+            ' Pro is a pilot edition. Its additional scenarios and practice reflections complement the core profile; they do not change its scores or establish professional competence.'}
         </p>
       </div>
     </section>
+  );
+}
+
+function ProReflection({
+  reflection,
+}: {
+  reflection: ReturnType<typeof interpretPro>;
+}) {
+  return (
+    <div className="mt-6 grid gap-6">
+      <article className="result-panel">
+        <div className="panel-eyebrow">PRO · TEAM DECISIONS</div>
+        <h2 className="mt-1 text-2xl font-semibold">
+          How you approach project situations
+        </h2>
+        <p className="mt-3 text-sm leading-6 text-muted-foreground">
+          Feedback on your 12 scenario choices—not an additional score. The
+          six-competency profile above uses the same core questions as Standard.
+        </p>
+        <div className="pro-reflection-grid mt-6">
+          {reflection.scenariosByArea.map((group) => (
+            <div className="insight-tile" key={group.area}>
+              <h3 className="font-semibold">{group.label}</h3>
+              {group.reflections.map((item) => (
+                <div key={item.id} className="pro-scenario-feedback">
+                  <p className="text-sm font-medium">{item.prompt}</p>
+                  <p className="mt-2 text-sm text-muted-foreground">
+                    <span className="font-medium">Your choice: </span>
+                    {item.choice?.label}
+                  </p>
+                  <p className="mt-2 text-sm leading-6">
+                    {item.choice?.feedback}
+                  </p>
+                </div>
+              ))}
+            </div>
+          ))}
+        </div>
+      </article>
+      <article className="result-panel">
+        <div className="panel-eyebrow">PRO · PRACTICE EVIDENCE</div>
+        <h2 className="mt-1 text-2xl font-semibold">
+          Your experience in specific tasks
+        </h2>
+        <p className="mt-3 text-sm leading-6 text-muted-foreground">
+          Two practical reflections per toolkit area help you compare your broad
+          rating with work you can describe. This is self-reported evidence, not
+          a verified skills test.
+        </p>
+        <div className="pro-reflection-grid mt-6">
+          {reflection.evidence.map((item) => (
+            <div key={item.area} className="insight-tile">
+              <h3 className="font-semibold">{item.label}</h3>
+              <p className="mt-2 text-sm leading-6">{item.summary}</p>
+              {item.crossCheck && (
+                <p className="mt-3 text-sm leading-6 pro-cross-check">
+                  {item.crossCheck}
+                </p>
+              )}
+              <p className="mt-3 text-sm leading-6 text-muted-foreground">
+                {item.next}
+              </p>
+            </div>
+          ))}
+        </div>
+      </article>
+    </div>
   );
 }

@@ -1,6 +1,6 @@
 import type { AssessmentItem, AssessmentVersion } from './types';
 
-export const assessmentVersion: AssessmentVersion = 'standard-v1.7';
+export const assessmentVersion: AssessmentVersion = 'standard-v1.8';
 
 export const behaviourScale = {
   prompt: 'scale.behaviour.prompt',
@@ -158,7 +158,6 @@ export const questions: AssessmentItem[] = [
     kind: 'behaviour',
     competency: 'problem',
     prompt: 'question.B07.prompt',
-    helper: 'question.B07.helper',
     activeLearningEssentialTags: ['problemSolving', 'valueAndAttitude'],
   },
   {
@@ -216,7 +215,6 @@ export const questions: AssessmentItem[] = [
     kind: 'behaviour',
     competency: 'planning',
     prompt: 'question.B13.prompt',
-    helper: 'question.B13.helper',
     activeLearningEssentialTags: ['problemSolving', 'valueAndAttitude'],
   },
   {

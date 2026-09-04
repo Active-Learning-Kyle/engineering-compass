@@ -50,7 +50,7 @@ export const en = {
   'growth.integration.label': 'System Integration & Automation',
   'growth.unfamiliarTools.label':
     'Learning unfamiliar engineering tools and methods',
-  'growth.not-sure.label': 'Not sure yet',
+  'growth.not-sure.label': 'Other / not sure yet',
 
   'question.B07.helper':
     'Evidence might include observation, user input, measurements, or research.',
@@ -89,7 +89,7 @@ export const en = {
   'question.I01.helper': 'Optional · select any that interest you.',
   'question.G01.prompt': 'What would you most like to become better at next?',
   'question.G01.helper':
-    'Select any that matter to you, or choose Not sure yet.',
+    'Select any that matter to you, or choose Other / not sure yet.',
   'question.J01.prompt':
     "A prototype's sensor readings suddenly become inconsistent. What would you be most likely to do first?",
   'question.J01.options.adjust.label':
@@ -301,7 +301,7 @@ export const en = {
   'home.hero.description':
     'A self-assessment to explore your engineering strengths, hands-on experience, and growth directions.',
   'common.availableNow': 'AVAILABLE NOW',
-  'common.pilotEdition': 'PILOT EDITION',
+  'common.proEdition': 'PRO EDITION',
   'common.30Questions810Minutes': '30 questions · 8–10 minutes',
   'common.60QuestionsAbout1825Minutes': '60 questions · about 18–25 minutes',
   'common.selected': 'Selected',
@@ -318,8 +318,8 @@ export const en = {
   'common.proQuestions': 'Pro questions',
   'common.competencies': 'competencies',
   'common.toolkitAreas': 'toolkit areas',
-  'common.proIsAnInitialPilotForFeedbackAndRevision':
-    'Pro is an initial pilot for feedback and revision, not a validated assessment.',
+  'common.proReflectionPurpose':
+    'Pro supports reflection on your decisions and experience; it is not a validated assessment.',
   'common.yourResponsesArePrivateAndStayOnThisDevice':
     'Your responses are private and stay on this device. The role is a reflection prompt—not a grade, selection test, or fixed type.',
   'home.method.eyebrow': 'HOW THE COMPASS WORKS',
@@ -427,8 +427,8 @@ export const en = {
   'common.interestedIn': 'Interested in',
   'common.useThisProfileToChooseAProjectRoleLearning':
     'Use this profile to choose a project role, learning activity, or conversation—not to compare students across years or departments.',
-  'common.proIsAPilotEditionItsAdditionalScenariosAnd':
-    'Pro is a pilot edition. Its additional scenarios and practice reflections complement the core profile; they do not change its scores or establish professional competence.',
+  'common.proAdditionalReflections':
+    'The additional scenarios and practice reflections in Pro complement the core profile; they do not change its scores or establish professional competence.',
   'common.howYouApproachProjectSituations':
     'How you approach project situations',
   'common.feedbackOnYour12ScenarioChoicesNotAnAdditional':
@@ -849,7 +849,7 @@ export const zhHant: Record<MessageKey, string> = {
   'growth.aiVision.label': '人工智能／電腦視覺',
   'growth.integration.label': '系統整合與自動化',
   'growth.unfamiliarTools.label': '學習不熟悉的工程工具與方法',
-  'growth.not-sure.label': '尚未確定',
+  'growth.not-sure.label': '其他／尚未確定',
 
   'question.B07.helper': '證據可以包括觀察、使用者意見、量度數據或研究。',
 
@@ -1070,7 +1070,7 @@ export const zhHant: Record<MessageKey, string> = {
   'home.hero.title': '探索你在工程團隊中的角色',
   'home.hero.description': '透過自評，了解你的工程優勢、實作經驗及成長方向。',
   'common.availableNow': '現已提供',
-  'common.pilotEdition': '試行版本',
+  'common.proEdition': 'PRO 版本',
   'common.30Questions810Minutes': '30 題 · 約 8–10 分鐘',
   'common.60QuestionsAbout1825Minutes': '60 題 · 約 18–25 分鐘',
   'common.selected': '已選擇',
@@ -1087,8 +1087,8 @@ export const zhHant: Record<MessageKey, string> = {
   'common.proQuestions': 'Pro 題目',
   'common.competencies': '核心能力',
   'common.toolkitAreas': '技術領域',
-  'common.proIsAnInitialPilotForFeedbackAndRevision':
-    'Pro 為初步試行版本，用於收集意見及修訂，尚未經過效度驗證。',
+  'common.proReflectionPurpose':
+    'Pro 幫助你反思決策與經驗，並非經過效度驗證的評估工具。',
   'common.yourResponsesArePrivateAndStayOnThisDevice':
     '你的答案保密，並只儲存於此裝置。角色結果旨在啟發反思，並非成績、甄選測試或固定分類。',
   'home.method.eyebrow': '工程羅盤如何運作',
@@ -1193,8 +1193,8 @@ export const zhHant: Record<MessageKey, string> = {
   'common.interestedIn': '感興趣的領域',
   'common.useThisProfileToChooseAProjectRoleLearning':
     '你可以利用這份概況選擇專案角色、學習活動或討論方向，而非比較不同年級或學系的學生。',
-  'common.proIsAPilotEditionItsAdditionalScenariosAnd':
-    'Pro 為試行版本。額外的情境題及實作反思用來補充核心概況，不會改變分數，也不代表已具備專業資格或能力。',
+  'common.proAdditionalReflections':
+    'Pro 的額外情境題及實作反思用來補充核心概況，不會改變分數，也不代表已具備專業資格或能力。',
   'common.howYouApproachProjectSituations': '你如何應對專案情境',
   'common.feedbackOnYour12ScenarioChoicesNotAnAdditional':
     '以下是你在 12 道情境題中的選擇回饋，並非額外分數。上方六項核心能力採用與 Standard 相同的核心題目。',

@@ -9,7 +9,7 @@ import type {
   CompetencyKey,
 } from './types';
 
-export const proVersion = 'pro-v0.3';
+export const proVersion = 'pro-v0.4';
 export const proChecks = [...tradeoffScenarios, ...evidenceItems];
 // Both editions end with the same six context/priority/judgment items.
 export const proQuestions = [

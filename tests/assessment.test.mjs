@@ -579,6 +579,10 @@ test('Summary export keeps mobile and desktop canvas bounds safe', () => {
     [390, 31000, 3],
   ]) {
     const options = profileExportOptions(width, height, dpr);
+    assert.ok(
+      !('backgroundColor' in options),
+      'Export must not replace the card background with a page background',
+    );
     assert.equal(options.width, width);
     assert.equal(options.height, height);
     assert.equal(options.canvasWidth, width);
@@ -593,13 +597,14 @@ test('Summary export keeps mobile and desktop canvas bounds safe', () => {
     assert.ok(options.pixelRatio > 0);
   }
 });
-test('Download targets the summary and excludes strengths and later sections', () => {
+test('Download targets only the hero card, without charts or evidence', () => {
   const source = readFileSync(
     new URL('../app/page.tsx', import.meta.url),
     'utf8',
   );
-  assert.ok(
-    source.includes("document.getElementById('engineering-compass-summary')"),
+  assert.match(
+    source,
+    /document\.getElementById\(\s*'engineering-compass-profile-card',?\s*\)/,
   );
   const ast = ts.createSourceFile(
     'page.tsx',
@@ -616,7 +621,7 @@ test('Download targets the summary and excludes strengths and later sections', (
         (attr) =>
           ts.isJsxAttribute(attr) &&
           attr.name.getText(ast) === 'id' &&
-          attr.initializer?.text === 'engineering-compass-summary',
+          attr.initializer?.text === 'engineering-compass-profile-card',
       )
     )
       summary = node.getText(ast);
@@ -624,13 +629,8 @@ test('Download targets the summary and excludes strengths and later sections', (
   };
   visit(ast);
   assert.ok(summary?.includes('mode-hero'));
-  assert.ok(summary?.includes('<Radar'));
-  assert.ok(summary?.includes('result-summary-columns mt-7 grid items-start'));
-  assert.ok(summary?.includes('toolkit-results-grid'));
-  assert.ok(
-    summary?.indexOf('common.sixCompetencies') <
-      summary?.indexOf('common.technicalToolkit'),
-  );
+  assert.ok(!summary?.includes('<Radar'));
+  assert.ok(!summary?.includes('toolkit-results-grid'));
   assert.ok(!summary?.includes('common.currentStrengths'));
   assert.ok(!summary?.includes('result-growth-stack'));
 });
@@ -690,13 +690,23 @@ test('Language presentation preserves control identity, handlers, values and com
 test('Behaviour items keep five numeric frequency anchors tied to recent actual work', () => {
   const items = questions.filter((q) => q.kind === 'behaviour');
   assert.equal(items.length, 15);
-  for (const item of items)
-    assert.match(translate(item.prompt, 'en'), /how often/i);
+  assert.ok(items.every((item) => !item.helper));
+  for (const item of items) {
+    assert.match(translate(item.prompt, 'en'), /\bI\b/);
+    assert.doesNotMatch(
+      translate(item.prompt, 'en'),
+      /audience|claim|criterion|problem statement|handovers/i,
+    );
+  }
   assert.deepEqual(
     behaviourScale.details.map((k) => translate(k, 'en')),
     ['Never', 'Rarely', 'Sometimes', 'Often', 'Almost always'],
   );
-  assert.match(translate('assessment.behaviour.helper', 'en'), /most recent/);
+  assert.match(
+    translate('assessment.behaviour.helper', 'en'),
+    /recent learning/i,
+  );
+  assert.match(translate(behaviourScale.prompt, 'en'), /how often/i);
   for (const value of [1, 2, 3, 4, 5]) {
     const answers = Object.fromEntries(
       questions.map((q) => [
@@ -807,6 +817,71 @@ test('Language controls render within the sticky assessment/results header', asy
 test('Home introduction is neutral about assessment length in both languages', () => {
   assert.doesNotMatch(translate('home.hero.description', 'en'), /short/i);
   assert.doesNotMatch(translate('home.hero.description', 'zh-Hant'), /簡短/);
+});
+test('Only project count retains a visible helper across the full Pro bank', async () => {
+  const { createElement } = await import('react');
+  const { renderToStaticMarkup } = await import('react-dom/server');
+  const { Assessment } = await import('../app/page.tsx?unit');
+  for (const question of getQuestions('pro')) {
+    const html = renderToStaticMarkup(
+      createElement(Assessment, {
+        total: 60,
+        phases: [],
+        question,
+        current: question.number - 1,
+        selected: undefined,
+        activePhaseIndex: 0,
+        canContinue: false,
+        showNudge: false,
+        onChooseNumber() {},
+        onToggle() {},
+        onBack() {},
+        onHome() {},
+        onAdvance() {},
+      }),
+    );
+    if (question.helper)
+      assert.equal(
+        html.includes(translate(question.helper, 'en')),
+        question.id === 'C01',
+        question.id,
+      );
+    assert.ok(!html.includes('reflection-note'));
+  }
+  for (const language of ['en', 'zh-Hant'])
+    assert.equal(
+      translate('growth.not-sure.label', language),
+      translate('interest.other-interest.label', language),
+    );
+});
+test('Behaviour screen removes contextual coaching and keeps frequency legend visually hidden', async () => {
+  const { createElement } = await import('react');
+  const { renderToStaticMarkup } = await import('react-dom/server');
+  const { Assessment } = await import('../app/page.tsx?unit');
+  const html = renderToStaticMarkup(
+    createElement(Assessment, {
+      total: 30,
+      phases: [
+        { key: 'behaviour', label: 'phase.behaviour.label', range: '1–15' },
+      ],
+      question: questions[0],
+      current: 0,
+      selected: undefined,
+      activePhaseIndex: 0,
+      canContinue: false,
+      showNudge: false,
+      onChooseNumber() {},
+      onToggle() {},
+      onBack() {},
+      onHome() {},
+      onAdvance() {},
+    }),
+  );
+  assert.ok(!html.includes(translate('assessment.behaviour.helper', 'en')));
+  assert.ok(!html.includes('reflection-note'));
+  assert.ok(html.includes('<legend class="sr-only">'));
+  assert.ok(html.includes('Never') && html.includes('Almost always'));
+  assert.ok(html.includes('assessment-home'));
 });
 
 test('Reordered closing questions preserve old draft answers without skipping judgment', () => {

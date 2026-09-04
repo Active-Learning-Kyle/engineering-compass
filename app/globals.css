@@ -821,18 +821,36 @@
 .assessment-home {
   display: inline-flex;
   align-items: center;
-  gap: 0.45rem;
-  min-height: 34px;
+  gap: 0.65rem;
+  min-height: 46px;
+  border: 1px solid #a8bda5;
+  background: #fff;
   border-radius: 999px;
-  padding: 0.35rem 0.75rem;
-  color: var(--muted-foreground);
-  font-size: 0.75rem;
+  padding: 0.6rem 1rem;
+  color: var(--primary);
+  font-size: 0.9375rem;
   font-weight: 650;
   transition: all 0.16s ease;
 }
 .assessment-home:hover {
-  background: var(--secondary);
+  background: #e7efce;
+  border-color: var(--primary);
   color: var(--primary);
+}
+.assessment-progress-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 46px;
+  min-width: 64px;
+  padding: 0.6rem 1rem;
+  border: 1px solid #a8bda5;
+  border-radius: 999px;
+  background: #fff;
+  color: var(--primary);
+  font-size: 0.9375rem;
+  font-weight: 650;
+  font-variant-numeric: tabular-nums;
 }
 .mode-hero {
   position: relative;
@@ -843,6 +861,33 @@
   border-radius: 2rem;
   background: #102f1d;
   box-shadow: 0 28px 72px -38px rgba(10, 42, 24, 0.55);
+}
+/* Export-only geometry: identical desktop card on every device. */
+.mode-hero.profile-export-card {
+  width: 1200px !important;
+  grid-template-columns: minmax(0, 1.18fr) minmax(360px, 0.82fr) !important;
+  min-height: 560px !important;
+  margin: 0 !important;
+}
+.profile-export-card .mode-copy {
+  padding: 40px !important;
+}
+.profile-export-card .mode-copy h1 {
+  font-size: 58px !important;
+}
+.profile-export-card .mode-lead {
+  font-size: 19px !important;
+}
+.profile-export-card .mode-quick-insights {
+  display: grid !important;
+  grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+}
+.profile-export-card .mode-art {
+  min-height: 100% !important;
+}
+.profile-export-card .mode-art img {
+  opacity: 1 !important;
+  animation: none !important;
 }
 .mode-copy {
   position: relative;
@@ -1647,7 +1692,7 @@ html:lang(zh-Hant) .toolkit-score-meta {
   background: transparent;
 }
 .assessment-workbench .question-card h1 {
-  font-size: clamp(1.8rem, 3vw, 2.65rem);
+  font-size: clamp(2rem, 3.4vw, 3rem);
   line-height: 1.25;
   color: #163f27;
 }

@@ -20,7 +20,6 @@ import {
   Gauge,
   GraduationCap,
   House,
-  Leaf,
   Lightbulb,
   MessageCircle,
   RefreshCw,
@@ -611,7 +610,9 @@ function HomeContent() {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }
   async function downloadProfileImage() {
-    const resultPage = document.getElementById('engineering-compass-summary');
+    const resultPage = document.getElementById(
+      'engineering-compass-profile-card',
+    );
     if (!resultPage) return;
     await exportProfileImage(
       resultPage,
@@ -792,9 +793,7 @@ function Welcome({
                   aria-pressed={edition === 'pro'}
                   onClick={() => onEditionChange('pro')}
                 >
-                  <span className="version-status">
-                    {'common.pilotEdition'}
-                  </span>
+                  <span className="version-status">{'common.proEdition'}</span>
                   <span className="version-title">Pro</span>
                   <span className="version-purpose">{'home.pro.purpose'}</span>
                   <span className="version-meta">
@@ -911,9 +910,7 @@ function Welcome({
                 ))}
               </div>
               <div className="home-assessment-notes">
-                {edition === 'pro' && (
-                  <p>{'common.proIsAnInitialPilotForFeedbackAndRevision'}</p>
-                )}
+                {edition === 'pro' && <p>{'common.proReflectionPurpose'}</p>}
                 <p>{'common.yourResponsesArePrivateAndStayOnThisDevice'}</p>
               </div>
             </div>
@@ -1193,10 +1190,6 @@ function Assessment({
                   </div>
                 ))}
               </div>
-              <div className="reflection-note mt-7">
-                <Leaf className="mt-0.5 size-4 shrink-0 text-primary" />
-                <span>{phase.note}</span>
-              </div>
             </div>
           </aside>
           <div className="assessment-content">
@@ -1214,9 +1207,10 @@ function Assessment({
               </div>
               <div className="flex items-center gap-2">
                 <button className="assessment-home" onClick={onHome}>
-                  <House className="size-4" /> {'common.returnHome'}
+                  <House className="size-6 shrink-0" aria-hidden="true" />{' '}
+                  {'common.returnHome'}
                 </button>
-                <div className="rounded-full border bg-card px-3 py-1.5 text-sm font-semibold tabular-nums text-primary">
+                <div className="assessment-progress-badge">
                   {Math.round(((current + 1) / total) * 100)}%
                 </div>
               </div>
@@ -1266,12 +1260,7 @@ function Assessment({
               <h1 className="mt-6 font-serif text-3xl font-semibold leading-tight tracking-tight sm:text-[2.35rem]">
                 {question.prompt}
               </h1>
-              {question.kind === 'behaviour' && (
-                <p className="mt-4 text-sm leading-6 text-muted-foreground">
-                  {'assessment.behaviour.helper'}
-                </p>
-              )}
-              {question.helper && (
+              {question.id === 'C01' && question.helper && (
                 <p className="mt-4 max-w-2xl leading-7 text-muted-foreground">
                   {question.helper}
                 </p>
@@ -1355,7 +1344,7 @@ function ScaleQuestion({
     <LocalizedContent>
       {
         <fieldset className="mt-9">
-          <legend className="text-sm font-semibold">{prompt}</legend>
+          <legend className="sr-only">{prompt}</legend>
           <div className="mt-4 flex justify-between gap-4 text-sm text-muted-foreground">
             <span>{low}</span>
             <span className="text-right">{high}</span>
@@ -1534,6 +1523,7 @@ function Results({
           <div id="engineering-compass-summary">
             <div
               className="mode-hero"
+              id="engineering-compass-profile-card"
               style={
                 {
                   '--mode-accent': mode.accent,
@@ -1681,7 +1671,7 @@ function Results({
             <p className="mt-3 text-xs leading-5 text-muted-foreground">
               {'result.scope.note'}
             </p>
-            <div className="result-summary-columns mt-7 grid items-start gap-6 lg:grid-cols-[1.04fr_.96fr]">
+            <div className="result-summary-columns mt-7 grid items-stretch gap-6 lg:grid-cols-[1.04fr_.96fr]">
               <article className="result-panel min-w-0">
                 <div className="panel-heading">
                   <div>
@@ -1914,8 +1904,7 @@ function Results({
             <CircleHelp className="mt-0.5 size-5 shrink-0 text-primary" />
             <p>
               {'common.useThisProfileToChooseAProjectRoleLearning'}
-              {proReflection &&
-                'common.proIsAPilotEditionItsAdditionalScenariosAnd'}
+              {proReflection && 'common.proAdditionalReflections'}
             </p>
           </div>
           <p className="mt-4 text-xs text-muted-foreground">

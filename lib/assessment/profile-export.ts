@@ -5,7 +5,7 @@ export function profileExportOptions(width: number, height: number, dpr = 1) {
   height = Math.ceil(height);
   if (!(width > 0 && height > 0))
     throw new Error('The profile has no exportable dimensions.');
-  // Bound long Pro exports by total pixels as well as maximum canvas dimension.
+  // Bound high-DPI summary exports for mobile canvas memory limits.
   const pixelRatio = Math.min(
     2,
     Math.max(1, dpr),

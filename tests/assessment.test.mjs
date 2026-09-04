@@ -32,7 +32,7 @@ registerHooks({
             "'/'",
           ) +
             (url.endsWith('page.tsx?unit')
-              ? '\nexport { Results, Assessment, Welcome, Header };'
+              ? '\nexport { Results, Assessment, Welcome, Header, MultiChoices };'
               : ''),
           {
             compilerOptions: {
@@ -64,6 +64,75 @@ const { translate, messages, isMessageReference } =
   await import('../lib/i18n/translate.ts');
 const { readDraft, progressStorageKey, legacyStorageKey } =
   await import('../lib/assessment/drafts.ts');
+const { exclusiveSelectionId, toggleSelection } =
+  await import('../lib/assessment/selections.ts');
+test('unsure choice leaves concrete cards visible but disabled', async () => {
+  const { createElement } = await import('react');
+  const { renderToStaticMarkup } = await import('react-dom/server');
+  const { MultiChoices } = await import('../app/page.tsx?unit');
+  for (const kind of ['interest', 'growth']) {
+    const item = questions.find((q) => q.kind === kind);
+    const exclusiveId = exclusiveSelectionId(kind);
+    const html = renderToStaticMarkup(
+      createElement(MultiChoices, {
+        options: item.options,
+        selected: [exclusiveId],
+        exclusiveId,
+        onToggle: () => {},
+      }),
+    );
+    assert.equal(
+      (html.match(/ disabled=""/g) || []).length,
+      item.options.length - 1,
+    );
+    assert.equal((html.match(/aria-pressed="true"/g) || []).length, 1);
+    assert.ok(html.includes('Deselect this option'));
+    const enabled = renderToStaticMarkup(
+      createElement(MultiChoices, {
+        options: item.options,
+        selected: [],
+        exclusiveId,
+        onToggle: () => {},
+      }),
+    );
+    assert.ok(!enabled.includes('disabled=""'));
+  }
+});
+test('unsure selections clear and disable concrete choices until deselected', () => {
+  for (const kind of ['interest', 'growth']) {
+    const exclusive = exclusiveSelectionId(kind);
+    assert.deepEqual(
+      toggleSelection(['first', 'second'], exclusive, exclusive),
+      [exclusive],
+    );
+    assert.deepEqual(toggleSelection([exclusive], 'first', exclusive), [
+      exclusive,
+    ]);
+    assert.deepEqual(toggleSelection([exclusive], exclusive, exclusive), []);
+    assert.deepEqual(toggleSelection([], 'first', exclusive), ['first']);
+  }
+});
+test('saved conflicting choices are normalized for both editions', () => {
+  for (const edition of ['standard', 'pro']) {
+    const bank = getQuestions(edition);
+    const answers = {};
+    for (const kind of ['interest', 'growth']) {
+      const item = bank.find((q) => q.kind === kind);
+      answers[item.id] = [item.options[0].id, exclusiveSelectionId(kind)];
+    }
+    const result = readDraft(
+      JSON.stringify({
+        version: currentVersion(edition),
+        current: 0,
+        answers,
+        questionOrder: 'judgment-before-priorities',
+      }),
+    );
+    assert.equal(result.status, 'current');
+    assert.deepEqual(result.draft.answers.I01, ['other-interest']);
+    assert.deepEqual(result.draft.answers.G01, ['not-sure']);
+  }
+});
 const { competencies } = await import('../lib/assessment/competencies.ts');
 const { toolkit } = await import('../lib/assessment/toolkit.ts');
 const { engineeringModes: translatedModes, growthStages: translatedStages } =
@@ -501,8 +570,10 @@ test('Changed question meanings cannot reuse old drafts; current drafts resume w
   );
 });
 
-test('Long-image export removes page centering and captures explicit complete bounds', () => {
+test('Summary export keeps mobile and desktop canvas bounds safe', () => {
   for (const [width, height, dpr] of [
+    [342, 2400, 3],
+    [1184, 1600, 2],
     [1280, 6500, 2],
     [1280, 22000, 3],
     [390, 31000, 3],
@@ -521,6 +592,47 @@ test('Long-image export removes page centering and captures explicit complete bo
     assert.ok(height * options.pixelRatio <= 16001);
     assert.ok(options.pixelRatio > 0);
   }
+});
+test('Download targets the summary and excludes strengths and later sections', () => {
+  const source = readFileSync(
+    new URL('../app/page.tsx', import.meta.url),
+    'utf8',
+  );
+  assert.ok(
+    source.includes("document.getElementById('engineering-compass-summary')"),
+  );
+  const ast = ts.createSourceFile(
+    'page.tsx',
+    source,
+    ts.ScriptTarget.Latest,
+    true,
+    ts.ScriptKind.TSX,
+  );
+  let summary;
+  const visit = (node) => {
+    if (
+      ts.isJsxElement(node) &&
+      node.openingElement.attributes.properties.some(
+        (attr) =>
+          ts.isJsxAttribute(attr) &&
+          attr.name.getText(ast) === 'id' &&
+          attr.initializer?.text === 'engineering-compass-summary',
+      )
+    )
+      summary = node.getText(ast);
+    ts.forEachChild(node, visit);
+  };
+  visit(ast);
+  assert.ok(summary?.includes('mode-hero'));
+  assert.ok(summary?.includes('<Radar'));
+  assert.ok(summary?.includes('result-summary-columns mt-7 grid items-start'));
+  assert.ok(summary?.includes('toolkit-results-grid'));
+  assert.ok(
+    summary?.indexOf('common.sixCompetencies') <
+      summary?.indexOf('common.technicalToolkit'),
+  );
+  assert.ok(!summary?.includes('common.currentStrengths'));
+  assert.ok(!summary?.includes('result-growth-stack'));
 });
 test('Language presentation preserves control identity, handlers, values and complete rendered text', async () => {
   const React = await import('react');

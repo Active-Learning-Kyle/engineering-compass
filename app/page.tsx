@@ -64,6 +64,10 @@ import {
 } from '@/lib/assessment/questions';
 import { calculateResults } from '@/lib/assessment/scoring';
 import {
+  exclusiveSelectionId,
+  toggleSelection as toggleMultiSelection,
+} from '@/lib/assessment/selections';
+import {
   getQuestions,
   interpretPro,
   currentVersion,
@@ -523,16 +527,18 @@ function HomeContent() {
   function toggleSelection(id: string) {
     if (activeQuestion.kind !== 'interest' && activeQuestion.kind !== 'growth')
       return;
-    const existing = Array.isArray(selected) ? selected : [];
-    let next: string[];
-    if (existing.includes(id)) next = existing.filter((item) => item !== id);
-    else if (activeQuestion.kind === 'growth' && id === 'not-sure')
-      next = ['not-sure'];
-    else {
-      const withoutNotSure = existing.filter((item) => item !== 'not-sure');
-      next = [...withoutNotSure, id];
-    }
-    setAnswers((previous) => ({ ...previous, [activeQuestion.id]: next }));
+    const exclusiveId = exclusiveSelectionId(activeQuestion.kind);
+    setAnswers((previous) => {
+      const existing = previous[activeQuestion.id];
+      return {
+        ...previous,
+        [activeQuestion.id]: toggleMultiSelection(
+          Array.isArray(existing) ? existing : [],
+          id,
+          exclusiveId,
+        ),
+      };
+    });
     setResponseMs(Date.now() - questionStarted.current);
     setShowNudge(false);
   }
@@ -605,7 +611,7 @@ function HomeContent() {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }
   async function downloadProfileImage() {
-    const resultPage = document.getElementById('engineering-compass-results');
+    const resultPage = document.getElementById('engineering-compass-summary');
     if (!resultPage) return;
     await exportProfileImage(
       resultPage,
@@ -614,7 +620,9 @@ function HomeContent() {
   }
 
   return (
-    <main className="min-h-screen bg-background text-foreground">
+    <main
+      className={`min-h-screen bg-background text-foreground ${step === 'assessment' ? 'assessment-workbench' : ''}`}
+    >
       {step === 'welcome' && (
         <div className="home-language-bar">
           <LanguageSwitcher />
@@ -1157,8 +1165,8 @@ function Assessment({
   return (
     <LocalizedContent>
       {
-        <section className="mx-auto grid max-w-7xl gap-10 px-6 py-9 lg:grid-cols-[250px_minmax(0,780px)] lg:px-12 lg:py-13">
-          <aside className="hidden lg:block">
+        <section className="assessment-layout">
+          <aside className="assessment-sidebar hidden lg:block">
             <div className="sticky top-27">
               <div className="text-xs font-semibold uppercase tracking-[.16em] text-muted-foreground">
                 {'common.assessmentPath'}
@@ -1191,7 +1199,7 @@ function Assessment({
               </div>
             </div>
           </aside>
-          <div>
+          <div className="assessment-content">
             <div className="mb-6 flex flex-wrap items-center justify-between gap-4">
               <div>
                 <div className="text-xs font-semibold uppercase tracking-[.16em] text-primary">
@@ -1213,6 +1221,10 @@ function Assessment({
                 </div>
               </div>
             </div>
+            <Progress
+              value={((current + 1) / total) * 100}
+              className="mb-9 h-1.5"
+            />
             {showNudge && (
               <div className="nudge-backdrop">
                 <div
@@ -1293,6 +1305,7 @@ function Assessment({
               )}
               {(question.kind === 'interest' || question.kind === 'growth') && (
                 <MultiChoices
+                  exclusiveId={exclusiveSelectionId(question.kind)}
                   options={question.options}
                   selected={Array.isArray(selected) ? selected : []}
                   onToggle={onToggle}
@@ -1343,12 +1356,16 @@ function ScaleQuestion({
       {
         <fieldset className="mt-9">
           <legend className="text-sm font-semibold">{prompt}</legend>
+          <div className="mt-4 flex justify-between gap-4 text-sm text-muted-foreground">
+            <span>{low}</span>
+            <span className="text-right">{high}</span>
+          </div>
           <div className="mt-4 grid grid-cols-5 gap-2.5">
             {[1, 2, 3, 4, 5].map((value) => (
               <button
                 type="button"
                 key={value}
-                className={`scale-position ${labels ? 'scale-frequency' : ''} ${selected === value ? 'scale-position-selected' : ''}`}
+                className={`scale-position ${selected === value ? 'scale-position-selected' : ''}`}
                 onClick={() => onChoose(value)}
                 aria-label={
                   labels
@@ -1358,16 +1375,9 @@ function ScaleQuestion({
                 aria-pressed={selected === value}
               >
                 {value}
-                {labels && <span>{labels[value - 1]}</span>}
               </button>
             ))}
           </div>
-          {!labels && (
-            <div className="mt-2 flex justify-between gap-4 text-xs text-muted-foreground">
-              <span>{low}</span>
-              <span className="text-right">{high}</span>
-            </div>
-          )}
         </fieldset>
       }
     </LocalizedContent>
@@ -1390,7 +1400,7 @@ function OrderedChoices({
       {
         <fieldset className="mt-8">
           <legend className="sr-only">{'common.chooseOneResponse'}</legend>
-          <div className="grid gap-2.5">
+          <div className={`grid gap-2.5 ${!scenario ? 'sm:grid-cols-2' : ''}`}>
             {options.map((option) => (
               <button
                 type="button"
@@ -1419,10 +1429,12 @@ function MultiChoices({
   options,
   selected,
   onToggle,
+  exclusiveId,
 }: {
   options: Array<{ id: string; label: string }>;
   selected: string[];
   onToggle: (id: string) => void;
+  exclusiveId: string;
 }) {
   const { t } = useLanguage();
   return (
@@ -1440,6 +1452,9 @@ function MultiChoices({
                   className={`multi-choice ${checked ? 'multi-choice-selected' : ''}`}
                   onClick={() => onToggle(option.id)}
                   aria-pressed={checked}
+                  disabled={
+                    selected.includes(exclusiveId) && option.id !== exclusiveId
+                  }
                 >
                   <span className="multi-check">
                     {checked && <Check className="size-3.5" />}
@@ -1449,6 +1464,11 @@ function MultiChoices({
               );
             })}
           </div>
+          {selected.includes(exclusiveId) && (
+            <output className="mt-4 block text-sm text-muted-foreground">
+              {'assessment.exclusiveHint'}
+            </output>
+          )}
           <div className="mt-3 text-right text-xs font-medium text-muted-foreground">
             {t('assessment.selectedCount', { count: selected.length })}
           </div>
@@ -1511,283 +1531,295 @@ function Results({
           id="engineering-compass-results"
           className="results-capture mx-auto max-w-7xl px-6 py-11 lg:px-12 lg:py-15"
         >
-          <div
-            className="mode-hero"
-            style={
-              {
-                '--mode-accent': mode.accent,
-                '--mode-tint': mode.tint,
-              } as React.CSSProperties
-            }
-          >
-            <div className="mode-copy">
-              <div className="mode-eyebrow">
-                <Sparkles className="size-4" />{' '}
-                {proReflection
-                  ? 'result.role.proEyebrow'
-                  : 'result.role.eyebrow'}
-              </div>
-              <div className="mode-stage-row">
-                <span className="growth-stage-pill">
-                  {'result.scope.label'} · {stage.name}
-                </span>
-                {yearLabel && (
-                  <span className="year-context-pill">
-                    <GraduationCap className="size-3.5" /> {yearLabel}
-                  </span>
-                )}
-              </div>
-              <h1>
-                {modes.balanced
-                  ? 'result.role.balanced'
-                  : modes.leading
-                      .map((item) => t(engineeringModes[item.key].name))
-                      .join(' + ')}
-              </h1>
-              {modes.leading.length > 1 && !modes.balanced && (
-                <p className="mode-secondary">
-                  {'result.role.tied'} · {modes.leading[0].score}
-                </p>
-              )}
-              <p className="mode-lead">
-                {modes.balanced
-                  ? 'result.role.balancedNote'
-                  : modes.leading.length === 1
-                    ? mode.shortDescription
-                    : 'result.role.sharedNote'}
-              </p>
-              {modes.supporting.length > 0 && (
-                <p className="mode-secondary">
-                  {'result.role.also'}:{' '}
-                  {modes.supporting
-                    .map(
-                      (item) =>
-                        `${t(engineeringModes[item.key].name)} · ${item.score}`,
-                    )
-                    .join(' / ')}
-                </p>
-              )}
-              <p className="mode-scope-description">{stage.description}</p>
-              <div className="mode-quick-insights">
-                <div className="mode-contribution">
-                  <span>
-                    {modes.leading.length === 1
-                      ? 'result.quick.strength'
-                      : 'result.quick.strengths'}
-                  </span>
-                  <p>
-                    {modes.leading.length === 1
-                      ? mode.contribution
-                      : modes.leading
-                          .map((item) => t(item.fullLabel))
-                          .join(' · ')}
-                  </p>
-                </div>
-                <div className="mode-contribution">
-                  <span>{'result.quick.next'}</span>
-                  <p>{nextAction}</p>
-                </div>
-              </div>
-              <p className="mode-disclaimer">{'result.role.disclaimer'}</p>
-              <div className="mode-actions" data-capture-exclude="true">
-                <Button
-                  variant="outline"
-                  className="rounded-full"
-                  disabled={isSaving}
-                  onClick={async () => {
-                    setIsSaving(true);
-                    setSaveError(null);
-                    try {
-                      await onDownload();
-                    } catch {
-                      setSaveError('result.export.error');
-                    } finally {
-                      setIsSaving(false);
-                    }
-                  }}
-                >
-                  <Download className="mr-1 size-4" />
-                  {isSaving ? 'result.export.preparing' : 'result.export.save'}
-                </Button>
-                <Button
-                  variant="ghost"
-                  className="rounded-full"
-                  onClick={onRestart}
-                >
-                  <RefreshCw className="mr-1 size-4" />{' '}
-                  {'common.takeAssessmentAgain'}
-                </Button>
-              </div>
-              {saveError && (
-                <p
-                  role="alert"
-                  className="mt-3 text-sm text-white"
-                  data-capture-exclude="true"
-                >
-                  {saveError}
-                </p>
-              )}
-            </div>
+          <div id="engineering-compass-summary">
             <div
-              className="mode-art"
-              aria-label={t('role.illustration', { name: t(mode.name) })}
-            >
-              {/* oxlint-disable-next-line next/no-img-element */}
-              <img
-                className="result-character-first"
-                src={assetPath(mode.image[initialCharacterVariant(modeKey)])}
-                alt=""
-                width={1200}
-                height={1200}
-              />
-              {/* oxlint-disable-next-line next/no-img-element */}
-              <img
-                className="result-character-second"
-                data-capture-exclude="true"
-                src={assetPath(
-                  mode.image[
-                    initialCharacterVariant(modeKey) === 'a' ? 'b' : 'a'
-                  ],
-                )}
-                alt=""
-                width={1200}
-                height={1200}
-              />
-            </div>
-          </div>
-          <p className="mt-3 text-xs leading-5 text-muted-foreground">
-            {'result.scope.note'}
-          </p>
-          <div className="mt-7 grid items-start gap-6 lg:grid-cols-[1.04fr_.96fr]">
-            <article className="result-panel min-w-0">
-              <div className="panel-heading">
-                <div>
-                  <div className="panel-eyebrow">
-                    {'common.sixCompetencies'}
-                  </div>
-                  <h2 className="mt-1 font-serif text-2xl font-semibold">
-                    {'result.radar.title'}
-                  </h2>
-                </div>
-                <span className="text-xs text-muted-foreground">
-                  {'common.0100ProfileScale'}
-                </span>
-              </div>
-              <ChartContainer
-                config={chartConfig}
-                className="mx-auto mt-3 aspect-square max-h-[470px] w-full"
-              >
-                <RadarChart
-                  data={competencyScores.map((item) => ({
-                    ...item,
-                    subject: t(item.subject),
-                  }))}
-                  outerRadius="60%"
-                >
-                  <PolarGrid stroke="#d8e2dc" />
-                  <PolarAngleAxis
-                    dataKey="subject"
-                    tick={({ x, y, payload, textAnchor }) => (
-                      <text
-                        x={x}
-                        y={y}
-                        dx={
-                          textAnchor === 'start'
-                            ? -12
-                            : textAnchor === 'end'
-                              ? 12
-                              : 0
-                        }
-                        textAnchor="middle"
-                        dominantBaseline="central"
-                        className="radar-axis-label"
-                      >
-                        {payload.value}
-                      </text>
-                    )}
-                  />
-                  <Radar
-                    dataKey="score"
-                    stroke="var(--color-score)"
-                    fill="var(--color-score)"
-                    fillOpacity={0.16}
-                    strokeWidth={2.5}
-                    dot={{ r: 4, fill: '#163f27', strokeWidth: 0 }}
-                  />
-                </RadarChart>
-              </ChartContainer>
-              <p className="result-footnote">{workingAnalysis}</p>
-            </article>
-            <article className="result-panel">
-              <div className="panel-heading">
-                <div>
-                  <div className="panel-eyebrow">
-                    {'common.technicalToolkit'}
-                  </div>
-                  <h2 className="mt-1 font-serif text-2xl font-semibold">
-                    {'result.toolkit.title'}
-                  </h2>
-                </div>
-                <Wrench className="size-5 text-primary" />
-              </div>
-              <div className="mt-7 space-y-4">
-                <p className="panel-eyebrow">{'result.toolkit.selfRating'}</p>
-                {toolkitScores.map((item) => {
-                  const level = getToolkitExperienceLevel(item.score);
-                  const evidence = proReflection?.evidence.find(
-                    (entry) => entry.area === item.key,
-                  );
-                  return (
-                    <div key={item.key}>
-                      <div className="toolkit-score-heading mb-1.5 text-sm">
-                        <span className="font-medium">{item.name}</span>
-                        <span className="toolkit-score-meta">
-                          <span>
-                            {t('result.toolkit.level', {
-                              number: level.number,
-                              label: t(level.label),
-                            })}
-                          </span>
-                          <strong>{item.score}</strong>
-                        </span>
-                      </div>
-                      <div className="h-2 overflow-hidden rounded-full bg-secondary">
-                        <div
-                          className="h-full rounded-full bg-primary transition-all"
-                          style={{ width: `${item.score}%` }}
-                        />
-                      </div>
-                      {evidence && (
-                        <div className="toolkit-evidence">
-                          <span className="panel-eyebrow">
-                            {'result.evidence.label'}
-                          </span>
-                          {evidence.answered === evidence.total && (
-                            <p>
-                              {t('result.evidence.depth', {
-                                count: evidence.independent,
-                                total: evidence.total,
-                              })}
-                            </p>
-                          )}
-                          <p>{evidence.consistency}</p>
-                        </div>
-                      )}
-                    </div>
-                  );
-                })}
-              </div>
-              <p className="result-footnote mt-6">
+              className="mode-hero"
+              style={
                 {
-                  'common.eachLevelReflectsYourSelectedExperienceAndIndependenceIn'
-                }
-              </p>
-              {proReflection && (
-                <p className="result-footnote mt-3">
+                  '--mode-accent': mode.accent,
+                  '--mode-tint': mode.tint,
+                } as React.CSSProperties
+              }
+            >
+              <div className="mode-copy">
+                <div className="mode-eyebrow">
+                  <Sparkles className="size-4" />{' '}
+                  {proReflection
+                    ? 'result.role.proEyebrow'
+                    : 'result.role.eyebrow'}
+                </div>
+                <div className="mode-stage-row">
+                  <span className="growth-stage-pill">
+                    {'result.scope.label'} · {stage.name}
+                  </span>
+                  {yearLabel && (
+                    <span className="year-context-pill">
+                      <GraduationCap className="size-3.5" /> {yearLabel}
+                    </span>
+                  )}
+                </div>
+                <h1>
+                  {modes.balanced
+                    ? 'result.role.balanced'
+                    : modes.leading
+                        .map((item) => t(engineeringModes[item.key].name))
+                        .join(' + ')}
+                </h1>
+                {modes.leading.length > 1 && !modes.balanced && (
+                  <p className="mode-secondary">
+                    {'result.role.tied'} · {modes.leading[0].score}
+                  </p>
+                )}
+                <p className="mode-lead">
+                  {modes.balanced
+                    ? 'result.role.balancedNote'
+                    : modes.leading.length === 1
+                      ? mode.shortDescription
+                      : 'result.role.sharedNote'}
+                </p>
+                {modes.supporting.length > 0 && (
+                  <p className="mode-secondary">
+                    {'result.role.also'}:{' '}
+                    {modes.supporting
+                      .map(
+                        (item) =>
+                          `${t(engineeringModes[item.key].name)} · ${item.score}`,
+                      )
+                      .join(' / ')}
+                  </p>
+                )}
+                <p className="mode-scope-description">{stage.description}</p>
+                <div className="mode-quick-insights">
+                  <div className="mode-contribution">
+                    <span>
+                      {modes.leading.length === 1
+                        ? 'result.quick.strength'
+                        : 'result.quick.strengths'}
+                    </span>
+                    <p>
+                      {modes.leading.length === 1
+                        ? mode.contribution
+                        : modes.leading
+                            .map((item) => t(item.fullLabel))
+                            .join(' · ')}
+                    </p>
+                  </div>
+                  <div className="mode-contribution">
+                    <span>{'result.quick.next'}</span>
+                    <p>{nextAction}</p>
+                  </div>
+                </div>
+                <p className="mode-disclaimer">{'result.role.disclaimer'}</p>
+                <div className="mode-actions" data-capture-exclude="true">
+                  <Button
+                    variant="outline"
+                    className="rounded-full"
+                    disabled={isSaving}
+                    onClick={async () => {
+                      setIsSaving(true);
+                      setSaveError(null);
+                      try {
+                        await onDownload();
+                      } catch {
+                        setSaveError('result.export.error');
+                      } finally {
+                        setIsSaving(false);
+                      }
+                    }}
+                  >
+                    <Download className="mr-1 size-4" />
+                    {isSaving
+                      ? 'result.export.preparing'
+                      : 'result.export.save'}
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    className="rounded-full"
+                    onClick={onRestart}
+                  >
+                    <RefreshCw className="mr-1 size-4" />{' '}
+                    {'common.takeAssessmentAgain'}
+                  </Button>
+                </div>
+                {saveError && (
+                  <p
+                    role="alert"
+                    className="mt-3 text-sm text-white"
+                    data-capture-exclude="true"
+                  >
+                    {saveError}
+                  </p>
+                )}
+              </div>
+              <div
+                className="mode-art"
+                aria-label={t('role.illustration', { name: t(mode.name) })}
+              >
+                {/* oxlint-disable-next-line next/no-img-element */}
+                <img
+                  className="result-character-first"
+                  src={assetPath(mode.image[initialCharacterVariant(modeKey)])}
+                  alt=""
+                  width={1200}
+                  height={1200}
+                />
+                {/* oxlint-disable-next-line next/no-img-element */}
+                <img
+                  className="result-character-second"
+                  data-capture-exclude="true"
+                  src={assetPath(
+                    mode.image[
+                      initialCharacterVariant(modeKey) === 'a' ? 'b' : 'a'
+                    ],
+                  )}
+                  alt=""
+                  width={1200}
+                  height={1200}
+                />
+              </div>
+            </div>
+            <p className="mt-3 text-xs leading-5 text-muted-foreground">
+              {'result.scope.note'}
+            </p>
+            <div className="result-summary-columns mt-7 grid items-start gap-6 lg:grid-cols-[1.04fr_.96fr]">
+              <article className="result-panel min-w-0">
+                <div className="panel-heading">
+                  <div>
+                    <div className="panel-eyebrow">
+                      {'common.sixCompetencies'}
+                    </div>
+                    <h2 className="mt-1 font-serif text-2xl font-semibold">
+                      {'result.radar.title'}
+                    </h2>
+                  </div>
+                  <span className="text-xs text-muted-foreground">
+                    {'common.0100ProfileScale'}
+                  </span>
+                </div>
+                <ChartContainer
+                  config={chartConfig}
+                  className="mx-auto mt-3 aspect-square w-full max-w-[560px]"
+                >
+                  <RadarChart
+                    data={competencyScores.map((item) => ({
+                      ...item,
+                      subject: t(item.subject),
+                    }))}
+                    outerRadius="60%"
+                  >
+                    <PolarGrid stroke="#d8e2dc" />
+                    <PolarAngleAxis
+                      dataKey="subject"
+                      tick={({ x, y, payload, textAnchor }) => (
+                        <text
+                          x={x}
+                          y={y}
+                          dx={
+                            textAnchor === 'start'
+                              ? -12
+                              : textAnchor === 'end'
+                                ? 12
+                                : 0
+                          }
+                          textAnchor="middle"
+                          dominantBaseline="central"
+                          className="radar-axis-label"
+                        >
+                          {payload.value}
+                        </text>
+                      )}
+                    />
+                    <Radar
+                      dataKey="score"
+                      stroke="var(--color-score)"
+                      fill="#d7f43c"
+                      fillOpacity={0.5}
+                      strokeWidth={2.5}
+                      dot={{ r: 4, fill: '#163f27', strokeWidth: 0 }}
+                    />
+                  </RadarChart>
+                </ChartContainer>
+                <p className="result-footnote">{workingAnalysis}</p>
+              </article>
+              <article className="result-panel">
+                <div className="panel-heading">
+                  <div>
+                    <div className="panel-eyebrow">
+                      {'common.technicalToolkit'}
+                    </div>
+                    <h2 className="mt-1 font-serif text-2xl font-semibold">
+                      {'result.toolkit.title'}
+                    </h2>
+                  </div>
+                  <Wrench className="size-5 text-primary" />
+                </div>
+                <p className="panel-eyebrow mt-7">
+                  {'result.toolkit.selfRating'}
+                </p>
+                <div className="mt-4 space-y-4">
+                  {toolkitScores.map((item) => {
+                    const level = getToolkitExperienceLevel(item.score);
+                    return (
+                      <div key={item.key}>
+                        <div className="toolkit-score-heading mb-1.5 text-sm">
+                          <span className="font-medium">{item.name}</span>
+                          <span className="toolkit-score-meta">
+                            <span>
+                              {t('result.toolkit.level', {
+                                number: level.number,
+                                label: t(level.label),
+                              })}
+                            </span>
+                            <strong>{item.score}</strong>
+                          </span>
+                        </div>
+                        <div className="h-2 overflow-hidden rounded-full bg-secondary">
+                          <div
+                            className="h-full rounded-full bg-primary transition-all"
+                            style={{ width: `${item.score}%` }}
+                          />
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+                <p className="result-footnote mt-6">
+                  {
+                    'common.eachLevelReflectsYourSelectedExperienceAndIndependenceIn'
+                  }
+                </p>
+              </article>
+            </div>
+            {proReflection && (
+              <article className="result-panel mt-6">
+                <h2 className="font-serif text-2xl font-semibold">
+                  {'result.evidence.label'}
+                </h2>
+                <p className="mt-3 text-sm text-muted-foreground">
                   {'result.evidence.selfReport'}
                 </p>
-              )}
-            </article>
+                <div className="toolkit-results-grid mt-5">
+                  {proReflection.evidence.map((evidence) => (
+                    <div className="toolkit-result-card" key={evidence.area}>
+                      <h3 className="font-semibold">
+                        {toolkit[evidence.area].label}
+                      </h3>
+                      <div className="toolkit-evidence">
+                        {evidence.answered === evidence.total && (
+                          <p>
+                            {t('result.evidence.depth', {
+                              count: evidence.independent,
+                              total: evidence.total,
+                            })}
+                          </p>
+                        )}
+                        <p>{evidence.consistency}</p>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </article>
+            )}
           </div>
           <div className="result-growth-stack mt-6 grid gap-6">
             <article className="result-panel">

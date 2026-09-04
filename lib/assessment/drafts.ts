@@ -1,4 +1,5 @@
 import { currentVersion, getQuestions } from './pro';
+import { exclusiveSelectionId, normalizeSelections } from './selections';
 import type { AssessmentAnswers, AssessmentEdition } from './types';
 export const progressStorageKey = 'engineering-compass-progress-v1.7';
 export const legacyStorageKey = 'engineering-compass-progress-v1.6';
@@ -46,6 +47,10 @@ export function readDraft(
           answer.some((id) => !item.options.some((o) => o.id === id))
         )
           return { status: 'invalid' };
+        value.answers[id] = normalizeSelections(
+          answer,
+          exclusiveSelectionId(item.kind),
+        );
       } else if (
         typeof answer !== 'number' ||
         !Number.isInteger(answer) ||

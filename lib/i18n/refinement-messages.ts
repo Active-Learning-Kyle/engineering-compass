@@ -1,5 +1,9 @@
 /** Pilot revision copy. Stable keys are shared by both languages. */
 export const refinementMessages = {
+  'assessment.exclusiveHint': [
+    'Deselect this option to choose specific areas.',
+    '取消此選項後，即可選擇具體範疇。',
+  ],
   'assessment.behaviour.helper': [
     'Think about your most recent engineering project or practical learning task. Rate what you actually did, not what you think you should do.',
     '回想你最近的工程專案或實作學習任務。請按實際做過的事回答，而非你認為應該怎樣做。',

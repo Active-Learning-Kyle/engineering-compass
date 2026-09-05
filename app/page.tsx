@@ -696,6 +696,7 @@ function HomeContent() {
       )}
       {step !== 'welcome' && (
         <Header
+          showLanguage={step !== 'assessment'}
           progress={
             step === 'assessment'
               ? ((current + 1) / questions.length) * 100
@@ -760,7 +761,13 @@ function HomeContent() {
   );
 }
 
-function Header({ progress }: { progress: number | null }) {
+function Header({
+  progress,
+  showLanguage,
+}: {
+  progress: number | null;
+  showLanguage: boolean;
+}) {
   return (
     <LocalizedContent>
       {
@@ -791,7 +798,7 @@ function Header({ progress }: { progress: number | null }) {
                 <span className="size-2 rounded-full bg-emerald-600" />{' '}
                 {'common.responsesStayInThisBrowser'}
               </div>
-              <LanguageSwitcher embedded />
+              {showLanguage && <LanguageSwitcher embedded />}
             </div>
           </div>
           {progress !== null && (
@@ -1417,10 +1424,7 @@ function Assessment({
                 </div>
               </div>
               <div className="flex items-center gap-2">
-                <button className="assessment-home" onClick={onHome}>
-                  <House className="size-6 shrink-0" aria-hidden="true" />{' '}
-                  {'common.returnHome'}
-                </button>
+                <LanguageSwitcher embedded />
                 <div className="assessment-progress-badge">
                   {Math.round(((current + 1) / total) * 100)}%
                 </div>
@@ -1536,10 +1540,14 @@ function Assessment({
                     />
                   )}
               </div>
-              <div className="mt-8 flex items-center justify-between border-t pt-6">
+              <div className="assessment-navigation mt-8 border-t pt-6">
                 <Button variant="ghost" size="lg" onClick={onBack}>
                   <ArrowLeft className="mr-1 size-4" /> {'common.previous'}
                 </Button>
+                <button className="assessment-home" onClick={onHome}>
+                  <House className="size-5 shrink-0" aria-hidden="true" />{' '}
+                  {'common.saveProgressAndReturnHome'}
+                </button>
                 <Button
                   size="lg"
                   className="h-11 rounded-full px-6"

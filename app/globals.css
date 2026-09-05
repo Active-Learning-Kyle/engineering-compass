@@ -993,6 +993,22 @@
   font-weight: 650;
   font-variant-numeric: tabular-nums;
 }
+.assessment-navigation {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+  align-items: center;
+  gap: 1rem;
+}
+.assessment-navigation > :first-child {
+  justify-self: start;
+}
+.assessment-navigation > :last-child {
+  justify-self: end;
+}
+.assessment-navigation .assessment-home {
+  min-height: 44px;
+  background: transparent;
+}
 .mode-hero {
   position: relative;
   display: grid;
@@ -2060,6 +2076,28 @@ html:lang(zh-Hant) .toolkit-score-meta {
   .assessment-workbench .multi-choice {
     min-height: 72px;
     padding: 1rem;
+  }
+  .assessment-content > div:first-child {
+    align-items: flex-start;
+  }
+  .assessment-content .language-switch button {
+    min-height: 38px;
+    padding: 7px 11px;
+    font-size: 0.8rem;
+  }
+  .assessment-progress-badge {
+    min-height: 44px;
+    min-width: 58px;
+    padding-inline: 0.75rem;
+  }
+  .assessment-navigation {
+    grid-template-columns: 1fr 1fr;
+  }
+  .assessment-navigation .assessment-home {
+    grid-column: 1 / -1;
+    grid-row: 2;
+    justify-self: stretch;
+    justify-content: center;
   }
 }
 @media (prefers-reduced-motion: reduce) {

@@ -968,21 +968,31 @@ test('Independent growth cards retain their final border and padding', () => {
   assert.match(css, /var\(--font-geist-sans, Arial\)/);
 });
 
-test('Language controls render within the sticky assessment/results header', async () => {
+test('Language controls move into the assessment toolbar while results keep them in the header', async () => {
   const React = await import('react');
   const { renderToStaticMarkup } = await import('react-dom/server');
   const { Header } = await import('../app/page.tsx?unit');
-  for (const progress of [null, 55]) {
-    const html = renderToStaticMarkup(
-      React.createElement(Header, { progress }),
-    );
-    // React may emit the shared SVG image preload before the header.
-    assert.match(html, /<header class="sticky top-0/);
-    assert.match(html, /src="\/compass.svg"/);
-    assert.match(html, /language-toolbar-inline/);
-    assert.ok(html.includes('English') && html.includes('繁體中文'));
-    assert.equal((html.match(/language-switch"/g) ?? []).length, 1);
-  }
+  const resultsHeader = renderToStaticMarkup(
+    React.createElement(Header, { progress: null, showLanguage: true }),
+  );
+  const assessmentHeader = renderToStaticMarkup(
+    React.createElement(Header, { progress: 55, showLanguage: false }),
+  );
+  assert.match(resultsHeader, /<header class="sticky top-0/);
+  assert.match(resultsHeader, /language-toolbar-inline/);
+  assert.ok(
+    resultsHeader.includes('English') && resultsHeader.includes('繁體中文'),
+  );
+  assert.doesNotMatch(assessmentHeader, /language-toolbar-inline/);
+  const pageSource = readFileSync(
+    new URL('../app/page.tsx', import.meta.url),
+    'utf8',
+  );
+  assert.match(
+    pageSource,
+    /<LanguageSwitcher embedded \/>[\s\S]*assessment-progress-badge/,
+  );
+  assert.match(pageSource, /common\.saveProgressAndReturnHome/);
 });
 
 test('Home introduction is neutral about assessment length in both languages', () => {

@@ -403,6 +403,7 @@ export const en = {
   'common.chooseTheResponseClosestToWhatYouWouldGenuinely':
     'Choose the response closest to what you would genuinely do. These scenarios are interpreted, not graded.',
   'common.returnHome': 'Return home',
+  'common.saveProgressAndReturnHome': 'Save progress & return home',
   'common.youReAnsweringALittleQuickly': "You're answering a little quickly",
   'common.takeAMomentToReadEachQuestionBeforeChoosing':
     'Take a moment to read each question before choosing. A more considered response is more likely to give you a result that reflects your current experience.',
@@ -1200,6 +1201,7 @@ export const zhHant: Record<MessageKey, string> = {
   'common.chooseTheResponseClosestToWhatYouWouldGenuinely':
     '選擇最接近你真實做法的答案。這些情境只作質性解讀，不作評分。',
   'common.returnHome': '返回首頁',
+  'common.saveProgressAndReturnHome': '儲存進度並返回首頁',
   'common.youReAnsweringALittleQuickly': '你答得有點快呢',
   'common.takeAMomentToReadEachQuestionBeforeChoosing':
     '稍微讀完題目再選擇，更容易得到貼近你目前真實狀態的結果。',

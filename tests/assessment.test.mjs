@@ -314,13 +314,39 @@ const { initialCharacterVariant, engineeringModes } =
   await import('../lib/assessment/profile.ts');
 const { compassSpringStep, shuffledCompassTargets, compassRetargetDelay } =
   await import('../lib/assessment/compass-motion.ts');
-const { profileExportOptions, pdfPageBreaks, visiblePortraitVariant } =
-  await import('../lib/assessment/profile-export.ts');
+const {
+  profileExportOptions,
+  pdfPageBreaks,
+  visiblePortraitVariant,
+  portraitCoverCrop,
+  pdfPortraitPlacement,
+} = await import('../lib/assessment/profile-export.ts');
 test('PDF export selects whichever crossfading portrait is visually dominant', () => {
   assert.equal(visiblePortraitVariant(0), 'first');
   assert.equal(visiblePortraitVariant(0.49), 'first');
   assert.equal(visiblePortraitVariant(0.5), 'second');
   assert.equal(visiblePortraitVariant(1), 'second');
+});
+test('PDF portrait is cover-cropped and placed independently from the page capture', () => {
+  assert.deepEqual(portraitCoverCrop(1200, 1200, 400, 600), {
+    left: 200,
+    top: 0,
+    width: 800,
+    height: 1200,
+  });
+  const wideFrameCrop = portraitCoverCrop(800, 1200, 600, 400);
+  assert.equal(wideFrameCrop.left, 0);
+  assert.equal(wideFrameCrop.width, 800);
+  assert.ok(Math.abs(wideFrameCrop.top - 160) < 1e-9);
+  assert.ok(Math.abs(wideFrameCrop.height - 1600 / 3) < 1e-9);
+  assert.deepEqual(
+    pdfPortraitPlacement(
+      { left: 720, top: 24, width: 456, height: 560 },
+      0,
+      0.5,
+    ),
+    { x: 380, y: 32, width: 228, height: 280 },
+  );
 });
 test('PDF pagination keeps complete blocks and covers the full report', () => {
   assert.deepEqual(

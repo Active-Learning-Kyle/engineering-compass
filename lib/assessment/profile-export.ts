@@ -81,22 +81,102 @@ export function visiblePortraitVariant(secondOpacity: number) {
     : 'first';
 }
 
-async function rasterizePortrait(image: HTMLImageElement) {
+export function portraitCoverCrop(
+  sourceWidth: number,
+  sourceHeight: number,
+  frameWidth: number,
+  frameHeight: number,
+  positionX = 0.5,
+  positionY = 0.24,
+) {
+  if (
+    ![sourceWidth, sourceHeight, frameWidth, frameHeight].every(
+      (value) => Number.isFinite(value) && value > 0,
+    )
+  )
+    throw new Error('Invalid portrait dimensions.');
+  const coverScale = Math.max(
+    frameWidth / sourceWidth,
+    frameHeight / sourceHeight,
+  );
+  const width = frameWidth / coverScale;
+  const height = frameHeight / coverScale;
+  return {
+    left: (sourceWidth - width) * positionX,
+    top: (sourceHeight - height) * positionY,
+    width,
+    height,
+  };
+}
+
+export function pdfPortraitPlacement(
+  box: { left: number; top: number; width: number; height: number },
+  pageStart: number,
+  pdfScale: number,
+  margin = 20,
+) {
+  return {
+    x: margin + box.left * pdfScale,
+    y: margin + (box.top - pageStart) * pdfScale,
+    width: box.width * pdfScale,
+    height: box.height * pdfScale,
+  };
+}
+
+async function rasterizePortrait(
+  image: HTMLImageElement,
+  frameWidth: number,
+  frameHeight: number,
+) {
   image.loading = 'eager';
   if (!image.complete) await image.decode();
   if (!image.naturalWidth || !image.naturalHeight)
     throw new Error('A profile illustration has not loaded.');
-  const longestSide = Math.max(image.naturalWidth, image.naturalHeight);
-  const scale = Math.min(1, 1400 / longestSide);
+  const crop = portraitCoverCrop(
+    image.naturalWidth,
+    image.naturalHeight,
+    frameWidth,
+    frameHeight,
+  );
+  const scale = Math.min(
+    1100 / Math.max(frameWidth, frameHeight),
+    crop.width / frameWidth,
+    crop.height / frameHeight,
+  );
   const canvas = document.createElement('canvas');
-  canvas.width = Math.max(1, Math.round(image.naturalWidth * scale));
-  canvas.height = Math.max(1, Math.round(image.naturalHeight * scale));
+  canvas.width = Math.max(1, Math.round(frameWidth * scale));
+  canvas.height = Math.max(1, Math.round(frameHeight * scale));
   const context = canvas.getContext('2d');
   if (!context) throw new Error('Could not prepare the portrait.');
-  context.drawImage(image, 0, 0, canvas.width, canvas.height);
-  // JPEG is substantially smaller than a canvas PNG on memory-constrained
-  // mobile browsers, while remaining more than large enough for the PDF.
-  return canvas.toDataURL('image/jpeg', 0.9);
+  // Match the card's right-side rounded corners. Transparency lets the captured
+  // card border and page background remain visible underneath the PDF overlay.
+  const radius = Math.min(32 * scale, canvas.width / 2, canvas.height / 2);
+  context.beginPath();
+  context.moveTo(0, 0);
+  context.lineTo(canvas.width - radius, 0);
+  context.quadraticCurveTo(canvas.width, 0, canvas.width, radius);
+  context.lineTo(canvas.width, canvas.height - radius);
+  context.quadraticCurveTo(
+    canvas.width,
+    canvas.height,
+    canvas.width - radius,
+    canvas.height,
+  );
+  context.lineTo(0, canvas.height);
+  context.closePath();
+  context.clip();
+  context.drawImage(
+    image,
+    crop.left,
+    crop.top,
+    crop.width,
+    crop.height,
+    0,
+    0,
+    canvas.width,
+    canvas.height,
+  );
+  return canvas.toDataURL('image/png');
 }
 
 export async function exportProfilePdf(root: HTMLElement, filename: string) {
@@ -111,9 +191,6 @@ export async function exportProfilePdf(root: HTMLElement, filename: string) {
     Number.parseFloat(getComputedStyle(livePortraits[1]).opacity),
   );
   const selectedIndex = visibleVariant === 'second' ? 1 : 0;
-  const selectedPortrait = await rasterizePortrait(
-    livePortraits[selectedIndex],
-  );
   // A separate, fixed-width report prevents the phone's responsive layout and
   // crossfade timing from changing the downloaded artifact.
   const card = root.cloneNode(true) as HTMLElement;
@@ -122,19 +199,10 @@ export async function exportProfilePdf(root: HTMLElement, filename: string) {
   const clonedPortraits = Array.from(
     card.querySelectorAll<HTMLImageElement>('[data-export-portrait]'),
   );
-  clonedPortraits.forEach((image, index) => {
-    if (index !== selectedIndex) {
-      image.remove();
-      return;
-    }
-    image.src = selectedPortrait;
-    image.removeAttribute('srcset');
-    image.removeAttribute('sizes');
-    image.removeAttribute('data-export-portrait');
-    image.className = 'result-character-exported';
-    image.style.setProperty('opacity', '1', 'important');
-    image.style.setProperty('visibility', 'visible', 'important');
-  });
+  // Safari intermittently omits <img> nodes rendered through the SVG
+  // foreignObject used by html-to-image. Capture the card without either
+  // portrait and add the selected raster directly to the PDF instead.
+  clonedPortraits.forEach((image) => image.remove());
   card
     .querySelectorAll('[data-capture-exclude="true"]')
     .forEach((node) => node.remove());
@@ -181,18 +249,28 @@ export async function exportProfilePdf(root: HTMLElement, filename: string) {
   document.body.appendChild(holder);
   let blob: Blob;
   try {
-    const portrait = card.querySelector<HTMLImageElement>(
-      '.result-character-exported',
-    );
-    if (!portrait) throw new Error('The profile portrait is missing.');
-    await portrait.decode();
     const pdf = new jsPDF({ unit: 'pt', format: 'a4', compress: true });
     const width = 1200;
     const printWidth = pdf.internal.pageSize.getWidth() - 40;
+    const pdfScale = printWidth / width;
     const pageHeight = Math.floor(
       ((pdf.internal.pageSize.getHeight() - 60) * width) / printWidth,
     );
     const bounds = card.getBoundingClientRect();
+    const modeArt = card.querySelector<HTMLElement>('.mode-art');
+    if (!modeArt) throw new Error('The profile portrait frame is missing.');
+    const modeArtBounds = modeArt.getBoundingClientRect();
+    const portraitBox = {
+      left: modeArtBounds.left - bounds.left,
+      top: modeArtBounds.top - bounds.top,
+      width: modeArtBounds.width,
+      height: modeArtBounds.height,
+    };
+    const selectedPortrait = await rasterizePortrait(
+      livePortraits[selectedIndex],
+      portraitBox.width,
+      portraitBox.height,
+    );
     const blocks = Array.from(
       card.querySelectorAll(
         'article, .mode-hero, .toolkit-result-card, .growth-row, .insight-tile, p, h2, h3, svg',
@@ -251,6 +329,22 @@ export async function exportProfilePdf(root: HTMLElement, filename: string) {
         printWidth,
         (height * printWidth) / width,
       );
+      const portraitBottom = portraitBox.top + portraitBox.height;
+      if (portraitBottom > breaks[i] && portraitBox.top < breaks[i + 1]) {
+        const placement = pdfPortraitPlacement(
+          portraitBox,
+          breaks[i],
+          pdfScale,
+        );
+        pdf.addImage(
+          selectedPortrait,
+          'PNG',
+          placement.x,
+          placement.y,
+          placement.width,
+          placement.height,
+        );
+      }
       pdf.setFontSize(9);
       pdf.setTextColor(80, 105, 89);
       pdf.text(

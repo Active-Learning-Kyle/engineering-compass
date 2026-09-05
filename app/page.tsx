@@ -835,7 +835,36 @@ function Welcome({
     <LocalizedContent>
       {
         <section className="relative overflow-hidden">
-          <div className="compass-grid absolute inset-0" aria-hidden="true" />
+          <div className="home-motion-field" aria-hidden="true">
+            <div className="home-background-grid" />
+            <div className="home-contour-cluster home-contour-cluster-1">
+              <span />
+              <span />
+              <span />
+              <span />
+            </div>
+            <div className="home-contour-cluster home-contour-cluster-2">
+              <span />
+              <span />
+              <span />
+              <span />
+            </div>
+            <div className="home-contour-cluster home-contour-cluster-3">
+              <span />
+              <span />
+              <span />
+              <span />
+            </div>
+            <div className="home-contour-cluster home-contour-cluster-4">
+              <span />
+              <span />
+              <span />
+              <span />
+            </div>
+            <i className="home-terrain-tracer home-terrain-tracer-1" />
+            <i className="home-terrain-tracer home-terrain-tracer-2" />
+            <i className="home-terrain-tracer home-terrain-tracer-3" />
+          </div>
           <div className="relative mx-auto grid max-w-7xl items-center gap-12 px-6 py-14 lg:min-h-[610px] lg:grid-cols-[1.04fr_.96fr] lg:px-12">
             <div className="max-w-3xl">
               <div className="home-product-kicker mb-6">

@@ -64,3 +64,16 @@ Homepage and toolkit refinement, 3 September 2026:
 - While a role card is hovered or keyboard-focused, continuously crossfade between its two character variants. Stop and reset the animation when the card is no longer active; respect reduced-motion preferences.
 - Remove the standalone homepage header and navigation. Integrate the Engineering Compass name and mark into the hero content in place of the former Standard assessment eyebrow; retain the compact header only inside the assessment and results flow.
 - Give every Technical Toolkit card a concise, evidence-aligned list of component skills that appears on hover or keyboard focus.
+
+## Homepage motion-background refinement
+
+Approved for direct implementation, 5 September 2026:
+
+> “沒事你直接給一個你覺得最合適的方案然後直接上線吧”
+
+- Selected direction: slow-moving topographic field lines, chosen as the closest fit with the existing restrained green-and-lime visual system.
+- Keep the animation behind the complete homepage rather than limiting it to the hero.
+- Preserve the existing information architecture, cards, compass interaction, and content contrast.
+- Use sparse muted-green contour lines and a few lime dashed tracers; do not introduce another compass metaphor, glow, particles, or a futuristic HUD treatment.
+- Animate only transforms and tracer background position at long durations, with a static fallback for `prefers-reduced-motion`.
+- On narrow screens, reduce density and opacity so the background does not compete with the stacked content.

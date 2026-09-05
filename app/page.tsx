@@ -67,6 +67,10 @@ import {
   toggleSelection as toggleMultiSelection,
 } from '@/lib/assessment/selections';
 import {
+  createAttemptSeed,
+  stableOptionOrder,
+} from '@/lib/assessment/option-order';
+import {
   getQuestions,
   interpretPro,
   currentVersion,
@@ -384,11 +388,13 @@ function HomeContent() {
   const [year, setYear] = useState<string | null>(null);
   const [current, setCurrent] = useState(0);
   const [answers, setAnswers] = useState<AssessmentAnswers>({ I01: [] });
+  const [optionOrderSeed, setOptionOrderSeed] = useState(0);
   const [savedDraft, setSavedDraft] = useState<{
     edition: AssessmentEdition;
     year: string | null;
     current: number;
     answers: AssessmentAnswers;
+    optionOrderSeed: number;
   } | null>(null);
   const [latestProfile, setLatestProfile] = useState<CompletedProfile | null>(
     null,
@@ -424,7 +430,7 @@ function HomeContent() {
 
   useEffect(() => {
     if (step !== 'assessment') return;
-    const draft = { edition, year, current, answers };
+    const draft = { edition, year, current, answers, optionOrderSeed };
     try {
       window.localStorage.setItem(
         progressStorageKey,
@@ -437,7 +443,7 @@ function HomeContent() {
     } catch {
       // Keep the active assessment usable if browser storage is unavailable.
     }
-  }, [answers, current, step, year, edition, version]);
+  }, [answers, current, step, year, edition, version, optionOrderSeed]);
 
   useEffect(() => {
     const context = document.modelContext;
@@ -473,6 +479,7 @@ function HomeContent() {
                 : ((requested as string | undefined) ?? null),
             );
             setAnswers({ I01: [] });
+            setOptionOrderSeed(createAttemptSeed());
             setEdition('standard');
             setCurrent(0);
             setStep('assessment');
@@ -519,6 +526,7 @@ function HomeContent() {
   function beginAssessment() {
     setCurrent(0);
     setAnswers({ I01: [] });
+    setOptionOrderSeed(createAttemptSeed());
     fastStreak.current = 0;
     lastNudgeAt.current = -10;
     setShowNudge(false);
@@ -531,6 +539,7 @@ function HomeContent() {
     setYear(savedDraft.year);
     setCurrent(savedDraft.current);
     setAnswers(savedDraft.answers);
+    setOptionOrderSeed(savedDraft.optionOrderSeed);
     fastStreak.current = 0;
     lastNudgeAt.current = -10;
     setShowNudge(false);
@@ -616,8 +625,14 @@ function HomeContent() {
     setShowNudge(false);
     questionStarted.current = Date.now();
   }
+  function reviewCurrentAnswer() {
+    setShowNudge(false);
+    setResponseMs(null);
+    fastStreak.current = 0;
+    questionStarted.current = Date.now();
+  }
   function returnHome() {
-    const draft = { edition, year, current, answers };
+    const draft = { edition, year, current, answers, optionOrderSeed };
     setSavedDraft(draft);
     try {
       window.localStorage.setItem(
@@ -648,6 +663,7 @@ function HomeContent() {
     setYear(null);
     setCurrent(0);
     setAnswers({ I01: [] });
+    setOptionOrderSeed(0);
     fastStreak.current = 0;
     lastNudgeAt.current = -10;
     setShowNudge(false);
@@ -716,10 +732,12 @@ function HomeContent() {
           activePhaseIndex={activePhaseIndex}
           canContinue={canContinue}
           showNudge={showNudge}
+          optionOrderSeed={optionOrderSeed}
           onChooseNumber={chooseNumber}
           onToggle={toggleSelection}
           onBack={goBack}
           onHome={returnHome}
+          onReviewNudge={reviewCurrentAnswer}
           onAdvance={() => advance(showNudge)}
         />
       )}
@@ -1253,10 +1271,12 @@ function Assessment({
   activePhaseIndex,
   canContinue,
   showNudge,
+  optionOrderSeed,
   onChooseNumber,
   onToggle,
   onBack,
   onHome,
+  onReviewNudge,
   onAdvance,
 }: {
   total: number;
@@ -1267,16 +1287,49 @@ function Assessment({
   activePhaseIndex: number;
   canContinue: boolean;
   showNudge: boolean;
+  optionOrderSeed: number;
   onChooseNumber: (value: number) => void;
   onToggle: (id: string) => void;
   onBack: () => void;
   onHome: () => void;
+  onReviewNudge: () => void;
   onAdvance: () => void;
 }) {
   const { t } = useLanguage();
   const phase = phaseCopy[question.phase];
   const PhaseIcon = phase.icon;
   const scale = question.kind === 'behaviour' ? behaviourScale : technicalScale;
+  const [revealedQuestionId, setRevealedQuestionId] = useState('');
+  useEffect(() => {
+    const timer = window.setTimeout(
+      () => setRevealedQuestionId(question.id),
+      900,
+    );
+    return () => window.clearTimeout(timer);
+  }, [question.id]);
+  const answersReady = revealedQuestionId === question.id;
+  const displayedOrderedOptions = useMemo(() => {
+    if (
+      question.kind !== 'context' &&
+      question.kind !== 'judgment' &&
+      question.kind !== 'proCheck'
+    )
+      return [];
+    const shouldShuffle =
+      question.kind === 'judgment' || question.phase === 'proScenarios';
+    return shouldShuffle
+      ? stableOptionOrder(question.options, question.id, optionOrderSeed)
+      : question.options;
+  }, [optionOrderSeed, question]);
+  const displayedMultiOptions = useMemo(() => {
+    if (question.kind !== 'interest' && question.kind !== 'growth') return [];
+    return stableOptionOrder(
+      question.options,
+      question.id,
+      optionOrderSeed,
+      exclusiveSelectionId(question.kind),
+    );
+  }, [optionOrderSeed, question]);
   return (
     <LocalizedContent>
       {
@@ -1357,14 +1410,24 @@ function Assessment({
                       {'common.takeAMomentToReadEachQuestionBeforeChoosing'}
                     </p>
                   </div>
-                  <Button
-                    className="nudge-continue"
-                    size="lg"
-                    onClick={onAdvance}
-                  >
-                    {'common.skipAnswerAndContinue'}{' '}
-                    <ArrowRight className="ml-1 size-4" />
-                  </Button>
+                  <div className="nudge-actions">
+                    <Button
+                      className="nudge-review"
+                      variant="outline"
+                      size="lg"
+                      onClick={onReviewNudge}
+                    >
+                      {'common.reviewMyAnswer'}
+                    </Button>
+                    <Button
+                      className="nudge-continue"
+                      size="lg"
+                      onClick={onAdvance}
+                    >
+                      {'common.keepAnswerAndContinue'}{' '}
+                      <ArrowRight className="ml-1 size-4" />
+                    </Button>
+                  </div>
                 </div>
               </div>
             )}
@@ -1383,41 +1446,56 @@ function Assessment({
                   {question.helper}
                 </p>
               )}
-              {(question.kind === 'behaviour' ||
-                question.kind === 'technical') && (
-                <ScaleQuestion
-                  selected={typeof selected === 'number' ? selected : undefined}
-                  prompt={scale.prompt}
-                  low={scale.low}
-                  high={scale.high}
-                  labels={
-                    question.kind === 'behaviour'
-                      ? behaviourScale.details
-                      : undefined
-                  }
-                  onChoose={onChooseNumber}
-                />
-              )}
-              {(question.kind === 'context' ||
-                question.kind === 'judgment' ||
-                question.kind === 'proCheck') && (
-                <OrderedChoices
-                  options={question.options}
-                  selected={typeof selected === 'number' ? selected : undefined}
-                  onChoose={onChooseNumber}
-                  scenario={
-                    question.kind === 'judgment' || question.kind === 'proCheck'
-                  }
-                />
-              )}
-              {(question.kind === 'interest' || question.kind === 'growth') && (
-                <MultiChoices
-                  exclusiveId={exclusiveSelectionId(question.kind)}
-                  options={question.options}
-                  selected={Array.isArray(selected) ? selected : []}
-                  onToggle={onToggle}
-                />
-              )}
+              <div
+                className={`answer-reveal ${answersReady ? 'is-ready' : ''}`}
+                aria-busy={!answersReady}
+              >
+                {(question.kind === 'behaviour' ||
+                  question.kind === 'technical') && (
+                  <ScaleQuestion
+                    disabled={!answersReady}
+                    selected={
+                      typeof selected === 'number' ? selected : undefined
+                    }
+                    prompt={scale.prompt}
+                    low={scale.low}
+                    high={scale.high}
+                    labels={
+                      question.kind === 'behaviour'
+                        ? behaviourScale.details
+                        : undefined
+                    }
+                    onChoose={onChooseNumber}
+                  />
+                )}
+                {(question.kind === 'context' ||
+                  question.kind === 'judgment' ||
+                  question.kind === 'proCheck') &&
+                  displayedOrderedOptions.length > 0 && (
+                    <OrderedChoices
+                      disabled={!answersReady}
+                      options={displayedOrderedOptions}
+                      selected={
+                        typeof selected === 'number' ? selected : undefined
+                      }
+                      onChoose={onChooseNumber}
+                      scenario={
+                        question.kind === 'judgment' ||
+                        question.kind === 'proCheck'
+                      }
+                    />
+                  )}
+                {(question.kind === 'interest' || question.kind === 'growth') &&
+                  displayedMultiOptions.length > 0 && (
+                    <MultiChoices
+                      disabled={!answersReady}
+                      exclusiveId={exclusiveSelectionId(question.kind)}
+                      options={displayedMultiOptions}
+                      selected={Array.isArray(selected) ? selected : []}
+                      onToggle={onToggle}
+                    />
+                  )}
+              </div>
               <div className="mt-8 flex items-center justify-between border-t pt-6">
                 <Button variant="ghost" size="lg" onClick={onBack}>
                   <ArrowLeft className="mr-1 size-4" /> {'common.previous'}
@@ -1443,6 +1521,7 @@ function Assessment({
 }
 
 function ScaleQuestion({
+  disabled,
   selected,
   prompt,
   low,
@@ -1450,6 +1529,7 @@ function ScaleQuestion({
   labels,
   onChoose,
 }: {
+  disabled?: boolean;
   selected?: number;
   prompt: string;
   low: string;
@@ -1473,6 +1553,7 @@ function ScaleQuestion({
                 type="button"
                 key={value}
                 className={`scale-position ${selected === value ? 'scale-position-selected' : ''}`}
+                disabled={disabled}
                 onClick={() => onChoose(value)}
                 aria-label={
                   labels
@@ -1492,11 +1573,13 @@ function ScaleQuestion({
 }
 
 function OrderedChoices({
+  disabled,
   options,
   selected,
   onChoose,
   scenario,
 }: {
+  disabled?: boolean;
   options: Array<{ id: string; label: string; value: number }>;
   selected?: number;
   onChoose: (value: number) => void;
@@ -1513,6 +1596,7 @@ function OrderedChoices({
                 type="button"
                 key={option.id}
                 className={`ordered-choice ${selected === option.value ? 'ordered-choice-selected' : ''}`}
+                disabled={disabled}
                 onClick={() => onChoose(option.value)}
                 aria-pressed={selected === option.value}
               >
@@ -1533,11 +1617,13 @@ function OrderedChoices({
 }
 
 function MultiChoices({
+  disabled,
   options,
   selected,
   onToggle,
   exclusiveId,
 }: {
+  disabled?: boolean;
   options: Array<{ id: string; label: string }>;
   selected: string[];
   onToggle: (id: string) => void;
@@ -1560,7 +1646,9 @@ function MultiChoices({
                   onClick={() => onToggle(option.id)}
                   aria-pressed={checked}
                   disabled={
-                    selected.includes(exclusiveId) && option.id !== exclusiveId
+                    disabled ||
+                    (selected.includes(exclusiveId) &&
+                      option.id !== exclusiveId)
                   }
                 >
                   <span className="multi-check">

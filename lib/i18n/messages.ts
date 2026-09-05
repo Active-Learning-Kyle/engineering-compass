@@ -378,7 +378,8 @@ export const en = {
   'common.youReAnsweringALittleQuickly': "You're answering a little quickly",
   'common.takeAMomentToReadEachQuestionBeforeChoosing':
     'Take a moment to read each question before choosing. A more considered response is more likely to give you a result that reflects your current experience.',
-  'common.skipAnswerAndContinue': 'Skip Answer and Continue',
+  'common.reviewMyAnswer': 'Review my answer',
+  'common.keepAnswerAndContinue': 'Keep answer & continue',
   'common.previous': 'Previous',
   'common.next': 'Next',
   'common.viewMyProfile': 'View my profile',
@@ -461,7 +462,7 @@ export const en = {
     'Your profile shows how you currently approach engineering work.',
 
   'question.PE01.prompt':
-    'Think of a time you worked on assembling a mechanism and checking alignment or freedom of movement. Which description matches your experience?',
+    'Which description best matches your experience assembling a mechanism and checking its alignment or movement?',
   'question.PE01.helper':
     'Think about evidence such as an assembly check, fit measurement, or movement test. You do not need to upload anything.',
   'question.PE01.option.not-yet.label': 'I have not done this yet.',
@@ -480,7 +481,7 @@ export const en = {
   'question.PE01.option.verified.feedback':
     'Build on that experience by explaining an assembly check, fit measurement, or movement test to a teammate and testing an unfamiliar case.',
   'question.PE02.prompt':
-    'Think of a time you worked on isolating a mechanical fault and testing an adjustment. Which description matches your experience?',
+    'Which description best matches your experience finding a mechanical fault and testing an adjustment?',
   'question.PE02.helper':
     'Think about evidence such as a before-and-after test or a fault log. You do not need to upload anything.',
   'question.PE02.option.not-yet.label': 'I have not done this yet.',
@@ -499,7 +500,7 @@ export const en = {
   'question.PE02.option.verified.feedback':
     'Build on that experience by explaining a before-and-after test or a fault log to a teammate and testing an unfamiliar case.',
   'question.PE03.prompt':
-    'Think of a time you worked on creating a dimensioned model that another person could edit. Which description matches your experience?',
+    'Which description best matches your experience creating a dimensioned 3D model another person could edit?',
   'question.PE03.helper':
     'Think about evidence such as an editable model and a clear dimensioning scheme. You do not need to upload anything.',
   'question.PE03.option.not-yet.label': 'I have not done this yet.',
@@ -518,7 +519,7 @@ export const en = {
   'question.PE03.option.verified.feedback':
     'Build on that experience by explaining an editable model and a clear dimensioning scheme to a teammate and testing an unfamiliar case.',
   'question.PE04.prompt':
-    'Think of a time you worked on checking the fit of mating parts before manufacture. Which description matches your experience?',
+    'Which description best matches your experience checking the fit of mating parts before manufacture?',
   'question.PE04.helper':
     'Think about evidence such as a clearance check or a test fit against the model. You do not need to upload anything.',
   'question.PE04.option.not-yet.label': 'I have not done this yet.',
@@ -537,7 +538,7 @@ export const en = {
   'question.PE04.option.verified.feedback':
     'Build on that experience by explaining a clearance check or a test fit against the model to a teammate and testing an unfamiliar case.',
   'question.PE05.prompt':
-    'Think of a time you worked on preparing a file and approved machine settings for a fabricated part. Which description matches your experience?',
+    'Which description best matches your experience preparing a fabrication file and approved machine settings?',
   'question.PE05.helper':
     'Think about evidence such as a reviewed setup file and a test piece. You do not need to upload anything.',
   'question.PE05.option.not-yet.label': 'I have not done this yet.',
@@ -556,7 +557,7 @@ export const en = {
   'question.PE05.option.verified.feedback':
     'Build on that experience by explaining a reviewed setup file and a test piece to a teammate and testing an unfamiliar case.',
   'question.PE06.prompt':
-    'Think of a time you worked on adjusting a fabrication process after inspecting a test piece. Which description matches your experience?',
+    'Which description best matches your experience adjusting a fabrication process after inspecting a test piece?',
   'question.PE06.helper':
     'Think about evidence such as measured defects and the effect of one changed setting. You do not need to upload anything.',
   'question.PE06.option.not-yet.label': 'I have not done this yet.',
@@ -575,7 +576,7 @@ export const en = {
   'question.PE06.option.verified.feedback':
     'Build on that experience by explaining measured defects and the effect of one changed setting to a teammate and testing an unfamiliar case.',
   'question.PE07.prompt':
-    'Think of a time you worked on building and measuring a low-voltage circuit using appropriate safety procedures. Which description matches your experience?',
+    'Which description best matches your experience building and measuring a low-voltage circuit safely?',
   'question.PE07.helper':
     'Think about evidence such as measurements compared with expected circuit behaviour. You do not need to upload anything.',
   'question.PE07.option.not-yet.label': 'I have not done this yet.',
@@ -594,7 +595,7 @@ export const en = {
   'question.PE07.option.verified.feedback':
     'Build on that experience by explaining measurements compared with expected circuit behaviour to a teammate and testing an unfamiliar case.',
   'question.PE08.prompt':
-    'Think of a time you worked on finding a circuit fault through systematic measurements. Which description matches your experience?',
+    'Which description best matches your experience finding a circuit fault through systematic measurements?',
   'question.PE08.helper':
     'Think about evidence such as a diagnostic sequence identifying the fault. You do not need to upload anything.',
   'question.PE08.option.not-yet.label': 'I have not done this yet.',
@@ -613,7 +614,7 @@ export const en = {
   'question.PE08.option.verified.feedback':
     'Build on that experience by explaining a diagnostic sequence identifying the fault to a teammate and testing an unfamiliar case.',
   'question.PE09.prompt':
-    'Think of a time you worked on writing or adapting code to meet a defined input-output requirement. Which description matches your experience?',
+    'Which description best matches your experience writing or adapting code to meet an input-output requirement?',
   'question.PE09.helper':
     'Think about evidence such as a working program with repeatable tests. You do not need to upload anything.',
   'question.PE09.option.not-yet.label': 'I have not done this yet.',
@@ -632,7 +633,7 @@ export const en = {
   'question.PE09.option.verified.feedback':
     'Build on that experience by explaining a working program with repeatable tests to a teammate and testing an unfamiliar case.',
   'question.PE10.prompt':
-    'Think of a time you worked on finding a software bug and checking that the fix does not break another behaviour. Which description matches your experience?',
+    'Which description best matches your experience finding a software bug and checking the fix does not break something else?',
   'question.PE10.helper':
     'Think about evidence such as a minimal failing example and a regression test. You do not need to upload anything.',
   'question.PE10.option.not-yet.label': 'I have not done this yet.',
@@ -651,7 +652,7 @@ export const en = {
   'question.PE10.option.verified.feedback':
     'Build on that experience by explaining a minimal failing example and a regression test to a teammate and testing an unfamiliar case.',
   'question.PE11.prompt':
-    'Think of a time you worked on reading a hardware input and using it to control an output. Which description matches your experience?',
+    'Which description best matches your experience reading a hardware input and using it to control an output?',
   'question.PE11.helper':
     'Think about evidence such as a repeatable input-output demonstration. You do not need to upload anything.',
   'question.PE11.option.not-yet.label': 'I have not done this yet.',
@@ -670,7 +671,7 @@ export const en = {
   'question.PE11.option.verified.feedback':
     'Build on that experience by explaining a repeatable input-output demonstration to a teammate and testing an unfamiliar case.',
   'question.PE12.prompt':
-    'Think of a time you worked on diagnosing timing or state problems in an embedded system. Which description matches your experience?',
+    'Which description best matches your experience diagnosing timing or state problems in an embedded system?',
   'question.PE12.helper':
     'Think about evidence such as logs or observations that isolate the timing or state issue. You do not need to upload anything.',
   'question.PE12.option.not-yet.label': 'I have not done this yet.',
@@ -689,7 +690,7 @@ export const en = {
   'question.PE12.option.verified.feedback':
     'Build on that experience by explaining logs or observations that isolate the timing or state issue to a teammate and testing an unfamiliar case.',
   'question.PE13.prompt':
-    'Think of a time you worked on calibrating a sensor against a reference and checking repeatability. Which description matches your experience?',
+    'Which description best matches your experience calibrating a sensor against a reference and checking repeatability?',
   'question.PE13.helper':
     'Think about evidence such as reference readings and a record of variation. You do not need to upload anything.',
   'question.PE13.option.not-yet.label': 'I have not done this yet.',
@@ -708,7 +709,7 @@ export const en = {
   'question.PE13.option.verified.feedback':
     'Build on that experience by explaining reference readings and a record of variation to a teammate and testing an unfamiliar case.',
   'question.PE14.prompt':
-    'Think of a time you worked on handling missing or unreliable readings in a connected data stream. Which description matches your experience?',
+    'Which description best matches your experience handling missing or unreliable readings in a connected data stream?',
   'question.PE14.helper':
     'Think about evidence such as a data-quality check and a tested recovery behaviour. You do not need to upload anything.',
   'question.PE14.option.not-yet.label': 'I have not done this yet.',
@@ -727,7 +728,7 @@ export const en = {
   'question.PE14.option.verified.feedback':
     'Build on that experience by explaining a data-quality check and a tested recovery behaviour to a teammate and testing an unfamiliar case.',
   'question.PE15.prompt':
-    'Think of a time you worked on evaluating a model with data not used for training. Which description matches your experience?',
+    'Which description best matches your experience evaluating a model with data not used for training?',
   'question.PE15.helper':
     'Think about evidence such as held-out examples and an error analysis. You do not need to upload anything.',
   'question.PE15.option.not-yet.label': 'I have not done this yet.',
@@ -746,7 +747,7 @@ export const en = {
   'question.PE15.option.verified.feedback':
     'Build on that experience by explaining held-out examples and an error analysis to a teammate and testing an unfamiliar case.',
   'question.PE16.prompt':
-    'Think of a time you worked on checking how lighting, background, or user differences affect a vision model. Which description matches your experience?',
+    'Which description best matches your experience checking how lighting, backgrounds, or user differences affect a vision model?',
   'question.PE16.helper':
     'Think about evidence such as comparisons across conditions and documented limitations. You do not need to upload anything.',
   'question.PE16.option.not-yet.label': 'I have not done this yet.',
@@ -765,7 +766,7 @@ export const en = {
   'question.PE16.option.verified.feedback':
     'Build on that experience by explaining comparisons across conditions and documented limitations to a teammate and testing an unfamiliar case.',
   'question.PE17.prompt':
-    'Think of a time you worked on agreeing and testing an interface between two subsystems. Which description matches your experience?',
+    'Which description best matches your experience agreeing and testing an interface between two subsystems?',
   'question.PE17.helper':
     'Think about evidence such as an interface specification and an end-to-end test. You do not need to upload anything.',
   'question.PE17.option.not-yet.label': 'I have not done this yet.',
@@ -784,7 +785,7 @@ export const en = {
   'question.PE17.option.verified.feedback':
     'Build on that experience by explaining an interface specification and an end-to-end test to a teammate and testing an unfamiliar case.',
   'question.PE18.prompt':
-    'Think of a time you worked on testing how an integrated system recovers from a missing input or failed component. Which description matches your experience?',
+    'Which description best matches your experience testing how an integrated system recovers from a missing input or failed component?',
   'question.PE18.helper':
     'Think about evidence such as a controlled failure test and a recovery check. You do not need to upload anything.',
   'question.PE18.option.not-yet.label': 'I have not done this yet.',
@@ -1146,7 +1147,8 @@ export const zhHant: Record<MessageKey, string> = {
   'common.youReAnsweringALittleQuickly': '你答得有點快呢',
   'common.takeAMomentToReadEachQuestionBeforeChoosing':
     '稍微讀完題目再選擇，更容易得到貼近你目前真實狀態的結果。',
-  'common.skipAnswerAndContinue': '略過提示並繼續',
+  'common.reviewMyAnswer': '重新檢查答案',
+  'common.keepAnswerAndContinue': '保留答案並繼續',
   'common.previous': '上一題',
   'common.next': '下一題',
   'common.viewMyProfile': '查看我的能力概況',
@@ -1224,7 +1226,7 @@ export const zhHant: Record<MessageKey, string> = {
   'result.analysis.default': '這份概況呈現你目前處理工程工作的方式。',
 
   'question.PE01.prompt':
-    '回想你曾經組裝機構，並檢查對位或活動順暢程度的經驗。以下哪項描述最符合你的情況？',
+    '以下哪項最符合你組裝機構，並檢查對位或活動情況的經驗？',
   'question.PE01.helper':
     '可以回想組裝檢查、配合量度或運動測試等證據。毋須上載任何資料。',
   'question.PE01.option.not-yet.label': '我尚未做過這項工作。',
@@ -1243,7 +1245,7 @@ export const zhHant: Record<MessageKey, string> = {
   'question.PE01.option.verified.feedback':
     '向隊友解釋組裝檢查、配合量度或運動測試，再測試一個不熟悉的情況，延伸已有經驗。',
   'question.PE02.prompt':
-    '回想你曾經找出機械故障，並測試調整效果的經驗。以下哪項描述最符合你的情況？',
+    '以下哪項最符合你找出機械故障，並測試調整效果的經驗？',
   'question.PE02.helper':
     '可以回想調整前後的測試或故障紀錄等證據。毋須上載任何資料。',
   'question.PE02.option.not-yet.label': '我尚未做過這項工作。',
@@ -1262,7 +1264,7 @@ export const zhHant: Record<MessageKey, string> = {
   'question.PE02.option.verified.feedback':
     '向隊友解釋調整前後的測試或故障紀錄，再測試一個不熟悉的情況，延伸已有經驗。',
   'question.PE03.prompt':
-    '回想你曾經建立另一個人也能編輯的標註尺寸模型的經驗。以下哪項描述最符合你的情況？',
+    '以下哪項最符合你建立可供他人編輯的標註尺寸 3D 模型的經驗？',
   'question.PE03.helper':
     '可以回想可編輯模型及清晰的尺寸標註方式等證據。毋須上載任何資料。',
   'question.PE03.option.not-yet.label': '我尚未做過這項工作。',
@@ -1281,7 +1283,7 @@ export const zhHant: Record<MessageKey, string> = {
   'question.PE03.option.verified.feedback':
     '向隊友解釋可編輯模型及清晰的尺寸標註方式，再測試一個不熟悉的情況，延伸已有經驗。',
   'question.PE04.prompt':
-    '回想你曾經在製造前檢查配合零件的吻合程度的經驗。以下哪項描述最符合你的情況？',
+    '以下哪項最符合你在製造前檢查配合零件吻合程度的經驗？',
   'question.PE04.helper':
     '可以回想間隙檢查或與模型對照的試裝等證據。毋須上載任何資料。',
   'question.PE04.option.not-yet.label': '我尚未做過這項工作。',
@@ -1299,8 +1301,7 @@ export const zhHant: Record<MessageKey, string> = {
     '我曾獨立完成這項任務，並能解釋如何檢查結果。',
   'question.PE04.option.verified.feedback':
     '向隊友解釋間隙檢查或與模型對照的試裝，再測試一個不熟悉的情況，延伸已有經驗。',
-  'question.PE05.prompt':
-    '回想你曾經為製造零件準備檔案及獲准的機器設定的經驗。以下哪項描述最符合你的情況？',
+  'question.PE05.prompt': '以下哪項最符合你準備製造檔案及獲准機器設定的經驗？',
   'question.PE05.helper':
     '可以回想已覆核的設定檔及試件等證據。毋須上載任何資料。',
   'question.PE05.option.not-yet.label': '我尚未做過這項工作。',
@@ -1318,8 +1319,7 @@ export const zhHant: Record<MessageKey, string> = {
     '我曾獨立完成這項任務，並能解釋如何檢查結果。',
   'question.PE05.option.verified.feedback':
     '向隊友解釋已覆核的設定檔及試件，再測試一個不熟悉的情況，延伸已有經驗。',
-  'question.PE06.prompt':
-    '回想你曾經檢查試件後調整製造工序的經驗。以下哪項描述最符合你的情況？',
+  'question.PE06.prompt': '以下哪項最符合你檢查試件後調整製造工序的經驗？',
   'question.PE06.helper':
     '可以回想缺陷量度及單一設定改動的效果等證據。毋須上載任何資料。',
   'question.PE06.option.not-yet.label': '我尚未做過這項工作。',
@@ -1337,8 +1337,7 @@ export const zhHant: Record<MessageKey, string> = {
     '我曾獨立完成這項任務，並能解釋如何檢查結果。',
   'question.PE06.option.verified.feedback':
     '向隊友解釋缺陷量度及單一設定改動的效果，再測試一個不熟悉的情況，延伸已有經驗。',
-  'question.PE07.prompt':
-    '回想你曾經遵循適當安全程序搭建並量度低電壓電路的經驗。以下哪項描述最符合你的情況？',
+  'question.PE07.prompt': '以下哪項最符合你安全搭建及量度低電壓電路的經驗？',
   'question.PE07.helper':
     '可以回想與預期電路表現比較的量度結果等證據。毋須上載任何資料。',
   'question.PE07.option.not-yet.label': '我尚未做過這項工作。',
@@ -1356,8 +1355,7 @@ export const zhHant: Record<MessageKey, string> = {
     '我曾獨立完成這項任務，並能解釋如何檢查結果。',
   'question.PE07.option.verified.feedback':
     '向隊友解釋與預期電路表現比較的量度結果，再測試一個不熟悉的情況，延伸已有經驗。',
-  'question.PE08.prompt':
-    '回想你曾經透過有系統的量度找出電路故障的經驗。以下哪項描述最符合你的情況？',
+  'question.PE08.prompt': '以下哪項最符合你透過有系統量度找出電路故障的經驗？',
   'question.PE08.helper':
     '可以回想能找出故障的診斷步驟等證據。毋須上載任何資料。',
   'question.PE08.option.not-yet.label': '我尚未做過這項工作。',
@@ -1376,7 +1374,7 @@ export const zhHant: Record<MessageKey, string> = {
   'question.PE08.option.verified.feedback':
     '向隊友解釋能找出故障的診斷步驟，再測試一個不熟悉的情況，延伸已有經驗。',
   'question.PE09.prompt':
-    '回想你曾經編寫或調整程式以符合指定輸入輸出要求的經驗。以下哪項描述最符合你的情況？',
+    '以下哪項最符合你編寫或調整程式，以達到輸入輸出要求的經驗？',
   'question.PE09.helper':
     '可以回想可運作的程式及可重複的測試等證據。毋須上載任何資料。',
   'question.PE09.option.not-yet.label': '我尚未做過這項工作。',
@@ -1395,7 +1393,7 @@ export const zhHant: Record<MessageKey, string> = {
   'question.PE09.option.verified.feedback':
     '向隊友解釋可運作的程式及可重複的測試，再測試一個不熟悉的情況，延伸已有經驗。',
   'question.PE10.prompt':
-    '回想你曾經找出軟件錯誤，並確認修正不會破壞其他功能的經驗。以下哪項描述最符合你的情況？',
+    '以下哪項最符合你找出軟件錯誤，並確認修正不會破壞其他功能的經驗？',
   'question.PE10.helper':
     '可以回想最小失敗範例及回歸測試等證據。毋須上載任何資料。',
   'question.PE10.option.not-yet.label': '我尚未做過這項工作。',
@@ -1413,8 +1411,7 @@ export const zhHant: Record<MessageKey, string> = {
     '我曾獨立完成這項任務，並能解釋如何檢查結果。',
   'question.PE10.option.verified.feedback':
     '向隊友解釋最小失敗範例及回歸測試，再測試一個不熟悉的情況，延伸已有經驗。',
-  'question.PE11.prompt':
-    '回想你曾經讀取硬件輸入，並用它控制輸出的經驗。以下哪項描述最符合你的情況？',
+  'question.PE11.prompt': '以下哪項最符合你讀取硬件輸入並用它控制輸出的經驗？',
   'question.PE11.helper':
     '可以回想可重複的輸入輸出示範等證據。毋須上載任何資料。',
   'question.PE11.option.not-yet.label': '我尚未做過這項工作。',
@@ -1433,7 +1430,7 @@ export const zhHant: Record<MessageKey, string> = {
   'question.PE11.option.verified.feedback':
     '向隊友解釋可重複的輸入輸出示範，再測試一個不熟悉的情況，延伸已有經驗。',
   'question.PE12.prompt':
-    '回想你曾經診斷嵌入式系統的時序或狀態問題的經驗。以下哪項描述最符合你的情況？',
+    '以下哪項最符合你診斷嵌入式系統時序或狀態問題的經驗？',
   'question.PE12.helper':
     '可以回想能隔離時序或狀態問題的紀錄或觀察等證據。毋須上載任何資料。',
   'question.PE12.option.not-yet.label': '我尚未做過這項工作。',
@@ -1452,7 +1449,7 @@ export const zhHant: Record<MessageKey, string> = {
   'question.PE12.option.verified.feedback':
     '向隊友解釋能隔離時序或狀態問題的紀錄或觀察，再測試一個不熟悉的情況，延伸已有經驗。',
   'question.PE13.prompt':
-    '回想你曾經根據參考值校準感測器，並檢查重複量度的一致性的經驗。以下哪項描述最符合你的情況？',
+    '以下哪項最符合你根據參考值校準感測器，並檢查重複量度一致性的經驗？',
   'question.PE13.helper':
     '可以回想參考讀數及變化紀錄等證據。毋須上載任何資料。',
   'question.PE13.option.not-yet.label': '我尚未做過這項工作。',
@@ -1471,7 +1468,7 @@ export const zhHant: Record<MessageKey, string> = {
   'question.PE13.option.verified.feedback':
     '向隊友解釋參考讀數及變化紀錄，再測試一個不熟悉的情況，延伸已有經驗。',
   'question.PE14.prompt':
-    '回想你曾經處理聯網數據流中缺失或不可靠的讀數的經驗。以下哪項描述最符合你的情況？',
+    '以下哪項最符合你處理聯網數據流中缺失或不可靠讀數的經驗？',
   'question.PE14.helper':
     '可以回想數據質素檢查及已測試的恢復機制等證據。毋須上載任何資料。',
   'question.PE14.option.not-yet.label': '我尚未做過這項工作。',
@@ -1489,8 +1486,7 @@ export const zhHant: Record<MessageKey, string> = {
     '我曾獨立完成這項任務，並能解釋如何檢查結果。',
   'question.PE14.option.verified.feedback':
     '向隊友解釋數據質素檢查及已測試的恢復機制，再測試一個不熟悉的情況，延伸已有經驗。',
-  'question.PE15.prompt':
-    '回想你曾經以未用於訓練的數據評估模型的經驗。以下哪項描述最符合你的情況？',
+  'question.PE15.prompt': '以下哪項最符合你以未用於訓練的數據評估模型的經驗？',
   'question.PE15.helper':
     '可以回想保留測試樣本及錯誤分析等證據。毋須上載任何資料。',
   'question.PE15.option.not-yet.label': '我尚未做過這項工作。',
@@ -1509,7 +1505,7 @@ export const zhHant: Record<MessageKey, string> = {
   'question.PE15.option.verified.feedback':
     '向隊友解釋保留測試樣本及錯誤分析，再測試一個不熟悉的情況，延伸已有經驗。',
   'question.PE16.prompt':
-    '回想你曾經檢查光線、背景或使用者差異對視覺模型的影響的經驗。以下哪項描述最符合你的情況？',
+    '以下哪項最符合你檢查光線、背景或使用者差異如何影響視覺模型的經驗？',
   'question.PE16.helper':
     '可以回想不同條件的比較及已記錄的限制等證據。毋須上載任何資料。',
   'question.PE16.option.not-yet.label': '我尚未做過這項工作。',
@@ -1528,7 +1524,7 @@ export const zhHant: Record<MessageKey, string> = {
   'question.PE16.option.verified.feedback':
     '向隊友解釋不同條件的比較及已記錄的限制，再測試一個不熟悉的情況，延伸已有經驗。',
   'question.PE17.prompt':
-    '回想你曾經協定並測試兩個子系統之間的介面的經驗。以下哪項描述最符合你的情況？',
+    '以下哪項最符合你協定及測試兩個子系統之間介面的經驗？',
   'question.PE17.helper':
     '可以回想介面規格及端到端測試等證據。毋須上載任何資料。',
   'question.PE17.option.not-yet.label': '我尚未做過這項工作。',
@@ -1547,7 +1543,7 @@ export const zhHant: Record<MessageKey, string> = {
   'question.PE17.option.verified.feedback':
     '向隊友解釋介面規格及端到端測試，再測試一個不熟悉的情況，延伸已有經驗。',
   'question.PE18.prompt':
-    '回想你曾經測試整合系統在缺少輸入或元件失效時如何恢復的經驗。以下哪項描述最符合你的情況？',
+    '以下哪項最符合你測試整合系統在缺少輸入或元件失效時如何恢復的經驗？',
   'question.PE18.helper':
     '可以回想受控故障測試及恢復檢查等證據。毋須上載任何資料。',
   'question.PE18.option.not-yet.label': '我尚未做過這項工作。',

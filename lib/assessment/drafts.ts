@@ -9,6 +9,7 @@ export type CurrentDraft = {
   year: string | null;
   current: number;
   answers: AssessmentAnswers;
+  optionOrderSeed: number;
 };
 export function readDraft(
   raw: string,
@@ -87,6 +88,10 @@ export function readDraft(
         year: typeof value.year === 'string' ? value.year : null,
         current,
         answers: value.answers,
+        optionOrderSeed:
+          Number.isInteger(value.optionOrderSeed) && value.optionOrderSeed >= 0
+            ? value.optionOrderSeed >>> 0
+            : 0,
       },
     };
   } catch {

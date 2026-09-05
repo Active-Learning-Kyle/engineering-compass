@@ -20,16 +20,20 @@ English / 繁體中文 · No account required · Responses stay in your browser 
 
 The questions use plain language. You do not need formal engineering project or presentation experience to answer the behavioural items.
 
+Answer choices without a natural sequence are shuffled once for each attempt to reduce order bias. Ordered scales and experience levels stay in their meaningful sequence, and **Other / not sure yet** stays last. The chosen order is saved with unfinished progress, so it does not move when you resume.
+
+Answer tiles appear after a brief pause. If several answers are entered unusually quickly, a reminder lets the learner either review the current answer or keep it and continue.
+
 ## Standard or Pro?
 
-| | Standard | Pro |
-| --- | --- | --- |
-| Purpose | A quick reflection on how you work and your technical experience | A deeper reflection on decisions and experience from specific tasks |
-| Questions | 30 | 60 |
-| Typical time | 8–10 minutes | About 18–25 minutes |
-| Core profile | Six competencies + nine technical areas | The same core profile |
-| Additional reflection | Two engineering-judgment scenarios | Also includes 12 team-decision trade-offs and 18 practice-evidence items |
-| Results | Current modes, experience scope, strengths, and next steps | All Standard results, plus decision feedback and practice-evidence reflections |
+|                       | Standard                                                         | Pro                                                                            |
+| --------------------- | ---------------------------------------------------------------- | ------------------------------------------------------------------------------ |
+| Purpose               | A quick reflection on how you work and your technical experience | A deeper reflection on decisions and experience from specific tasks            |
+| Questions             | 30                                                               | 60                                                                             |
+| Typical time          | 8–10 minutes                                                     | About 18–25 minutes                                                            |
+| Core profile          | Six competencies + nine technical areas                          | The same core profile                                                          |
+| Additional reflection | Two engineering-judgment scenarios                               | Also includes 12 team-decision trade-offs and 18 practice-evidence items       |
+| Results               | Current modes, experience scope, strengths, and next steps       | All Standard results, plus decision feedback and practice-evidence reflections |
 
 **Pro adds context, not extra points.** Its additional questions do not change the Standard core scores. Team decisions offer two defensible approaches with different benefits and costs, rather than a textbook “best answer.”
 
@@ -59,7 +63,7 @@ The radar shows six competencies. The Technical Toolkit shows nine separate self
 
 ![Six-competency radar beside the nine-area Technical Toolkit](docs/images/competencies-toolkit.jpg)
 
-*These screenshots use synthetic example responses, not student data. Your results depend on your own answers.*
+_These screenshots use synthetic example responses, not student data. Your results depend on your own answers._
 
 ## Meet the six engineering roles
 
@@ -164,14 +168,18 @@ Static output is written to `dist/client`. The [GitHub Pages workflow](.github/w
 
 ### Where to find things
 
-| Location | Contents |
-| --- | --- |
-| [app/page.tsx](app/page.tsx) | Home, study-year step, assessment flow, and results |
-| [app/globals.css](app/globals.css) | Visual system, responsive layouts, and export styling |
-| [lib/assessment](lib/assessment) | Questions, scoring, interpretation, saved drafts, and PDF export |
-| [lib/i18n](lib/i18n) | English and Traditional Chinese messages with stable translation keys |
-| [public/modes](public/modes) | Six role illustrations, each with two character variants |
+| Location                                               | Contents                                                                  |
+| ------------------------------------------------------ | ------------------------------------------------------------------------- |
+| [app/page.tsx](app/page.tsx)                           | Home, study-year step, assessment flow, and results                       |
+| [app/globals.css](app/globals.css)                     | Visual system, responsive layouts, and export styling                     |
+| [lib/assessment](lib/assessment)                       | Questions, scoring, interpretation, saved drafts, and PDF export          |
+| [lib/i18n](lib/i18n)                                   | English and Traditional Chinese messages with stable translation keys     |
+| [public/modes](public/modes)                           | Six role illustrations, each with two character variants                  |
 | [tests/assessment.test.mjs](tests/assessment.test.mjs) | Question, language, scoring, interpretation, and export regression checks |
-| [docs](docs) | Design notes and assessment development history |
+| [docs](docs)                                           | Design notes and assessment development history                           |
 
 The current question sets are **Standard v1.8 / Pro v0.4**. Older documents mentioning a Pro pilot describe development history; the current interface presents Standard and Pro. Revisions that change question meanings are versioned so older drafts are not silently reinterpreted. Passing software tests does not establish assessment validity.
+
+## Licence and permitted use
+
+The software code is available under the [MIT License](LICENSE). The assessment questions, interpretations, written content, Engineering Compass name and branding, screenshots, and role illustrations are not covered by that software licence; they remain all rights reserved unless a file states otherwise. See [CONTENT-NOTICE.md](CONTENT-NOTICE.md) before reusing the assessment or its visual assets.

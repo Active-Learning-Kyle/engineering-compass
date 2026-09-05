@@ -814,9 +814,24 @@
   color: #785329;
   line-height: 1.65;
 }
+.nudge-actions {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.75rem;
+}
+.nudge-review,
 .nudge-continue {
-  width: 100%;
   border-radius: 999px;
+}
+.nudge-review {
+  border-color: #b89a69;
+  background: #fffdf8;
+  color: #4d3213;
+}
+@media (max-width: 520px) {
+  .nudge-actions {
+    grid-template-columns: 1fr;
+  }
 }
 .assessment-home {
   display: inline-flex;
@@ -1786,6 +1801,20 @@ html:lang(zh-Hant) .toolkit-score-meta {
   line-height: 1.25;
   color: #163f27;
 }
+.answer-reveal {
+  min-height: 9rem;
+  opacity: 0;
+  transform: translateY(0.45rem);
+  pointer-events: none;
+  transition:
+    opacity 0.28s ease,
+    transform 0.28s ease;
+}
+.answer-reveal.is-ready {
+  opacity: 1;
+  transform: translateY(0);
+  pointer-events: auto;
+}
 .assessment-workbench .ordered-choice,
 .assessment-workbench .multi-choice {
   min-height: 92px;
@@ -1842,6 +1871,10 @@ html:lang(zh-Hant) .toolkit-score-meta {
   }
 }
 @media (prefers-reduced-motion: reduce) {
+  .answer-reveal {
+    transform: none;
+    transition-duration: 0.01ms;
+  }
   .assessment-version-card,
   .assessment-version-card.is-available {
     transition: none;

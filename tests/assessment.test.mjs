@@ -72,6 +72,38 @@ const {
 } = await import('../lib/assessment/completed-profile.ts');
 const { exclusiveSelectionId, toggleSelection } =
   await import('../lib/assessment/selections.ts');
+const { createAttemptSeed, stableOptionOrder } =
+  await import('../lib/assessment/option-order.ts');
+
+test('unordered choices are shuffled stably while the unsure choice stays last', () => {
+  const interest = questions.find((q) => q.kind === 'interest');
+  const first = stableOptionOrder(
+    interest.options,
+    interest.id,
+    2048,
+    exclusiveSelectionId('interest'),
+  );
+  const repeated = stableOptionOrder(
+    interest.options,
+    interest.id,
+    2048,
+    exclusiveSelectionId('interest'),
+  );
+  assert.deepEqual(first, repeated);
+  assert.equal(first.at(-1).id, 'other-interest');
+  assert.deepEqual(
+    new Set(first.map((option) => option.id)),
+    new Set(interest.options.map((option) => option.id)),
+  );
+  assert.notDeepEqual(
+    first.slice(0, -1).map((option) => option.id),
+    interest.options.slice(0, -1).map((option) => option.id),
+  );
+  assert.equal(
+    createAttemptSeed(() => 0.5),
+    2147483648,
+  );
+});
 test('unsure choice leaves concrete cards visible but disabled', async () => {
   const { createElement } = await import('react');
   const { renderToStaticMarkup } = await import('react-dom/server');
@@ -646,6 +678,7 @@ test('Changed question meanings cannot reuse old drafts; current drafts resume w
       year: 'year-1',
       current: 25,
       answers: coreAnswers,
+      optionOrderSeed: 2048,
     };
     assert.deepEqual(readDraft(JSON.stringify(draft)), {
       status: 'current',
@@ -821,6 +854,35 @@ test('Behaviour items keep five numeric frequency anchors tied to recent actual 
       ),
     );
   }
+});
+
+test('Question voice stays consistent and Pro practice prompts remain concise', () => {
+  for (const item of questions.filter((q) => q.kind === 'behaviour'))
+    assert.match(translate(item.prompt, 'en'), /\bI\b/);
+  for (const item of questions.filter((q) => q.kind === 'technical'))
+    assert.match(translate(item.prompt, 'en'), /\byou\b/i);
+  for (const item of proChecks.filter((q) => q.phase === 'proEvidence')) {
+    const prompt = translate(item.prompt, 'en');
+    assert.match(
+      prompt,
+      /^Which description best matches your experience /,
+      item.id,
+    );
+    assert.ok(prompt.split(/\s+/).length <= 20, `${item.id}: ${prompt}`);
+  }
+});
+
+test('Fast-answer reminder lets learners review or keep their answer', () => {
+  const source = readFileSync(
+    new URL('../app/page.tsx', import.meta.url),
+    'utf8',
+  );
+  assert.match(source, /common\.reviewMyAnswer/);
+  assert.match(source, /common\.keepAnswerAndContinue/);
+  assert.match(
+    source,
+    /function reviewCurrentAnswer\(\)[\s\S]*?setShowNudge\(false\)[\s\S]*?questionStarted\.current = Date\.now\(\)/,
+  );
 });
 
 test('Trade-off options have comparable lengths and no merit score metadata', () => {

@@ -84,12 +84,12 @@ export const refinementMessages = {
     '向別人介紹自己的做法時，我也會說明它有哪些做不到的地方。',
   ],
   'assessment.scenarios.helper': [
-    'Both options are reasonable. Given the constraint, choose what you would prioritise first—not the answer that sounds more impressive.',
-    '兩個選項都有合理之處。請根據限制，選擇你實際會優先做的事，而非聽起來較厲害的答案。',
+    'Each option is reasonable. Given the constraint, choose what you would prioritise first—not the answer that sounds more impressive.',
+    '每個選項都有合理之處。請根據限制，選擇你實際會優先做的事，而非聽起來較厲害的答案。',
   ],
   'assessment.scenarios.note': [
-    'These choices explore priorities under constraints. Feedback describes the benefit and cost of each approach; neither option earns points.',
-    '這些選擇探索你在限制下的優先考慮。回饋會說明各做法的價值與代價；兩個選項都不會獲得分數。',
+    'These choices explore priorities under constraints. Feedback describes the benefit and cost of each approach; no option earns points.',
+    '這些選擇探索你在限制下的優先考慮。回饋會說明各做法的價值與代價；所有選項都不會獲得分數。',
   ],
   'home.standard.purpose': [
     'A quick reflection on how you work and your technical experience.',

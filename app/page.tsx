@@ -23,6 +23,7 @@ import {
   Lightbulb,
   MessageCircle,
   RefreshCw,
+  Share2,
   Sparkles,
   Target,
   TimerReset,
@@ -40,6 +41,12 @@ import {
 } from 'lucide-react';
 import { PolarAngleAxis, PolarGrid, Radar, RadarChart } from 'recharts';
 import { exportProfilePdf } from '@/lib/assessment/profile-export';
+import {
+  createRoleShareFile,
+  shareRoleFile,
+  type RoleShareCardData,
+} from '@/lib/assessment/profile-share';
+import { translate } from '@/lib/i18n/translate';
 import { Button } from '@/components/ui/button';
 import { ChartContainer, type ChartConfig } from '@/components/ui/chart';
 import { Progress } from '@/components/ui/progress';
@@ -1745,7 +1752,11 @@ function Results({
   onDownload: () => Promise<void>;
 }) {
   const [isSaving, setIsSaving] = useState(false);
-  const { t } = useLanguage();
+  const [isPreparingShare, setIsPreparingShare] = useState(true);
+  const [isSharing, setIsSharing] = useState(false);
+  const [shareFile, setShareFile] = useState<File | null>(null);
+  const [shareStatus, setShareStatus] = useState<string | null>(null);
+  const { locale, t } = useLanguage();
   const [saveError, setSaveError] = useState<string | null>(null);
   const yearLabel = getStudyYearLabel(year);
   const mode = engineeringModes[modeKey];
@@ -1765,6 +1776,69 @@ function Results({
     }
     return hash % 2 === 0 ? 'a' : 'b';
   }, [profileSeed]);
+  const portraitPath =
+    rolePresentation.image ?? mode.image[characterVariant];
+  const roleKeysSignature = rolePresentation.keys.join('|');
+  const shareCardData = useMemo<RoleShareCardData>(() => {
+    const roleKeys = roleKeysSignature.split('|') as EngineeringModeKey[];
+    const competency = roleKeys
+      .map((key) => {
+        const score = competencyScores.find((item) => item.key === key);
+        return score ? translate(score.fullLabel, locale) : '';
+      })
+      .filter(Boolean)
+      .join(' · ');
+    return {
+      brand: translate('brand.name', locale),
+      code: rolePresentation.code,
+      role: translate(rolePresentation.name, locale),
+      competency,
+      description: translate(rolePresentation.description, locale),
+      keywords: roleKeys
+        .map((key) => translate(engineeringModes[key].keywords, locale))
+        .join(' · '),
+      scope: `${translate('result.scope.label', locale)} · ${translate(stage.name, locale)}`,
+      disclaimer: translate('result.role.disclaimer', locale),
+      imageUrl: assetPath(portraitPath),
+      logoUrl: assetPath('compass.svg'),
+      accent: rolePresentation.accent,
+      tint: rolePresentation.tint,
+      siteUrl: 'https://active-learning-kyle.github.io/engineering-compass/',
+    };
+  }, [
+    competencyScores,
+    locale,
+    portraitPath,
+    rolePresentation.accent,
+    rolePresentation.code,
+    rolePresentation.description,
+    rolePresentation.name,
+    rolePresentation.tint,
+    roleKeysSignature,
+    stage.name,
+  ]);
+  useEffect(() => {
+    let cancelled = false;
+    queueMicrotask(() => {
+      if (cancelled) return;
+      setIsPreparingShare(true);
+      setShareFile(null);
+      setShareStatus(null);
+    });
+    createRoleShareFile(shareCardData)
+      .then((file) => {
+        if (!cancelled) setShareFile(file);
+      })
+      .catch(() => {
+        if (!cancelled) setShareStatus('result.share.error');
+      })
+      .finally(() => {
+        if (!cancelled) setIsPreparingShare(false);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [shareCardData]);
   const nextAction =
     interpretation.growth[0]?.action ?? 'growthAction.not-sure';
   const workingAnalysis = modes.balanced
@@ -1892,6 +1966,40 @@ function Results({
                       : 'result.export.save'}
                   </Button>
                   <Button
+                    variant="outline"
+                    className="mode-share-button rounded-full"
+                    disabled={isPreparingShare || isSharing || !shareFile}
+                    onClick={async () => {
+                      if (!shareFile) return;
+                      setIsSharing(true);
+                      setShareStatus(null);
+                      try {
+                        const outcome = await shareRoleFile(
+                          shareFile,
+                          t('result.share.title', {
+                            role: t(rolePresentation.name),
+                          }),
+                          t('result.share.text', {
+                            role: t(rolePresentation.name),
+                          }),
+                        );
+                        if (outcome === 'downloaded')
+                          setShareStatus('result.share.downloaded');
+                      } catch {
+                        setShareStatus('result.share.error');
+                      } finally {
+                        setIsSharing(false);
+                      }
+                    }}
+                  >
+                    <Share2 className="mr-1 size-4" />
+                    {isPreparingShare
+                      ? 'result.share.preparing'
+                      : isSharing
+                        ? 'result.share.sharing'
+                        : 'result.share.save'}
+                  </Button>
+                  <Button
                     variant="ghost"
                     className="rounded-full"
                     onClick={onRestart}
@@ -1909,6 +2017,14 @@ function Results({
                     {saveError}
                   </p>
                 )}
+                {shareStatus && (
+                  <output
+                    className="mode-action-status"
+                    data-capture-exclude="true"
+                  >
+                    {shareStatus}
+                  </output>
+                )}
               </div>
               <div
                 className="mode-art"
@@ -1921,7 +2037,7 @@ function Results({
                   className="result-character-first result-character-static"
                   data-export-portrait="first"
                   src={assetPath(
-                    rolePresentation.image ?? mode.image[characterVariant],
+                    portraitPath,
                   )}
                   alt=""
                   width={1200}

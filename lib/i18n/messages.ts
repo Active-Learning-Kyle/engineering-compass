@@ -431,6 +431,16 @@ export const en = {
     'The PDF could not be saved. Please let the illustrations finish loading and try again.',
   'result.export.preparing': 'Preparing PDF…',
   'result.export.save': 'Save profile as PDF',
+  'result.share.error':
+    'The role card could not be prepared. Please let the illustration finish loading and try again.',
+  'result.share.preparing': 'Preparing role card…',
+  'result.share.sharing': 'Opening share options…',
+  'result.share.save': 'Share my role',
+  'result.share.downloaded':
+    'Your browser downloaded the role card. You can now share the image.',
+  'result.share.title': 'My Engineering Compass role: {role}',
+  'result.share.text':
+    'My current Engineering Compass role is {role}. Explore yours: https://active-learning-kyle.github.io/engineering-compass/',
   'common.takeAssessmentAgain': 'Take assessment again',
   'common.sixCompetencies': 'SIX COMPETENCIES',
   'result.radar.title': 'How you currently work',
@@ -1228,6 +1238,14 @@ export const zhHant: Record<MessageKey, string> = {
   'result.export.error': '未能儲存 PDF。請等待插圖載入完成後再試。',
   'result.export.preparing': '正在準備 PDF…',
   'result.export.save': '將完整能力概況儲存為 PDF',
+  'result.share.error': '未能準備角色卡。請等待插圖載入完成後再試。',
+  'result.share.preparing': '正在準備角色卡…',
+  'result.share.sharing': '正在開啟分享選項…',
+  'result.share.save': '分享我的角色',
+  'result.share.downloaded': '瀏覽器已下載角色卡，你現在可以分享這張圖片。',
+  'result.share.title': '我的工程羅盤角色：{role}',
+  'result.share.text':
+    '我目前的工程羅盤角色是「{role}」。探索你的角色：https://active-learning-kyle.github.io/engineering-compass/',
   'common.takeAssessmentAgain': '重新測試一次',
   'common.sixCompetencies': '六項核心能力',
   'result.radar.title': '你目前的工作方式',

@@ -157,7 +157,7 @@ export function deriveLeadingModes(scores: CompetencyResult[]) {
 type BlendedRole = {
   name: string;
   description: string;
-  image: string;
+  image: null;
   accent: string;
   tint: string;
 };
@@ -166,42 +166,42 @@ const blendedRoles: Record<string, BlendedRole> = {
   'design+problem': {
     name: 'result.blend.evidenceExperimenter.name',
     description: 'result.blend.evidenceExperimenter.description',
-    image: 'modes-v2/evidence-experimenter.png',
+    image: null,
     accent: '#356f73',
     tint: '#e7f1ef',
   },
   'collaboration+planning': {
     name: 'result.blend.collaborativeCoordinator.name',
     description: 'result.blend.collaborativeCoordinator.description',
-    image: 'modes-v2/collaborative-coordinator.png',
+    image: null,
     accent: '#665a31',
     tint: '#f4efd9',
   },
   'design+handsOn': {
     name: 'result.blend.iterativeMaker.name',
     description: 'result.blend.iterativeMaker.description',
-    image: 'modes-v2/iterative-maker.png',
+    image: null,
     accent: '#8b6a35',
     tint: '#f4eee2',
   },
   'pitch+problem': {
     name: 'result.blend.insightTranslator.name',
     description: 'result.blend.insightTranslator.description',
-    image: 'modes-v2/insight-translator.png',
+    image: null,
     accent: '#5a63a8',
     tint: '#ececf7',
   },
   'collaboration+pitch': {
     name: 'result.blend.communityAdvocate.name',
     description: 'result.blend.communityAdvocate.description',
-    image: 'modes-v2/community-advocate.png',
+    image: null,
     accent: '#8d6c72',
     tint: '#f6eedf',
   },
   'handsOn+planning': {
     name: 'result.blend.deliveryArchitect.name',
     description: 'result.blend.deliveryArchitect.description',
-    image: 'modes-v2/delivery-architect.png',
+    image: null,
     accent: '#5e4a3e',
     tint: '#f2ece7',
   },
@@ -244,7 +244,7 @@ export function deriveRolePresentation(scores: CompetencyResult[]) {
       code,
       name: 'result.role.balanced',
       description: 'result.role.balancedNote',
-      image: 'modes-v2/adaptive-integrator.png',
+      image: null,
       accent: '#276347',
       tint: '#e7f1ea',
     };
@@ -256,7 +256,7 @@ export function deriveRolePresentation(scores: CompetencyResult[]) {
     code,
     name: 'result.blend.adaptiveIntegrator.name',
     description: 'result.blend.adaptiveIntegrator.description',
-    image: 'modes-v2/adaptive-integrator.png',
+    image: null,
     accent: '#276347',
     tint: '#e7f1ea',
   };

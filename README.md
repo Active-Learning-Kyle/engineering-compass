@@ -16,7 +16,7 @@ English / 繁體中文 · No account required · Responses stay in your browser 
 2. Select your undergraduate year, or skip this optional step.
 3. Answer one question at a time. Go back, switch language, or resume saved progress in the same browser.
 4. Explore your current strengths, technical experience, and chosen growth directions.
-5. Select **Save profile as PDF** to download the complete results as a paginated report.
+5. Save the complete profile as a PDF, or share a compact role card from a supported phone or browser.
 
 The questions use plain language. You do not need formal engineering project or presentation experience to answer the behavioural items.
 
@@ -35,7 +35,7 @@ Answer tiles appear after a brief pause. If several answers are entered unusuall
 | Additional reflection | Two engineering-judgment scenarios                               | Also includes 12 team-decision trade-offs and 18 practice-evidence items       |
 | Results               | Current modes, experience scope, strengths, and next steps       | All Standard results, plus decision feedback and practice-evidence reflections |
 
-**Pro adds context, not extra points.** Its additional questions do not change the Standard core scores. Team decisions offer two defensible approaches with different benefits and costs, rather than a textbook “best answer.”
+**Pro adds context, not extra points.** Its additional questions do not change the Standard core scores. Team decisions offer two or three defensible approaches with different benefits and costs, rather than a textbook “best answer.”
 
 ## A look inside
 
@@ -72,19 +72,19 @@ These are **current ways of contributing**, not fixed personality types or assig
 <table>
 <tr>
 <td width="33%" valign="top">
-<img src="public/modes/problem-framer-a.webp" alt="Problem Framer illustration" width="240"><br>
+<img src="public/modes-v2/problem-framer-a.png" alt="Problem Framer illustration" width="240"><br>
 <strong>Problem Framer</strong><br>
 Understand what is happening before choosing what to solve.<br><br>
 <em>Problem Identification</em>
 </td>
 <td width="33%" valign="top">
-<img src="public/modes/project-navigator-b.webp" alt="Project Navigator illustration" width="240"><br>
+<img src="public/modes-v2/project-navigator-b.png" alt="Project Navigator illustration" width="240"><br>
 <strong>Project Navigator</strong><br>
 Turn an idea into a practical plan with steps, priorities, and dependencies.<br><br>
 <em>Proposal with Plan</em>
 </td>
 <td width="33%" valign="top">
-<img src="public/modes/team-connector-a.webp" alt="Team Connector illustration" width="240"><br>
+<img src="public/modes-v2/team-connector-a.png" alt="Team Connector illustration" width="240"><br>
 <strong>Team Connector</strong><br>
 Help people with different skills coordinate their work and understand each other.<br><br>
 <em>Interdisciplinary Collaboration</em>
@@ -92,19 +92,19 @@ Help people with different skills coordinate their work and understand each othe
 </tr>
 <tr>
 <td width="33%" valign="top">
-<img src="public/modes/practical-builder-b.webp" alt="Practical Builder illustration" width="240"><br>
+<img src="public/modes-v2/practical-builder-b.png" alt="Practical Builder illustration" width="240"><br>
 <strong>Practical Builder</strong><br>
 Bring practical technical experience to building, testing, and troubleshooting.<br><br>
 <em>Hands-on Skills</em>
 </td>
 <td width="33%" valign="top">
-<img src="public/modes/prototype-explorer-a.webp" alt="Prototype Explorer illustration" width="240"><br>
+<img src="public/modes-v2/prototype-explorer-a.png" alt="Prototype Explorer illustration" width="240"><br>
 <strong>Prototype Explorer</strong><br>
 Try ideas in a simple form, learn from tests, and improve what you make.<br><br>
 <em>Design Thinking &amp; Prototyping</em>
 </td>
 <td width="33%" valign="top">
-<img src="public/modes/solution-storyteller-b.webp" alt="Solution Storyteller illustration" width="240"><br>
+<img src="public/modes-v2/solution-storyteller-b.png" alt="Solution Storyteller illustration" width="240"><br>
 <strong>Solution Storyteller</strong><br>
 Explain an idea clearly, including its value, evidence, and limitations.<br><br>
 <em>Pitch for Engineering Solutions</em>
@@ -138,6 +138,7 @@ Study year, interests, growth choices, and judgment scenarios do not change the 
 - There is no account, class dashboard, or student ranking system.
 - Saved progress is tied to that browser and device. Clearing browser storage can remove it.
 - PDF generation happens in your browser. It includes the complete results, including Pro reflections when applicable, and uses a fixed-width layout with a side-by-side summary card on phones and desktops.
+- The optional role-sharing card contains the role name, role code, competency labels, illustration, and public site address. It does not include individual answers or the Technical Toolkit.
 - The PDF contains your profile information. Share it only if you want others to see it.
 
 The site is delivered through GitHub Pages; “browser-only responses” describes assessment answers, not the hosting provider's ordinary handling of website requests.
@@ -174,7 +175,7 @@ Static output is written to `dist/client`. The [GitHub Pages workflow](.github/w
 | [app/globals.css](app/globals.css)                     | Visual system, responsive layouts, and export styling                     |
 | [lib/assessment](lib/assessment)                       | Questions, scoring, interpretation, saved drafts, and PDF export          |
 | [lib/i18n](lib/i18n)                                   | English and Traditional Chinese messages with stable translation keys     |
-| [public/modes](public/modes)                           | Six role illustrations, each with two character variants                  |
+| [public/modes-v2](public/modes-v2)                     | Approved geometric role illustrations, with two variants for each role    |
 | [tests/assessment.test.mjs](tests/assessment.test.mjs) | Question, language, scoring, interpretation, and export regression checks |
 | [docs](docs)                                           | Design notes and assessment development history                           |
 

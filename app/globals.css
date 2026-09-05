@@ -1250,12 +1250,34 @@
   background: white;
   color: #17351f;
 }
+.mode-actions .mode-share-button {
+  border-color: rgba(215, 244, 60, 0.58);
+  background: rgba(215, 244, 60, 0.1);
+  color: #eef8b7;
+}
+.mode-actions .mode-share-button:hover {
+  border-color: #d7f43c;
+  background: rgba(215, 244, 60, 0.18);
+  color: white;
+}
+.mode-actions .mode-share-button:disabled {
+  border-color: rgba(255, 255, 255, 0.18);
+  background: rgba(255, 255, 255, 0.06);
+  color: rgba(255, 255, 255, 0.5);
+}
 .mode-actions button:last-child {
   color: rgba(255, 255, 255, 0.88);
 }
 .mode-actions button:last-child:hover {
   background: rgba(255, 255, 255, 0.1);
   color: white;
+}
+.mode-action-status {
+  margin-top: 0.7rem;
+  max-width: 620px;
+  color: rgba(255, 255, 255, 0.76);
+  font-size: 0.78rem;
+  line-height: 1.5;
 }
 .mode-art {
   position: relative;

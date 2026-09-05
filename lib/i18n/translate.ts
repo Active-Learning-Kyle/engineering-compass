@@ -17,8 +17,9 @@ for (const [key, [en, zh]] of Object.entries(refinementMessages))
   register(key, en, zh);
 for (const [id, copy] of Object.entries(scenarioMessages)) {
   register(`question.${id}.prompt`, copy.prompt[0], copy.prompt[1]);
-  for (const option of ['a', 'b'] as const) {
-    const [en, zh, feedbackEn, feedbackZh] = copy[option];
+  for (const [option, value] of Object.entries(copy)) {
+    if (option === 'prompt') continue;
+    const [en, zh, feedbackEn, feedbackZh] = value;
     register(`question.${id}.option.${option}.label`, en, zh);
     register(
       `question.${id}.option.${option}.feedback`,

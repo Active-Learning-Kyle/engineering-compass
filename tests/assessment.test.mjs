@@ -74,6 +74,8 @@ const { exclusiveSelectionId, toggleSelection } =
   await import('../lib/assessment/selections.ts');
 const { createAttemptSeed, stableOptionOrder } =
   await import('../lib/assessment/option-order.ts');
+const { roleShareFilename, roleShareSize } =
+  await import('../lib/assessment/profile-share.ts');
 
 test('unordered choices are shuffled stably while the unsure choice stays last', () => {
   const interest = questions.find((q) => q.kind === 'interest');
@@ -471,14 +473,30 @@ test('Standard has 30 items; Pro has 60 sequential, unique, fully answerable ite
   assert.equal(new Set(proQuestions.map((item) => item.id)).size, 60);
   proQuestions.forEach((item, index) => assert.equal(item.number, index + 1));
   for (const item of proChecks) {
-    const count = item.phase === 'proScenarios' ? 2 : 4;
-    assert.equal(item.options.length, count);
+    const count = item.options.length;
+    if (item.phase === 'proScenarios') assert.ok(count === 2 || count === 3);
+    else assert.equal(count, 4);
     assert.equal(
       new Set(item.options.map((option) => option.value)).size,
       count,
     );
     assert.ok(item.options.every((option) => option.label && option.feedback));
   }
+  assert.equal(
+    proChecks.filter(
+      (item) => item.phase === 'proScenarios' && item.options.length === 3,
+    ).length,
+    6,
+  );
+});
+
+test('role sharing uses a mobile-friendly card and safe filenames', () => {
+  assert.deepEqual(roleShareSize, { width: 1080, height: 1350 });
+  assert.equal(
+    roleShareFilename('PFR · EXP'),
+    'engineering-compass-pfr-exp.png',
+  );
+  assert.equal(roleShareFilename(''), 'engineering-compass-role.png');
 });
 
 test('Pro covers two scenarios per competency and two practice checks per toolkit', () => {
@@ -856,9 +874,14 @@ test('Behaviour items keep five numeric frequency anchors tied to recent actual 
   }
 });
 
-test('Question voice stays consistent and Pro practice prompts remain concise', () => {
-  for (const item of questions.filter((q) => q.kind === 'behaviour'))
+test('Question voice stays consistent and visible prompts remain concise', () => {
+  for (const item of questions.filter((q) => q.kind === 'behaviour')) {
     assert.match(translate(item.prompt, 'en'), /\bI\b/);
+    assert.ok(
+      translate(item.prompt, 'en').split(/\s+/).length <= 20,
+      item.id,
+    );
+  }
   for (const item of questions.filter((q) => q.kind === 'technical'))
     assert.match(translate(item.prompt, 'en'), /\byou\b/i);
   for (const item of proChecks.filter((q) => q.phase === 'proEvidence')) {
@@ -869,6 +892,16 @@ test('Question voice stays consistent and Pro practice prompts remain concise', 
       item.id,
     );
     assert.ok(prompt.split(/\s+/).length <= 20, `${item.id}: ${prompt}`);
+  }
+  for (const item of proChecks.filter((q) => q.phase === 'proScenarios')) {
+    const prompt = translate(item.prompt, 'en');
+    assert.ok(prompt.split(/\s+/).length <= 32, `${item.id}: ${prompt}`);
+    assert.ok(
+      item.options.every(
+        (option) => translate(option.label, 'en').split(/\s+/).length <= 14,
+      ),
+      item.id,
+    );
   }
 });
 

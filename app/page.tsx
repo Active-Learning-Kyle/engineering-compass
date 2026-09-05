@@ -48,6 +48,7 @@ import { interpretResults } from '@/lib/assessment/interpretation';
 import {
   deriveEngineeringMode,
   deriveLeadingModes,
+  deriveRolePresentation,
   deriveGrowthStage,
   engineeringModes,
   initialCharacterVariant,
@@ -749,6 +750,7 @@ function HomeContent() {
           year={year}
           proReflection={edition === 'pro' ? interpretPro(answers) : null}
           modeKey={modeKey}
+          profileSeed={latestProfile?.completedAt ?? JSON.stringify(answers)}
           growthStageKey={growthStageKey}
           onRestart={restart}
           onDownload={downloadProfilePdf}
@@ -1106,6 +1108,12 @@ function Welcome({
                   className="role-preview-card"
                   key={key}
                   aria-label={t('role.preview', { name: t(mode.name) })}
+                  style={
+                    {
+                      '--role-accent': mode.accent,
+                      '--role-tint': mode.tint,
+                    } as React.CSSProperties
+                  }
                 >
                   <div className="role-preview-default">
                     <div className="role-preview-icon" aria-hidden="true">
@@ -1139,9 +1147,12 @@ function Welcome({
                       alt=""
                     />
                     <div className="role-hover-copy">
-                      <span>{'common.engineeringRole'}</span>
+                      <span>
+                        {mode.code} · {'common.engineeringRole'}
+                      </span>
                       <h3>{mode.name}</h3>
-                      <p>{mode.contribution}</p>
+                      <strong>{mode.keywords}</strong>
+                      <p>{mode.shortDescription}</p>
                     </div>
                   </div>
                 </button>
@@ -1709,6 +1720,7 @@ function Results({
   year,
   proReflection,
   modeKey,
+  profileSeed = 'engineering-compass-profile',
   growthStageKey,
   onRestart,
   onDownload,
@@ -1719,6 +1731,7 @@ function Results({
   year: string | null;
   proReflection: ReturnType<typeof interpretPro> | null;
   modeKey: EngineeringModeKey;
+  profileSeed?: string;
   growthStageKey: GrowthStageKey;
   onRestart: () => void;
   onDownload: () => Promise<void>;
@@ -1736,6 +1749,14 @@ function Results({
   const supporting = rankedCompetencies[1];
   const growthEdge = rankedCompetencies.at(-1);
   const modes = deriveLeadingModes(competencyScores);
+  const rolePresentation = deriveRolePresentation(competencyScores);
+  const characterVariant = useMemo(() => {
+    let hash = 0;
+    for (const character of profileSeed) {
+      hash = (hash * 31 + character.charCodeAt(0)) >>> 0;
+    }
+    return hash % 2 === 0 ? 'a' : 'b';
+  }, [profileSeed]);
   const nextAction =
     interpretation.growth[0]?.action ?? 'growthAction.not-sure';
   const workingAnalysis = modes.balanced
@@ -1761,18 +1782,17 @@ function Results({
               id="engineering-compass-profile-card"
               style={
                 {
-                  '--mode-accent': mode.accent,
-                  '--mode-tint': mode.tint,
+                  '--mode-accent': rolePresentation.accent,
+                  '--mode-tint': rolePresentation.tint,
                 } as React.CSSProperties
               }
             >
               <div className="mode-copy">
                 <div className="mode-eyebrow">
                   <Sparkles className="size-4" />{' '}
-                  {proReflection
-                    ? 'result.role.proEyebrow'
-                    : 'result.role.eyebrow'}
+                  {'result.signature.label'}
                 </div>
+                <div className="role-signature-code">{rolePresentation.code}</div>
                 <div className="mode-stage-row">
                   <span className="growth-stage-pill">
                     {'result.scope.label'} · {stage.name}
@@ -1783,21 +1803,13 @@ function Results({
                     </span>
                   )}
                 </div>
-                <h1>
-                  {modes.balanced
-                    ? 'result.role.balanced'
-                    : modes.leading.length > 2
-                      ? 'result.role.multiple'
-                      : modes.leading
-                          .map((item) => t(engineeringModes[item.key].name))
-                          .join(' + ')}
-                </h1>
+                <h1>{rolePresentation.name}</h1>
                 {modes.leading.length > 1 && !modes.balanced && (
                   <>
                     <p className="mode-secondary">
                       {'result.role.tied'} · {modes.leading[0].score}
                     </p>
-                    {modes.leading.length > 2 && (
+                    {rolePresentation.kind === 'integrated' && (
                       <div className="leading-mode-tags">
                         {modes.leading.map((item) => (
                           <span key={item.key}>
@@ -1809,11 +1821,12 @@ function Results({
                   </>
                 )}
                 <p className="mode-lead">
-                  {modes.balanced
-                    ? 'result.role.balancedNote'
-                    : modes.leading.length === 1
-                      ? mode.shortDescription
-                      : 'result.role.sharedNote'}
+                  {rolePresentation.description}
+                </p>
+                <p className="mode-keywords">
+                  {rolePresentation.keys
+                    .map((key) => t(engineeringModes[key].keywords))
+                    .join(' · ')}
                 </p>
                 {modes.supporting.length > 0 && (
                   <p className="mode-secondary">
@@ -1891,25 +1904,16 @@ function Results({
               </div>
               <div
                 className="mode-art"
-                aria-label={t('role.illustration', { name: t(mode.name) })}
+                aria-label={t('role.illustration', {
+                  name: t(rolePresentation.name),
+                })}
               >
                 {/* oxlint-disable-next-line next/no-img-element */}
                 <img
-                  className="result-character-first"
+                  className="result-character-first result-character-static"
                   data-export-portrait="first"
-                  src={assetPath(mode.image[initialCharacterVariant(modeKey)])}
-                  alt=""
-                  width={1200}
-                  height={1200}
-                />
-                {/* oxlint-disable-next-line next/no-img-element */}
-                <img
-                  className="result-character-second"
-                  data-export-portrait="second"
                   src={assetPath(
-                    mode.image[
-                      initialCharacterVariant(modeKey) === 'a' ? 'b' : 'a'
-                    ],
+                    rolePresentation.image ?? mode.image[characterVariant],
                   )}
                   alt=""
                   width={1200}

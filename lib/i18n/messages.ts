@@ -215,31 +215,59 @@ export const en = {
     'You look closely at what is happening before deciding what should be solved.',
   'role.problem.contribution':
     'In a team, you are especially good at defining the real need, gathering evidence, and turning a broad concern into an actionable problem.',
+  'role.problem.keywords': 'Analytical · calm · evidence-led',
   'role.planning.name': 'Project Navigator',
   'role.planning.shortDescription':
     'You turn a promising direction into a route that people can realistically follow.',
   'role.planning.contribution':
     'In a team, you are especially good at turning a promising direction into clear requirements, milestones, ownership, and a realistic plan.',
+  'role.planning.keywords': 'Structure · route · priorities',
   'role.collaboration.name': 'Team Connector',
   'role.collaboration.shortDescription':
     'You help different people, ideas, and technical contributions work together.',
   'role.collaboration.contribution':
     'In a team, you are especially good at connecting specialisms, clarifying ownership, and helping people resolve disagreements and dependencies.',
+  'role.collaboration.keywords': 'Warmth · connection · communication',
   'role.handsOn.name': 'Practical Builder',
   'role.handsOn.shortDescription':
     'You learn quickly when an idea becomes something you can assemble, test, and improve.',
   'role.handsOn.contribution':
     'In a team, you are especially good at turning discussion into a working prototype, troubleshooting failures, and making practical constraints visible.',
+  'role.handsOn.keywords': 'Hands-on · tools · making',
   'role.design.name': 'Prototype Explorer',
   'role.design.shortDescription':
     'You use prototypes and tests to learn what should change next.',
   'role.design.contribution':
     'In a team, you are especially good at creating early prototypes, designing useful tests, and turning evidence into focused improvements.',
+  'role.design.keywords': 'Experiment · iterate · improve',
   'role.pitch.name': 'Solution Storyteller',
   'role.pitch.shortDescription':
     'You make an engineering solution understandable, credible, and relevant to its audience.',
   'role.pitch.contribution':
     'In a team, you are especially good at explaining the problem and value clearly, supporting claims with evidence, and communicating limitations honestly.',
+  'role.pitch.keywords': 'Expression · narrative · clarity',
+  'result.signature.label': 'YOUR ENGINEERING COMPASS SIGNATURE',
+  'result.blend.evidenceExperimenter.name': 'Evidence Experimenter',
+  'result.blend.evidenceExperimenter.description':
+    'You look closely at evidence, then test an idea early to discover what should change.',
+  'result.blend.collaborativeCoordinator.name': 'Collaborative Coordinator',
+  'result.blend.collaborativeCoordinator.description':
+    'You create a practical route while helping different people move together.',
+  'result.blend.iterativeMaker.name': 'Iterative Maker',
+  'result.blend.iterativeMaker.description':
+    'You learn by building, testing and improving something tangible.',
+  'result.blend.insightTranslator.name': 'Insight Translator',
+  'result.blend.insightTranslator.description':
+    'You turn evidence and complexity into a clear explanation others can use.',
+  'result.blend.communityAdvocate.name': 'Community Advocate',
+  'result.blend.communityAdvocate.description':
+    'You connect people and communicate why a shared solution matters.',
+  'result.blend.deliveryArchitect.name': 'Delivery Architect',
+  'result.blend.deliveryArchitect.description':
+    'You connect a workable plan with the practical steps needed to deliver it.',
+  'result.blend.adaptiveIntegrator.name': 'Adaptive Integrator',
+  'result.blend.adaptiveIntegrator.description':
+    'Several ways of contributing share your highest displayed score. You can draw on different modes as the situation changes.',
   'scope.exploring.name': 'Exploring',
   'scope.exploring.description':
     'Trying unfamiliar engineering tasks with guidance.',
@@ -990,31 +1018,59 @@ export const zhHant: Record<MessageKey, string> = {
   'role.problem.shortDescription': '決定解決甚麼之前，你會仔細了解實際情況。',
   'role.problem.contribution':
     '在團隊中，你尤其擅長釐清真正需要、蒐集證據，並把廣泛的關注轉化為可着手解決的問題。',
+  'role.problem.keywords': '分析 · 冷靜 · 證據導向',
   'role.planning.name': '專案領航者',
   'role.planning.shortDescription':
     '你能把有潛力的方向轉化為大家可以實際跟隨的路線。',
   'role.planning.contribution':
     '在團隊中，你尤其擅長把有潛力的方向轉化為清晰的要求、里程碑、分工及可行計劃。',
+  'role.planning.keywords': '結構 · 路線 · 優先次序',
   'role.collaboration.name': '團隊連結者',
   'role.collaboration.shortDescription':
     '你能讓不同的人、想法及技術貢獻有效配合。',
   'role.collaboration.contribution':
     '在團隊中，你尤其擅長連結不同專業、釐清分工，並協助大家處理分歧及相互依賴的工作。',
+  'role.collaboration.keywords': '溫暖 · 連結 · 溝通',
   'role.handsOn.name': '實作建構者',
   'role.handsOn.shortDescription':
     '當想法變成可以組裝、測試及改進的實物時，你學得特別快。',
   'role.handsOn.contribution':
     '在團隊中，你尤其擅長把討論轉化為可運作的原型、排查故障，並讓大家看清實際限制。',
+  'role.handsOn.keywords': '動手 · 工具 · 製作',
   'role.design.name': '原型探索者',
   'role.design.shortDescription':
     '你運用原型與測試，找出下一步應該改進的地方。',
   'role.design.contribution':
     '在團隊中，你尤其擅長製作早期原型、設計有效測試，並把證據轉化為有針對性的改進。',
+  'role.design.keywords': '嘗試 · 迭代 · 改進',
   'role.pitch.name': '方案傳達者',
   'role.pitch.shortDescription':
     '你能讓聽眾理解工程方案，感受到它的可信度與切身價值。',
   'role.pitch.contribution':
     '在團隊中，你尤其擅長清楚說明問題及價值、以證據支持主張，並如實傳達限制。',
+  'role.pitch.keywords': '表達 · 敘事 · 清晰',
+  'result.signature.label': '你的工程羅盤代碼',
+  'result.blend.evidenceExperimenter.name': '證據實驗者',
+  'result.blend.evidenceExperimenter.description':
+    '你先仔細理解證據，再及早測試想法，找出下一步應改變的地方。',
+  'result.blend.collaborativeCoordinator.name': '協作統籌者',
+  'result.blend.collaborativeCoordinator.description':
+    '你建立可行路線，同時協助不同的人一起向前。',
+  'result.blend.iterativeMaker.name': '迭代製作者',
+  'result.blend.iterativeMaker.description':
+    '你透過製作、測試及改進有形的成果來學習。',
+  'result.blend.insightTranslator.name': '洞察轉譯者',
+  'result.blend.insightTranslator.description':
+    '你把證據與複雜內容轉化為別人能夠運用的清晰說明。',
+  'result.blend.communityAdvocate.name': '社群倡議者',
+  'result.blend.communityAdvocate.description':
+    '你連結不同的人，並說明共同方案為何重要。',
+  'result.blend.deliveryArchitect.name': '實現架構者',
+  'result.blend.deliveryArchitect.description':
+    '你把可行計劃與真正落實方案所需的實作步驟連結起來。',
+  'result.blend.adaptiveIntegrator.name': '靈活整合者',
+  'result.blend.adaptiveIntegrator.description':
+    '多種貢獻方式同時取得最高顯示分數；你可以因應情境靈活運用不同模式。',
   'scope.exploring.name': '探索中',
   'scope.exploring.description': '在指導下嘗試不熟悉的工程任務。',
   'scope.building.name': '建構中',

@@ -1134,6 +1134,26 @@
   font-weight: 800;
   letter-spacing: 0.16em;
 }
+.role-signature-code {
+  display: inline-flex;
+  width: fit-content;
+  margin-top: 0.75rem;
+  border: 1px solid color-mix(in srgb, var(--mode-accent) 58%, white);
+  border-radius: 999px;
+  padding: 0.4rem 0.75rem;
+  background: color-mix(in srgb, var(--mode-accent) 28%, transparent);
+  color: #fff;
+  font-size: 0.82rem;
+  font-weight: 850;
+  letter-spacing: 0.16em;
+}
+.mode-keywords {
+  margin-top: 0.8rem;
+  color: #d7f43c;
+  font-size: 0.78rem;
+  font-weight: 750;
+  letter-spacing: 0.055em;
+}
 .mode-stage-row,
 .mode-actions {
   display: flex;
@@ -1225,7 +1245,7 @@
   position: relative;
   min-height: 420px;
   overflow: hidden;
-  background: #f6f0df;
+  background: var(--mode-tint, #f6f0df);
 }
 .mode-art img {
   position: absolute;
@@ -1234,6 +1254,13 @@
   height: 100%;
   object-fit: cover;
   object-position: center 24%;
+}
+.mode-art img.result-character-static {
+  padding: clamp(0.8rem, 2.5vw, 2rem);
+  object-fit: contain;
+  object-position: center;
+  opacity: 1;
+  animation: none;
 }
 .mode-art .result-character-second {
   opacity: 0;
@@ -1316,7 +1343,7 @@
   overflow: hidden;
   border: 1px solid color-mix(in srgb, var(--primary) 22%, white);
   border-radius: 1.2rem;
-  background: rgba(255, 255, 255, 0.84);
+  background: color-mix(in srgb, var(--role-tint, white) 34%, white);
   text-align: left;
   transition:
     transform 0.18s ease,
@@ -1367,6 +1394,7 @@
   opacity: 0;
   pointer-events: none;
   transition: opacity 0.22s ease;
+  background: var(--role-tint, #f6f0df);
 }
 .role-hover-preview::after {
   content: '';
@@ -1374,9 +1402,9 @@
   inset: 0;
   background: linear-gradient(
     90deg,
-    rgba(16, 47, 29, 0.98) 0%,
-    rgba(16, 47, 29, 0.92) 55%,
-    rgba(16, 47, 29, 0.12) 100%
+    color-mix(in srgb, var(--role-accent, #102f1d) 94%, #102f1d) 0%,
+    color-mix(in srgb, var(--role-accent, #102f1d) 82%, #102f1d) 56%,
+    transparent 100%
   );
 }
 .role-preview-character {
@@ -1384,8 +1412,11 @@
   inset: 0;
   width: 100%;
   height: 100%;
-  object-fit: cover;
-  object-position: center 22%;
+  width: 48%;
+  margin-left: auto;
+  padding: 0.45rem;
+  object-fit: contain;
+  object-position: center bottom;
 }
 .role-preview-character-a {
   opacity: 1;
@@ -1428,6 +1459,13 @@
   margin-top: 0.35rem;
   font-size: 1.15rem;
   font-weight: 760;
+}
+.role-hover-copy strong {
+  margin-top: 0.35rem;
+  color: #fff;
+  font-size: 0.7rem;
+  font-weight: 700;
+  line-height: 1.35;
 }
 .role-hover-copy p {
   margin-top: 0.5rem;

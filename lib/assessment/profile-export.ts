@@ -132,16 +132,10 @@ async function rasterizePortrait(
   if (!image.complete) await image.decode();
   if (!image.naturalWidth || !image.naturalHeight)
     throw new Error('A profile illustration has not loaded.');
-  const crop = portraitCoverCrop(
-    image.naturalWidth,
-    image.naturalHeight,
-    frameWidth,
-    frameHeight,
-  );
   const scale = Math.min(
     1100 / Math.max(frameWidth, frameHeight),
-    crop.width / frameWidth,
-    crop.height / frameHeight,
+    image.naturalWidth / frameWidth,
+    image.naturalHeight / frameHeight,
   );
   const canvas = document.createElement('canvas');
   canvas.width = Math.max(1, Math.round(frameWidth * scale));
@@ -165,16 +159,18 @@ async function rasterizePortrait(
   context.lineTo(0, canvas.height);
   context.closePath();
   context.clip();
+  const containScale = Math.min(
+    canvas.width / image.naturalWidth,
+    canvas.height / image.naturalHeight,
+  );
+  const drawWidth = image.naturalWidth * containScale;
+  const drawHeight = image.naturalHeight * containScale;
   context.drawImage(
     image,
-    crop.left,
-    crop.top,
-    crop.width,
-    crop.height,
-    0,
-    0,
-    canvas.width,
-    canvas.height,
+    (canvas.width - drawWidth) / 2,
+    (canvas.height - drawHeight) / 2,
+    drawWidth,
+    drawHeight,
   );
   return canvas.toDataURL('image/png');
 }
@@ -185,12 +181,15 @@ export async function exportProfilePdf(root: HTMLElement, filename: string) {
   const livePortraits = Array.from(
     root.querySelectorAll<HTMLImageElement>('[data-export-portrait]'),
   );
-  if (livePortraits.length !== 2)
+  if (livePortraits.length < 1)
     throw new Error('The profile portraits are missing.');
-  const visibleVariant = visiblePortraitVariant(
-    Number.parseFloat(getComputedStyle(livePortraits[1]).opacity),
-  );
-  const selectedIndex = visibleVariant === 'second' ? 1 : 0;
+  const selectedIndex =
+    livePortraits.length > 1 &&
+    visiblePortraitVariant(
+      Number.parseFloat(getComputedStyle(livePortraits[1]).opacity),
+    ) === 'second'
+      ? 1
+      : 0;
   // A separate, fixed-width report prevents the phone's responsive layout and
   // crossfade timing from changing the downloaded artifact.
   const card = root.cloneNode(true) as HTMLElement;

@@ -100,6 +100,17 @@ export const refinementMessages = {
     '深入反思工程取捨，以及實際做過的任務證據。',
   ],
   'home.begin': ['Begin {edition}', '開始 {edition}'],
+  'home.latest.eyebrow': ['YOUR LATEST RESULT', '最近一次結果'],
+  'home.latest.title': ['View your latest profile', '查看最近一次能力概況'],
+  'home.latest.meta': [
+    '{edition} · Completed {date}',
+    '{edition} · 完成於 {date}',
+  ],
+  'home.latest.note': [
+    'Saved only in this browser. Completing the assessment again will update it.',
+    '只儲存在此瀏覽器；再次完成評估後會自動更新。',
+  ],
+  'home.latest.action': ['View result', '查看結果'],
   'assessment.questionCount': [
     'Question {current} of {total}',
     '第 {current} 題，共 {total} 題',

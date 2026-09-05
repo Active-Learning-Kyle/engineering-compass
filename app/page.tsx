@@ -110,6 +110,13 @@ import {
   progressStorageKey,
   legacyStorageKey,
 } from '@/lib/assessment/drafts';
+import {
+  completedProfileStorageKey,
+  createCompletedProfile,
+  readCompletedProfile,
+  serializeCompletedProfile,
+  type CompletedProfile,
+} from '@/lib/assessment/completed-profile';
 const assetPath = (path: string) => `${import.meta.env.BASE_URL}${path}`;
 const phases: Array<{ key: PhaseKey; label: string; range: string }> = [
   { key: 'behaviour', label: 'common.howYouWork', range: '01–15' },
@@ -383,6 +390,9 @@ function HomeContent() {
     current: number;
     answers: AssessmentAnswers;
   } | null>(null);
+  const [latestProfile, setLatestProfile] = useState<CompletedProfile | null>(
+    null,
+  );
   const [responseMs, setResponseMs] = useState<number | null>(null);
   const [showNudge, setShowNudge] = useState(false);
   const [hasLegacyDraft, setHasLegacyDraft] = useState(false);
@@ -396,6 +406,13 @@ function HomeContent() {
       const result = raw ? readDraft(raw) : null;
       if (result?.status === 'current')
         queueMicrotask(() => setSavedDraft(result.draft));
+      const completedRaw = window.localStorage.getItem(
+        completedProfileStorageKey,
+      );
+      const completed = completedRaw
+        ? readCompletedProfile(completedRaw)
+        : null;
+      if (completed) queueMicrotask(() => setLatestProfile(completed));
       const hasOld =
         Boolean(window.localStorage.getItem(legacyStorageKey)) ||
         result?.status === 'legacy';
@@ -408,14 +425,18 @@ function HomeContent() {
   useEffect(() => {
     if (step !== 'assessment') return;
     const draft = { edition, year, current, answers };
-    window.localStorage.setItem(
-      progressStorageKey,
-      JSON.stringify({
-        version,
-        questionOrder: 'judgment-before-priorities',
-        ...draft,
-      }),
-    );
+    try {
+      window.localStorage.setItem(
+        progressStorageKey,
+        JSON.stringify({
+          version,
+          questionOrder: 'judgment-before-priorities',
+          ...draft,
+        }),
+      );
+    } catch {
+      // Keep the active assessment usable if browser storage is unavailable.
+    }
   }, [answers, current, step, year, edition, version]);
 
   useEffect(() => {
@@ -518,10 +539,11 @@ function HomeContent() {
   }
   function chooseNumber(value: number) {
     const elapsed = Date.now() - questionStarted.current;
-    setAnswers((previous) => ({ ...previous, [activeQuestion.id]: value }));
+    const nextAnswers = { ...answers, [activeQuestion.id]: value };
+    setAnswers(nextAnswers);
     setResponseMs(elapsed);
     setShowNudge(false);
-    advance(false, elapsed, true);
+    advance(false, elapsed, true, nextAnswers);
   }
   function toggleSelection(id: string) {
     if (activeQuestion.kind !== 'interest' && activeQuestion.kind !== 'growth')
@@ -545,6 +567,7 @@ function HomeContent() {
     force = false,
     timingOverride: number | null = null,
     answerJustSelected = false,
+    completedAnswers: AssessmentAnswers = answers,
   ) {
     if (!canContinue && !answerJustSelected) return;
     const reflective =
@@ -564,9 +587,19 @@ function HomeContent() {
     setShowNudge(false);
     setResponseMs(null);
     if (current === questions.length - 1) {
+      const completed = createCompletedProfile(edition, year, completedAnswers);
+      setLatestProfile(completed);
       setStep('results');
       setSavedDraft(null);
-      window.localStorage.removeItem(progressStorageKey);
+      try {
+        window.localStorage.setItem(
+          completedProfileStorageKey,
+          serializeCompletedProfile(completed),
+        );
+        window.localStorage.removeItem(progressStorageKey);
+      } catch {
+        // The result remains available for this session when storage is blocked.
+      }
       window.scrollTo({ top: 0, behavior: 'smooth' });
       return;
     }
@@ -586,15 +619,28 @@ function HomeContent() {
   function returnHome() {
     const draft = { edition, year, current, answers };
     setSavedDraft(draft);
-    window.localStorage.setItem(
-      progressStorageKey,
-      JSON.stringify({
-        version,
-        questionOrder: 'judgment-before-priorities',
-        ...draft,
-      }),
-    );
+    try {
+      window.localStorage.setItem(
+        progressStorageKey,
+        JSON.stringify({
+          version,
+          questionOrder: 'judgment-before-priorities',
+          ...draft,
+        }),
+      );
+    } catch {
+      // The in-memory draft remains available until this page is closed.
+    }
     setStep('welcome');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+  function viewLatestProfile() {
+    if (!latestProfile) return;
+    setEdition(latestProfile.edition);
+    setYear(latestProfile.year);
+    setCurrent(getQuestions(latestProfile.edition).length - 1);
+    setAnswers(latestProfile.answers);
+    setStep('results');
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }
   function restart() {
@@ -606,7 +652,11 @@ function HomeContent() {
     lastNudgeAt.current = -10;
     setShowNudge(false);
     setSavedDraft(null);
-    window.localStorage.removeItem(progressStorageKey);
+    try {
+      window.localStorage.removeItem(progressStorageKey);
+    } catch {
+      // Optional browser persistence may be unavailable.
+    }
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }
   async function downloadProfilePdf() {
@@ -644,6 +694,8 @@ function HomeContent() {
           onResume={resumeAssessment}
           hasSavedProgress={Boolean(savedDraft)}
           hasLegacyDraft={hasLegacyDraft}
+          latestProfile={latestProfile}
+          onViewLatest={viewLatestProfile}
         />
       )}
       {step === 'year' && (
@@ -741,6 +793,8 @@ function Welcome({
   onResume,
   hasSavedProgress,
   hasLegacyDraft,
+  latestProfile,
+  onViewLatest,
 }: {
   edition: AssessmentEdition;
   onEditionChange: (edition: AssessmentEdition) => void;
@@ -748,9 +802,17 @@ function Welcome({
   onResume: () => void;
   hasSavedProgress: boolean;
   hasLegacyDraft: boolean;
+  latestProfile: CompletedProfile | null;
+  onViewLatest: () => void;
 }) {
   const [compassHover, setCompassHover] = useState<number | null>(null);
-  const { t } = useLanguage();
+  const { locale, t } = useLanguage();
+  const latestCompletedDate = latestProfile
+    ? new Intl.DateTimeFormat(locale, {
+        dateStyle: 'medium',
+        timeStyle: 'short',
+      }).format(new Date(latestProfile.completedAt))
+    : null;
   return (
     <LocalizedContent>
       {
@@ -845,6 +907,37 @@ function Welcome({
                     : 'common.yourCoreEngineeringProfile'}
                 </div>
               </div>
+              {latestProfile && latestCompletedDate && (
+                <button
+                  type="button"
+                  className="group mt-5 flex w-full items-center justify-between gap-5 rounded-3xl border border-primary/25 bg-card/95 p-5 text-left shadow-sm transition hover:-translate-y-0.5 hover:border-primary/55 hover:shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+                  onClick={onViewLatest}
+                >
+                  <span className="min-w-0">
+                    <span className="panel-eyebrow flex items-center gap-2">
+                      <BookOpenCheck className="size-4" />
+                      {'home.latest.eyebrow'}
+                    </span>
+                    <span className="mt-2 block font-serif text-xl font-semibold text-primary">
+                      {'home.latest.title'}
+                    </span>
+                    <span className="mt-1 block text-sm text-muted-foreground">
+                      {t('home.latest.meta', {
+                        edition:
+                          latestProfile.edition === 'pro' ? 'Pro' : 'Standard',
+                        date: latestCompletedDate,
+                      })}
+                    </span>
+                    <span className="mt-2 block text-xs leading-5 text-muted-foreground">
+                      {'home.latest.note'}
+                    </span>
+                  </span>
+                  <span className="flex shrink-0 items-center gap-2 rounded-full bg-primary px-4 py-2.5 text-sm font-semibold text-primary-foreground transition group-hover:bg-primary/90">
+                    {'home.latest.action'}
+                    <ArrowRight className="size-4" />
+                  </span>
+                </button>
+              )}
               {hasLegacyDraft && (
                 <output className="block mt-4 text-sm leading-6 text-muted-foreground">
                   {'draft.previous'}
@@ -1686,6 +1779,7 @@ function Results({
                 {/* oxlint-disable-next-line next/no-img-element */}
                 <img
                   className="result-character-first"
+                  data-export-portrait="first"
                   src={assetPath(mode.image[initialCharacterVariant(modeKey)])}
                   alt=""
                   width={1200}
@@ -1694,7 +1788,7 @@ function Results({
                 {/* oxlint-disable-next-line next/no-img-element */}
                 <img
                   className="result-character-second"
-                  data-capture-exclude="true"
+                  data-export-portrait="second"
                   src={assetPath(
                     mode.image[
                       initialCharacterVariant(modeKey) === 'a' ? 'b' : 'a'

@@ -64,6 +64,12 @@ const { translate, messages, isMessageReference } =
   await import('../lib/i18n/translate.ts');
 const { readDraft, progressStorageKey, legacyStorageKey } =
   await import('../lib/assessment/drafts.ts');
+const {
+  completedProfileStorageKey,
+  createCompletedProfile,
+  readCompletedProfile,
+  serializeCompletedProfile,
+} = await import('../lib/assessment/completed-profile.ts');
 const { exclusiveSelectionId, toggleSelection } =
   await import('../lib/assessment/selections.ts');
 test('unsure choice leaves concrete cards visible but disabled', async () => {
@@ -308,8 +314,14 @@ const { initialCharacterVariant, engineeringModes } =
   await import('../lib/assessment/profile.ts');
 const { compassSpringStep, shuffledCompassTargets, compassRetargetDelay } =
   await import('../lib/assessment/compass-motion.ts');
-const { profileExportOptions, pdfPageBreaks } =
+const { profileExportOptions, pdfPageBreaks, visiblePortraitVariant } =
   await import('../lib/assessment/profile-export.ts');
+test('PDF export selects whichever crossfading portrait is visually dominant', () => {
+  assert.equal(visiblePortraitVariant(0), 'first');
+  assert.equal(visiblePortraitVariant(0.49), 'first');
+  assert.equal(visiblePortraitVariant(0.5), 'second');
+  assert.equal(visiblePortraitVariant(1), 'second');
+});
 test('PDF pagination keeps complete blocks and covers the full report', () => {
   assert.deepEqual(
     pdfPageBreaks(2400, 1000, [{ top: 800, bottom: 1150 }]),
@@ -324,6 +336,61 @@ const coreAnswers = Object.fromEntries(
     item.kind === 'growth' ? ['design'] : item.kind === 'interest' ? [] : 3,
   ]),
 );
+
+test('Latest completed profile round-trips only complete current results', () => {
+  const completed = createCompletedProfile(
+    'standard',
+    'year-1',
+    coreAnswers,
+    '2026-09-05T08:30:00.000Z',
+  );
+  assert.ok(completedProfileStorageKey.includes('latest-result'));
+  assert.deepEqual(
+    readCompletedProfile(serializeCompletedProfile(completed)),
+    completed,
+  );
+
+  const incomplete = createCompletedProfile('standard', null, { I01: [] });
+  assert.equal(
+    readCompletedProfile(serializeCompletedProfile(incomplete)),
+    null,
+  );
+
+  const stale = JSON.parse(serializeCompletedProfile(completed));
+  stale.version = 'standard-v1.6';
+  assert.equal(readCompletedProfile(JSON.stringify(stale)), null);
+  assert.equal(readCompletedProfile('{'), null);
+});
+
+test('Home offers a direct link to the latest result with browser-only copy', async () => {
+  const React = await import('react');
+  const { renderToStaticMarkup } = await import('react-dom/server');
+  const { Welcome } = await import('../app/page.tsx?unit');
+  const html = renderToStaticMarkup(
+    React.createElement(Welcome, {
+      edition: 'standard',
+      onEditionChange: () => {},
+      onBegin: () => {},
+      onResume: () => {},
+      hasSavedProgress: false,
+      hasLegacyDraft: false,
+      latestProfile: createCompletedProfile(
+        'pro',
+        'year-2',
+        {
+          ...coreAnswers,
+          ...Object.fromEntries(proChecks.map((item) => [item.id, 1])),
+        },
+        '2026-09-05T08:30:00.000Z',
+      ),
+      onViewLatest: () => {},
+    }),
+  );
+  assert.ok(html.includes('YOUR LATEST RESULT'));
+  assert.ok(html.includes('View your latest profile'));
+  assert.ok(html.includes('Saved only in this browser'));
+  assert.ok(html.includes('View result'));
+});
 
 test('Standard has 30 items; Pro has 60 sequential, unique, fully answerable items', () => {
   for (const bank of [questions, proQuestions]) {

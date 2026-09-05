@@ -75,14 +75,66 @@ export function pdfPageBreaks(
   return breaks;
 }
 
+export function visiblePortraitVariant(secondOpacity: number) {
+  return Number.isFinite(secondOpacity) && secondOpacity >= 0.5
+    ? 'second'
+    : 'first';
+}
+
+async function rasterizePortrait(image: HTMLImageElement) {
+  image.loading = 'eager';
+  if (!image.complete) await image.decode();
+  if (!image.naturalWidth || !image.naturalHeight)
+    throw new Error('A profile illustration has not loaded.');
+  const longestSide = Math.max(image.naturalWidth, image.naturalHeight);
+  const scale = Math.min(1, 1400 / longestSide);
+  const canvas = document.createElement('canvas');
+  canvas.width = Math.max(1, Math.round(image.naturalWidth * scale));
+  canvas.height = Math.max(1, Math.round(image.naturalHeight * scale));
+  const context = canvas.getContext('2d');
+  if (!context) throw new Error('Could not prepare the portrait.');
+  context.drawImage(image, 0, 0, canvas.width, canvas.height);
+  // JPEG is substantially smaller than a canvas PNG on memory-constrained
+  // mobile browsers, while remaining more than large enough for the PDF.
+  return canvas.toDataURL('image/jpeg', 0.9);
+}
+
 export async function exportProfilePdf(root: HTMLElement, filename: string) {
   const { jsPDF } = await import('jspdf');
   await document.fonts.ready;
+  const livePortraits = Array.from(
+    root.querySelectorAll<HTMLImageElement>('[data-export-portrait]'),
+  );
+  if (livePortraits.length !== 2)
+    throw new Error('The profile portraits are missing.');
+  const visibleVariant = visiblePortraitVariant(
+    Number.parseFloat(getComputedStyle(livePortraits[1]).opacity),
+  );
+  const selectedIndex = visibleVariant === 'second' ? 1 : 0;
+  const selectedPortrait = await rasterizePortrait(
+    livePortraits[selectedIndex],
+  );
   // A separate, fixed-width report prevents the phone's responsive layout and
   // crossfade timing from changing the downloaded artifact.
   const card = root.cloneNode(true) as HTMLElement;
   card.removeAttribute('id');
   card.classList.add('profile-pdf-document');
+  const clonedPortraits = Array.from(
+    card.querySelectorAll<HTMLImageElement>('[data-export-portrait]'),
+  );
+  clonedPortraits.forEach((image, index) => {
+    if (index !== selectedIndex) {
+      image.remove();
+      return;
+    }
+    image.src = selectedPortrait;
+    image.removeAttribute('srcset');
+    image.removeAttribute('sizes');
+    image.removeAttribute('data-export-portrait');
+    image.className = 'result-character-exported';
+    image.style.setProperty('opacity', '1', 'important');
+    image.style.setProperty('visibility', 'visible', 'important');
+  });
   card
     .querySelectorAll('[data-capture-exclude="true"]')
     .forEach((node) => node.remove());
@@ -129,30 +181,11 @@ export async function exportProfilePdf(root: HTMLElement, filename: string) {
   document.body.appendChild(holder);
   let blob: Blob;
   try {
-    const portraits = Array.from(card.querySelectorAll('img'));
-    if (!portraits.length) throw new Error('The profile portrait is missing.');
-    await Promise.all(
-      portraits.map(async (image) => {
-        image.loading = 'eager';
-        await image.decode();
-        if (!image.naturalWidth)
-          throw new Error('A profile illustration has not loaded.');
-        // Embed a decoded still PNG, not a remotely fetched image or animated
-        // element. Export stops on decode/canvas failure instead of saving blank art.
-        const canvas = document.createElement('canvas');
-        canvas.width = image.naturalWidth;
-        canvas.height = image.naturalHeight;
-        const context = canvas.getContext('2d');
-        if (!context) throw new Error('Could not prepare the portrait.');
-        context.drawImage(image, 0, 0);
-        image.removeAttribute('srcset');
-        image.removeAttribute('sizes');
-        image.src = canvas.toDataURL('image/png');
-        image.style.setProperty('opacity', '1', 'important');
-        image.style.setProperty('visibility', 'visible', 'important');
-        await image.decode();
-      }),
+    const portrait = card.querySelector<HTMLImageElement>(
+      '.result-character-exported',
     );
+    if (!portrait) throw new Error('The profile portrait is missing.');
+    await portrait.decode();
     const pdf = new jsPDF({ unit: 'pt', format: 'a4', compress: true });
     const width = 1200;
     const printWidth = pdf.internal.pageSize.getWidth() - 40;

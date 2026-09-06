@@ -57,7 +57,19 @@ The summary connects a leading current mode with experience scope and a next ste
 
 Classic results present one approved character for each role. Some exact multi-competency ties can reveal one of ten hidden roles. Hidden-role discoveries, including the competencies involved, are saved only in the current browser and appear in the home-page gallery.
 
-![Example results summary card with a current profile and an illustrated engineering role](docs/images/profile.jpg)
+![Example results summary card with a current profile, illustrated engineering role, role code, and QR link](docs/images/profile.png)
+
+### A role card you can share
+
+The compact role card keeps the role name, four-letter Engineering Compass code, relevant competency, current experience scope, illustration, and a QR link back to the public site. It does not include individual answers or Technical Toolkit ratings.
+
+<img src="docs/images/role-share-card.png" alt="Shareable Prototype Explorer role card with an illustrated engineer and QR link" width="460">
+
+### Hidden roles to discover
+
+Ten hidden roles represent exact ties between multiple leading competencies. They begin as silhouettes in the browser-only gallery and are revealed when a matching result is discovered.
+
+![Hidden Role Gallery showing ten undiscovered role silhouettes](docs/images/hidden-role-gallery.png)
 
 ### Behaviour and technical experience, side by side
 
@@ -140,7 +152,7 @@ Study year, interests, growth choices, and judgment scenarios do not change the 
 - There is no account, class dashboard, or student ranking system.
 - Saved progress is tied to that browser and device. Clearing browser storage can remove it.
 - PDF generation happens in your browser. It includes the complete results, including Pro reflections when applicable, and uses a fixed-width layout with a side-by-side summary card on phones and desktops.
-- The optional role-sharing card contains the role name, role code, competency labels, illustration, and public site address. It does not include individual answers or the Technical Toolkit.
+- The optional role-sharing card contains the role name, four-letter role code, competency labels, illustration, and a QR link to the public site. It does not include individual answers or the Technical Toolkit.
 - The PDF contains your profile information. Share it only if you want others to see it.
 
 The site is delivered through GitHub Pages; “browser-only responses” describes assessment answers, not the hosting provider's ordinary handling of website requests.
@@ -177,8 +189,8 @@ Static output is written to `dist/client`. The [GitHub Pages workflow](.github/w
 | [app/globals.css](app/globals.css)                                     | Visual system, responsive layouts, and export styling                                     |
 | [lib/assessment](lib/assessment)                                       | Questions, scoring, interpretation, saved drafts, and PDF export                          |
 | [lib/i18n](lib/i18n)                                                   | English and Traditional Chinese messages with stable translation keys                     |
-| [public/modes](public/modes)                                           | Approved transparent geometric illustrations for the six classic and six hidden roles     |
-| [docs/hidden-role-art-direction.md](docs/hidden-role-art-direction.md) | Locked content and visual requirements for the ten hidden roles before final art approval |
+| [public/modes](public/modes)                                           | Approved transparent geometric illustrations for the six classic and ten hidden roles     |
+| [docs/hidden-role-art-direction.md](docs/hidden-role-art-direction.md) | Role definitions, competency mappings, and final visual requirements for ten hidden roles |
 | [tests/assessment.test.mjs](tests/assessment.test.mjs)                 | Question, language, scoring, interpretation, and export regression checks                 |
 | [docs](docs)                                                           | Design notes and assessment development history                                           |
 

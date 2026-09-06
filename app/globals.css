@@ -286,17 +286,187 @@
   pointer-events: none;
 }
 
+.home-celestial-shell {
+  min-height: 100vh;
+  background:
+    radial-gradient(circle at 74% 8%, rgba(40, 112, 92, 0.3), transparent 30%),
+    linear-gradient(180deg, #071b1d 0%, #092326 43%, #061719 100%);
+  color: #f4f8f2;
+}
+
+.home-celestial-shell .display-title,
+.home-celestial-shell .home-product-kicker,
+.home-celestial-shell .method-strip h2,
+.home-celestial-shell .modes-preview-heading h2,
+.home-celestial-shell .home-toolkit h2 {
+  color: #f4f8f2;
+}
+
+.home-celestial-shell .text-muted-foreground,
+.home-celestial-shell .method-strip p,
+.home-celestial-shell .modes-preview-heading > span,
+.home-celestial-shell .home-toolkit > div:first-child > p,
+.home-celestial-shell .home-assessment-notes {
+  color: rgba(220, 235, 225, 0.72);
+}
+
+.home-celestial-shell .panel-eyebrow {
+  color: #d7f43c;
+}
+
+.home-celestial-shell .method-strip,
+.home-celestial-shell .home-toolkit {
+  border-color: rgba(210, 236, 222, 0.18);
+}
+
+.home-celestial-shell .assessment-version-card,
+.home-celestial-shell .home-latest-result,
+.home-celestial-shell .toolkit-preview-card {
+  color: #102f1d;
+}
+
+.home-celestial-shell .assessment-version-card .text-muted-foreground,
+.home-celestial-shell .home-latest-result .text-muted-foreground,
+.home-celestial-shell .home-profile-stats .text-muted-foreground,
+.home-celestial-shell .toolkit-preview-card p {
+  color: #617267;
+}
+
+.home-celestial-shell .home-profile-stats {
+  color: #102f1d;
+}
+
+.home-celestial-shell .home-begin-button {
+  background: #d7f43c;
+  color: #102f1d;
+}
+
+.home-celestial-shell .home-begin-button:hover {
+  background: #cbe936;
+  color: #102f1d;
+}
+
+.home-celestial-shell .home-start-actions > button:not(.home-begin-button) {
+  border-color: rgba(16, 47, 29, 0.2);
+  background: rgba(249, 252, 248, 0.96);
+  color: #173d28;
+}
+
+.home-celestial-shell
+  .home-start-actions
+  > button:not(.home-begin-button):hover {
+  border-color: rgba(16, 47, 29, 0.44);
+  background: #ffffff;
+  color: #102f1d;
+}
+
+.home-celestial-shell .home-latest-result .panel-eyebrow {
+  color: #3f875f;
+}
+
+.home-celestial-shell .profile-orbit {
+  border-color: rgba(204, 229, 216, 0.42);
+  background:
+    radial-gradient(
+      circle,
+      transparent 0 31%,
+      rgba(220, 238, 228, 0.12) 31.4% 31.8%,
+      transparent 32.2%
+    ),
+    radial-gradient(
+      circle,
+      rgba(224, 239, 230, 0.17),
+      rgba(146, 193, 171, 0.11) 52%,
+      rgba(48, 112, 91, 0.055) 70%,
+      transparent 71%
+    );
+  box-shadow:
+    inset 0 0 0 44px rgba(220, 238, 228, 0.025),
+    inset 0 0 62px rgba(206, 233, 218, 0.07),
+    0 0 72px rgba(88, 171, 140, 0.13);
+  backdrop-filter: blur(1px);
+}
+
+.home-celestial-shell .profile-orbit::before,
+.home-celestial-shell .profile-orbit::after {
+  border-color: rgba(174, 216, 197, 0.22);
+}
+
+.home-celestial-shell .orbit-axis {
+  background: rgba(204, 229, 216, 0.34);
+}
+
+.home-celestial-shell .compass-cardinal {
+  color: rgba(235, 244, 239, 0.72);
+}
+
+.home-celestial-shell .orbit-compass-rose {
+  opacity: 0.7;
+  filter: brightness(1.24) saturate(0.72);
+}
+
 .home-background-grid {
   position: absolute;
   inset: 0;
   background-image:
-    linear-gradient(rgba(7, 91, 69, 0.045) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(7, 91, 69, 0.045) 1px, transparent 1px),
-    radial-gradient(circle at 78% 15%, rgba(49, 130, 72, 0.1), transparent 22%);
+    linear-gradient(rgba(141, 190, 168, 0.055) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(141, 190, 168, 0.055) 1px, transparent 1px),
+    radial-gradient(
+      circle at 78% 15%,
+      rgba(68, 155, 123, 0.18),
+      transparent 24%
+    );
   background-size:
     44px 44px,
     44px 44px,
     100% 100%;
+}
+
+.home-star-field {
+  position: absolute;
+  inset: 0;
+  opacity: 0.7;
+  background-image:
+    radial-gradient(circle, rgba(255, 255, 255, 0.92) 0 1px, transparent 1.5px),
+    radial-gradient(circle, rgba(215, 244, 60, 0.78) 0 1px, transparent 1.5px),
+    radial-gradient(
+      circle,
+      rgba(125, 202, 176, 0.68) 0 1.2px,
+      transparent 1.8px
+    );
+  background-position:
+    0 0,
+    47px 83px,
+    121px 39px;
+  background-size:
+    151px 173px,
+    223px 251px,
+    311px 283px;
+  animation: home-stars-drift 54s linear infinite;
+}
+
+.home-celestial-horizon {
+  position: absolute;
+  top: 4%;
+  right: -15%;
+  width: min(72vw, 940px);
+  aspect-ratio: 1;
+  border: 1px solid rgba(167, 213, 193, 0.14);
+  border-radius: 50%;
+  background:
+    repeating-radial-gradient(
+      circle,
+      transparent 0 54px,
+      rgba(150, 205, 182, 0.075) 55px 56px
+    ),
+    conic-gradient(
+      from 18deg,
+      transparent 0 10deg,
+      rgba(215, 244, 60, 0.1) 10deg 10.6deg,
+      transparent 10.6deg 26deg
+    );
+  box-shadow: 0 0 120px rgba(52, 151, 116, 0.1);
+  animation: home-celestial-turn 90s linear infinite;
 }
 
 .home-contour-cluster {
@@ -310,7 +480,7 @@
 
 .home-contour-cluster > span {
   position: absolute;
-  border: 1px solid rgba(7, 91, 69, 0.105);
+  border: 1px solid rgba(128, 190, 163, 0.12);
   border-radius: 47% 53% 42% 58% / 39% 45% 55% 61%;
 }
 
@@ -325,13 +495,13 @@
 
 .home-contour-cluster > span:nth-child(3) {
   inset: 23% 20%;
-  border-color: rgba(7, 91, 69, 0.13);
+  border-color: rgba(128, 190, 163, 0.16);
   border-radius: 41% 59% 48% 52% / 58% 43% 57% 42%;
 }
 
 .home-contour-cluster > span:nth-child(4) {
   inset: 36% 34%;
-  border-color: rgba(153, 179, 48, 0.19);
+  border-color: rgba(215, 244, 60, 0.2);
   border-radius: 57% 43% 51% 49% / 45% 54% 46% 55%;
 }
 
@@ -401,6 +571,57 @@
   animation-delay: -8s;
 }
 
+.engineering-world {
+  position: absolute;
+  height: auto;
+  opacity: 0.18;
+  mix-blend-mode: screen;
+  filter: saturate(0.72) brightness(0.74)
+    drop-shadow(0 0 34px rgba(69, 169, 134, 0.22));
+  will-change: transform;
+  animation: engineering-world-drift 46s ease-in-out infinite alternate;
+}
+
+.engineering-world-1 {
+  top: 16%;
+  right: -5%;
+  width: clamp(190px, 26vw, 390px);
+  opacity: 0.2;
+  animation-duration: 39s;
+  animation-delay: -18s;
+}
+
+.engineering-world-2 {
+  top: 43%;
+  left: -7%;
+  width: clamp(130px, 19vw, 290px);
+  opacity: 0.14;
+  filter: saturate(0.62) brightness(0.68) blur(0.35px)
+    drop-shadow(0 0 28px rgba(69, 169, 134, 0.18));
+  animation-duration: 56s;
+  animation-delay: -31s;
+}
+
+.engineering-world-3 {
+  top: 69%;
+  right: 4%;
+  width: clamp(110px, 14vw, 215px);
+  opacity: 0.12;
+  filter: saturate(0.56) brightness(0.64) blur(0.65px);
+  animation-duration: 64s;
+  animation-delay: -7s;
+}
+
+.engineering-world-4 {
+  bottom: 3%;
+  left: 9%;
+  width: clamp(80px, 10vw, 145px);
+  opacity: 0.09;
+  filter: saturate(0.5) brightness(0.62) blur(0.8px);
+  animation-duration: 72s;
+  animation-delay: -43s;
+}
+
 @keyframes home-terrain-float {
   from {
     translate: 0 0;
@@ -413,6 +634,30 @@
 @keyframes home-terrain-trace {
   to {
     background-position: 440px 0;
+  }
+}
+
+@keyframes home-stars-drift {
+  to {
+    background-position:
+      151px 173px,
+      270px 334px,
+      432px 322px;
+  }
+}
+
+@keyframes home-celestial-turn {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes engineering-world-drift {
+  from {
+    transform: translate3d(-12px, 16px, 0) rotate(-4deg);
+  }
+  to {
+    transform: translate3d(24px, -28px, 0) rotate(6deg);
   }
 }
 
@@ -1287,6 +1532,7 @@
   border-top: 7px solid var(--mode-accent, #276347);
   background: color-mix(in srgb, var(--mode-tint, #f6f0df) 78%, white);
   isolation: isolate;
+  container-type: inline-size;
 }
 .mode-art::before {
   content: '';
@@ -1310,17 +1556,19 @@
 }
 .mode-art img.result-character-static {
   z-index: 2;
-  padding: clamp(7.4rem, 12vw, 8.6rem) clamp(1rem, 2.5vw, 2rem)
-    clamp(1rem, 2vw, 1.7rem);
+  inset: clamp(7.2rem, 22cqw, 8.8rem) 2.5% clamp(0.8rem, 2cqw, 1.5rem);
+  width: 95%;
+  height: auto;
+  padding: 0;
   object-fit: contain;
-  object-position: center bottom;
+  object-position: center center;
   opacity: 1;
   animation: none;
 }
 .mode-art-identity {
   position: absolute;
   z-index: 4;
-  top: clamp(1.25rem, 3vw, 2rem);
+  top: clamp(1.1rem, 5cqw, 2rem);
   left: 50%;
   display: grid;
   width: min(92%, 31rem);
@@ -1332,7 +1580,7 @@
 .mode-art-identity strong {
   color: #172b20;
   font-family: var(--font-sans);
-  font-size: clamp(1.35rem, 2.4vw, 2rem);
+  font-size: clamp(1.28rem, 6.2cqw, 2rem);
   font-weight: 790;
   letter-spacing: -0.035em;
   line-height: 1.08;
@@ -1347,7 +1595,7 @@
 }
 .mode-art-identity b {
   color: var(--mode-accent, #276347);
-  font-size: clamp(0.9rem, 1.6vw, 1.15rem);
+  font-size: clamp(0.88rem, 3.6cqw, 1.15rem);
   font-weight: 900;
   letter-spacing: 0.14em;
 }
@@ -1711,6 +1959,44 @@
   color: var(--foreground);
   text-align: left;
 }
+
+.home-celestial-shell .toolkit-preview-card {
+  border-color: rgba(178, 218, 199, 0.22);
+  background: linear-gradient(
+    145deg,
+    rgba(18, 59, 55, 0.82),
+    rgba(8, 34, 36, 0.7)
+  );
+  box-shadow:
+    inset 0 1px 0 rgba(226, 242, 233, 0.08),
+    0 24px 52px -36px rgba(0, 0, 0, 0.72);
+  color: #edf6f0;
+  backdrop-filter: blur(8px);
+}
+
+.home-celestial-shell .toolkit-preview-title,
+.home-celestial-shell .toolkit-preview-title h3 {
+  color: #f3f8f4;
+}
+
+.home-celestial-shell .toolkit-area-icon {
+  border: 1px solid rgba(215, 244, 60, 0.2);
+  background: rgba(215, 244, 60, 0.1);
+}
+
+.home-celestial-shell .toolkit-preview-title svg {
+  color: #d7f43c;
+}
+
+.home-celestial-shell .toolkit-preview-card p {
+  color: rgba(220, 235, 225, 0.72);
+}
+
+.home-celestial-shell .toolkit-skills-preview > li {
+  border: 1px solid rgba(183, 220, 203, 0.14);
+  background: rgba(226, 242, 233, 0.08);
+  color: #dcebe2;
+}
 .toolkit-preview-title {
   display: flex;
   align-items: center;
@@ -1987,7 +2273,10 @@
     animation: none;
   }
   .home-contour-cluster,
-  .home-terrain-tracer {
+  .home-terrain-tracer,
+  .home-star-field,
+  .home-celestial-horizon,
+  .engineering-world {
     animation: none;
   }
 }

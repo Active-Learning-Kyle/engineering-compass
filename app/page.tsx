@@ -931,9 +931,11 @@ function Welcome({
   return (
     <LocalizedContent>
       {
-        <section className="relative overflow-hidden">
+        <section className="home-celestial-shell relative overflow-hidden">
           <div className="home-motion-field" aria-hidden="true">
             <div className="home-background-grid" />
+            <div className="home-star-field" />
+            <div className="home-celestial-horizon" />
             <div className="home-contour-cluster home-contour-cluster-1">
               <span />
               <span />
@@ -961,6 +963,30 @@ function Welcome({
             <i className="home-terrain-tracer home-terrain-tracer-1" />
             <i className="home-terrain-tracer home-terrain-tracer-2" />
             <i className="home-terrain-tracer home-terrain-tracer-3" />
+            {/* oxlint-disable-next-line next/no-img-element -- Transparent decorative world asset. */}
+            <img
+              className="engineering-world engineering-world-1"
+              src={assetPath('backgrounds/engineering-world-systems.png')}
+              alt=""
+            />
+            {/* oxlint-disable-next-line next/no-img-element -- Transparent decorative world asset. */}
+            <img
+              className="engineering-world engineering-world-2"
+              src={assetPath('backgrounds/engineering-world-fabrication.png')}
+              alt=""
+            />
+            {/* oxlint-disable-next-line next/no-img-element -- Reused at a distant scale for parallax depth. */}
+            <img
+              className="engineering-world engineering-world-3"
+              src={assetPath('backgrounds/engineering-world-systems.png')}
+              alt=""
+            />
+            {/* oxlint-disable-next-line next/no-img-element -- Reused at a distant scale for parallax depth. */}
+            <img
+              className="engineering-world engineering-world-4"
+              src={assetPath('backgrounds/engineering-world-fabrication.png')}
+              alt=""
+            />
           </div>
           <div className="relative mx-auto grid max-w-7xl items-center gap-12 px-6 py-14 lg:min-h-[610px] lg:grid-cols-[1.04fr_.96fr] lg:px-12">
             <div className="max-w-3xl">
@@ -1113,7 +1139,7 @@ function Welcome({
                   </div>
                 ))}
               </div>
-              <div className="mt-7 grid grid-cols-3 divide-x divide-border rounded-2xl border bg-card/95 py-4 shadow-sm">
+              <div className="home-profile-stats mt-7 grid grid-cols-3 divide-x divide-border rounded-2xl border bg-card/95 py-4 shadow-sm">
                 {[
                   [
                     edition === 'pro' ? '60' : '30',

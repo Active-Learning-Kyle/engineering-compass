@@ -1,3 +1,5 @@
+import { drawVisiblePortrait } from './portrait-layout';
+
 export const roleShareSize = { width: 1080, height: 1350 } as const;
 
 export type RoleShareCardData = {
@@ -87,7 +89,7 @@ function fitFont(
   let size = preferredSize;
   do {
     context.font = `700 ${size}px ${family}`;
-    if (wrapText(context, text, maxWidth).length <= 2) return size;
+    if (context.measureText(text).width <= maxWidth) return size;
     size -= 2;
   } while (size >= minimumSize);
   return minimumSize;
@@ -104,85 +106,6 @@ function loadImage(url: string) {
   });
 }
 
-function drawContainedImage(
-  context: CanvasRenderingContext2D,
-  image: HTMLImageElement,
-  x: number,
-  y: number,
-  width: number,
-  height: number,
-  flip = false,
-) {
-  const scale = Math.min(
-    width / image.naturalWidth,
-    height / image.naturalHeight,
-  );
-  const drawWidth = image.naturalWidth * scale;
-  const drawHeight = image.naturalHeight * scale;
-  const drawX = x + (width - drawWidth) / 2;
-  const drawY = y + (height - drawHeight) / 2;
-  context.save();
-  if (flip) {
-    context.translate(drawX + drawWidth, 0);
-    context.scale(-1, 1);
-    context.drawImage(image, 0, drawY, drawWidth, drawHeight);
-  } else {
-    context.drawImage(image, drawX, drawY, drawWidth, drawHeight);
-  }
-  context.restore();
-}
-
-function drawCoveredImage(
-  context: CanvasRenderingContext2D,
-  image: HTMLImageElement,
-  x: number,
-  y: number,
-  width: number,
-  height: number,
-  flip = false,
-) {
-  const scale = Math.max(
-    width / image.naturalWidth,
-    height / image.naturalHeight,
-  );
-  const sourceWidth = width / scale;
-  const sourceHeight = height / scale;
-  const sourceX = (image.naturalWidth - sourceWidth) / 2;
-  const sourceY = Math.max(0, (image.naturalHeight - sourceHeight) * 0.24);
-  context.save();
-  context.beginPath();
-  context.rect(x, y, width, height);
-  context.clip();
-  if (flip) {
-    context.translate(x + width, 0);
-    context.scale(-1, 1);
-    context.drawImage(
-      image,
-      sourceX,
-      sourceY,
-      sourceWidth,
-      sourceHeight,
-      0,
-      y,
-      width,
-      height,
-    );
-  } else {
-    context.drawImage(
-      image,
-      sourceX,
-      sourceY,
-      sourceWidth,
-      sourceHeight,
-      x,
-      y,
-      width,
-      height,
-    );
-  }
-  context.restore();
-}
-
 function drawPortraitGroup(
   context: CanvasRenderingContext2D,
   images: HTMLImageElement[],
@@ -192,12 +115,20 @@ function drawPortraitGroup(
   height: number,
 ) {
   if (images.length === 1) {
-    drawContainedImage(context, images[0], x, y, width, height);
+    drawVisiblePortrait(context, images[0], x, y, width, height, {
+      occupancy: 0.88,
+      verticalBias: 0.48,
+    });
     return;
   }
   const cellWidth = width / 2;
-  drawCoveredImage(context, images[0], x, y, cellWidth, height, true);
-  drawCoveredImage(context, images[1], x + cellWidth, y, cellWidth, height);
+  drawVisiblePortrait(context, images[0], x, y, cellWidth, height, {
+    flip: true,
+    occupancy: 0.94,
+  });
+  drawVisiblePortrait(context, images[1], x + cellWidth, y, cellWidth, height, {
+    occupancy: 0.94,
+  });
   context.fillStyle = 'rgba(18, 52, 33, 0.14)';
   context.fillRect(x + cellWidth, y, 1, height);
 }

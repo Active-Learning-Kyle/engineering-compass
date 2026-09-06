@@ -1,4 +1,5 @@
 import { toBlob } from 'html-to-image';
+import { drawVisiblePortrait } from './portrait-layout';
 
 export function profileExportOptions(width: number, height: number, dpr = 1) {
   width = Math.ceil(width);
@@ -82,7 +83,10 @@ export function visiblePortraitVariant(secondOpacity: number) {
 }
 
 export function normalizeExportRoleCode(roleCode: string) {
-  return roleCode.trim().replace(/^\(+|\)+$/g, '').trim();
+  return roleCode
+    .trim()
+    .replace(/^\(+|\)+$/g, '')
+    .trim();
 }
 
 export function portraitCoverCrop(
@@ -212,65 +216,19 @@ async function rasterizePortrait(
   const cellWidth = canvas.width / Math.min(images.length, 2);
   images.slice(0, 2).forEach((image, index) => {
     const drawX = index * cellWidth;
-    context.save();
-    if (images.length > 1 && index === 0) {
-      const coverScale = Math.max(
-        cellWidth / image.naturalWidth,
-        portraitHeight / image.naturalHeight,
-      );
-      const sourceWidth = cellWidth / coverScale;
-      const sourceHeight = portraitHeight / coverScale;
-      const sourceX = (image.naturalWidth - sourceWidth) / 2;
-      const sourceY = Math.max(0, (image.naturalHeight - sourceHeight) * 0.24);
-      context.translate(drawX + cellWidth, 0);
-      context.scale(-1, 1);
-      context.drawImage(
-        image,
-        sourceX,
-        sourceY,
-        sourceWidth,
-        sourceHeight,
-        0,
-        portraitTop,
-        cellWidth,
-        portraitHeight,
-      );
-    } else if (images.length > 1) {
-      const coverScale = Math.max(
-        cellWidth / image.naturalWidth,
-        portraitHeight / image.naturalHeight,
-      );
-      const sourceWidth = cellWidth / coverScale;
-      const sourceHeight = portraitHeight / coverScale;
-      const sourceX = (image.naturalWidth - sourceWidth) / 2;
-      const sourceY = Math.max(0, (image.naturalHeight - sourceHeight) * 0.24);
-      context.drawImage(
-        image,
-        sourceX,
-        sourceY,
-        sourceWidth,
-        sourceHeight,
-        drawX,
-        portraitTop,
-        cellWidth,
-        portraitHeight,
-      );
-    } else {
-      const containScale = Math.min(
-        cellWidth / image.naturalWidth,
-        portraitHeight / image.naturalHeight,
-      );
-      const drawWidth = image.naturalWidth * containScale;
-      const drawHeight = image.naturalHeight * containScale;
-      context.drawImage(
-        image,
-        (cellWidth - drawWidth) / 2,
-        portraitTop + (portraitHeight - drawHeight) / 2,
-        drawWidth,
-        drawHeight,
-      );
-    }
-    context.restore();
+    drawVisiblePortrait(
+      context,
+      image,
+      drawX,
+      portraitTop,
+      cellWidth,
+      portraitHeight,
+      {
+        flip: images.length > 1 && index === 0,
+        occupancy: images.length > 1 ? 0.94 : 0.88,
+        verticalBias: 0.48,
+      },
+    );
   });
   if (images.length > 1) {
     context.fillStyle = 'rgba(18, 52, 33, 0.14)';

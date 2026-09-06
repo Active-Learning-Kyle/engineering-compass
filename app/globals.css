@@ -2067,7 +2067,7 @@ html:lang(zh-Hant) .toolkit-score-meta {
   }
 }
 .home-language-bar {
-  position: fixed;
+  position: absolute;
   z-index: 40;
   top: 3.25rem;
   right: max(1.5rem, calc((100vw - 1280px) / 2 + 3rem));

@@ -81,6 +81,10 @@ export function visiblePortraitVariant(secondOpacity: number) {
     : 'first';
 }
 
+export function normalizeExportRoleCode(roleCode: string) {
+  return roleCode.trim().replace(/^\(+|\)+$/g, '').trim();
+}
+
 export function portraitCoverCrop(
   sourceWidth: number,
   sourceHeight: number,
@@ -315,10 +319,11 @@ export async function exportProfilePdf(root: HTMLElement, filename: string) {
     root.querySelectorAll<HTMLImageElement>('[data-export-portrait]'),
   );
   const liveModeArt = root.querySelector<HTMLElement>('.mode-art');
-  const roleCode =
+  const roleCodeText =
     liveModeArt
       ?.querySelector<HTMLElement>('[data-export-role-code]')
       ?.textContent?.trim() ?? '';
+  const roleCode = normalizeExportRoleCode(roleCodeText);
   const roleName =
     liveModeArt
       ?.querySelector<HTMLElement>('[data-export-role-name]')

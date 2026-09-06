@@ -425,7 +425,13 @@ const {
   visiblePortraitVariant,
   portraitCoverCrop,
   pdfPortraitPlacement,
+  normalizeExportRoleCode,
 } = await import('../lib/assessment/profile-export.ts');
+test('PDF export normalizes the displayed role code before drawing parentheses', () => {
+  assert.equal(normalizeExportRoleCode('(ECXC)'), 'ECXC');
+  assert.equal(normalizeExportRoleCode('((ECXC))'), 'ECXC');
+  assert.equal(normalizeExportRoleCode('ECXC'), 'ECXC');
+});
 test('PDF export selects whichever crossfading portrait is visually dominant', () => {
   assert.equal(visiblePortraitVariant(0), 'first');
   assert.equal(visiblePortraitVariant(0.49), 'first');

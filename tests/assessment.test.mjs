@@ -32,7 +32,7 @@ registerHooks({
             "'/'",
           ) +
             (url.endsWith('page.tsx?unit')
-              ? '\nexport { Results, Assessment, Welcome, Header, MultiChoices };'
+              ? '\nexport { Results, Assessment, Welcome, Header, YearSelection, MultiChoices };'
               : ''),
           {
             compilerOptions: {
@@ -1001,10 +1001,10 @@ test('Independent growth cards retain their final border and padding', () => {
   assert.match(css, /var\(--font-geist-sans, Arial\)/);
 });
 
-test('Language controls move into the assessment toolbar while results keep them in the header', async () => {
+test('Language controls sit inside year and assessment pages while results keep them in the header', async () => {
   const React = await import('react');
   const { renderToStaticMarkup } = await import('react-dom/server');
-  const { Header } = await import('../app/page.tsx?unit');
+  const { Header, YearSelection } = await import('../app/page.tsx?unit');
   const resultsHeader = renderToStaticMarkup(
     React.createElement(Header, { progress: null, showLanguage: true }),
   );
@@ -1017,6 +1017,16 @@ test('Language controls move into the assessment toolbar while results keep them
     resultsHeader.includes('English') && resultsHeader.includes('繁體中文'),
   );
   assert.doesNotMatch(assessmentHeader, /language-toolbar-inline/);
+  const yearPage = renderToStaticMarkup(
+    React.createElement(YearSelection, {
+      year: null,
+      onChange: () => {},
+      onBack: () => {},
+      onContinue: () => {},
+    }),
+  );
+  assert.match(yearPage, /year-toolbar/);
+  assert.match(yearPage, /language-toolbar-inline/);
   const pageSource = readFileSync(
     new URL('../app/page.tsx', import.meta.url),
     'utf8',

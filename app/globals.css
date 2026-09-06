@@ -791,6 +791,20 @@
 .back-link:hover {
   color: var(--primary);
 }
+.year-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 2.5rem;
+}
+.year-toolbar .back-link {
+  margin-bottom: 0;
+}
+.year-toolbar .language-toolbar.language-toolbar-inline {
+  margin-left: auto;
+}
 .choice-check {
   display: grid;
   width: 1.8rem;

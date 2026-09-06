@@ -703,7 +703,7 @@ function HomeContent() {
       )}
       {step !== 'welcome' && (
         <Header
-          showLanguage={step !== 'assessment'}
+          showLanguage={step === 'results'}
           progress={
             step === 'assessment'
               ? ((current + 1) / questions.length) * 100
@@ -1245,9 +1245,12 @@ function YearSelection({
     <LocalizedContent>
       {
         <section className="year-onboarding mx-auto max-w-6xl px-6 py-12 lg:px-12 lg:py-18">
-          <button className="back-link" onClick={onBack}>
-            <ArrowLeft className="size-4" /> {'common.back'}
-          </button>
+          <div className="year-toolbar">
+            <button className="back-link" onClick={onBack}>
+              <ArrowLeft className="size-4" /> {'common.back'}
+            </button>
+            <LanguageSwitcher embedded />
+          </div>
           <div className="year-intro">
             <div className="eyebrow mb-5">{'common.optionalBackground'}</div>
             <h1 className="font-serif text-4xl font-semibold tracking-tight sm:text-5xl">

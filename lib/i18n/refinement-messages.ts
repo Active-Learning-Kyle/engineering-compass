@@ -119,6 +119,18 @@ export const refinementMessages = {
   'assessment.scaleValue': ['{value} of 5', '{value} 分（共 5 分）'],
   'role.preview': ['Preview {name}', '預覽{name}'],
   'role.illustration': ['{name} character illustration', '{name}角色插圖'],
+  'home.collection.eyebrow': ['HIDDEN ROLE GALLERY', '隱藏角色圖鑑'],
+  'home.collection.title': [
+    'Some combinations are waiting to be discovered.',
+    '有些能力組合，正等待你發現。',
+  ],
+  'home.collection.note': [
+    'A hidden role appears only when several competencies share your highest displayed score. Discoveries stay in this browser.',
+    '只有當多項能力的顯示分數並列最高時，隱藏角色才會出現；已發現角色只儲存在此瀏覽器。',
+  ],
+  'home.collection.locked': ['Undiscovered hidden role', '尚未發現的隱藏角色'],
+  'home.collection.unlocked': ['Discovered', '已發現'],
+  'result.discovery.new': ['NEW HIDDEN ROLE DISCOVERED', '發現新的隱藏角色'],
   'result.analysis.leading': [
     'Your highest displayed score is in {first}; the next is in {second}. Read these as current self-reports, not fixed roles or objective ability levels.',
     '你的最高顯示分數是「{first}」，其次是「{second}」。這些反映目前的自述，並非固定角色或客觀能力等級。',
@@ -161,6 +173,8 @@ export const refinementMessages = {
     'These are directions to explore, not a personality type or professional rank. Small score differences should not decide your team role.',
     '這些是值得探索的方向，並非性格類型或專業職級。細微的分數差異不應決定你的團隊角色。',
   ],
+  'result.role.typeLabel': ['YOUR ENGINEERING ROLE', '你的工程角色'],
+  'result.qr.caption': ['SCAN TO EXPLORE', '掃碼探索'],
   'result.scope.label': ['CURRENT EXPERIENCE SCOPE', '目前的經驗範圍'],
   'result.scope.note': [
     'An approximate reflection of your reported projects, responsibilities and toolkit experience—not a qualification or seniority level.',

@@ -1,0 +1,316 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Engineering Roles — Gallery Reveal</title>
+    <style>
+      * {
+        box-sizing: border-box;
+      }
+      body {
+        margin: 0;
+        background: #f4f7f1;
+        color: #10301d;
+        font-family: Inter, Arial, sans-serif;
+      }
+      .page {
+        min-height: 100vh;
+        padding: 54px 6vw 70px;
+        background-image:
+          linear-gradient(rgba(16, 48, 29, 0.045) 1px, transparent 1px),
+          linear-gradient(90deg, rgba(16, 48, 29, 0.045) 1px, transparent 1px);
+        background-size: 52px 52px;
+      }
+      .eyebrow {
+        font-size: 12px;
+        font-weight: 850;
+        letter-spacing: 0.18em;
+        text-transform: uppercase;
+        color: #526b5a;
+      }
+      .heading {
+        display: flex;
+        align-items: end;
+        justify-content: space-between;
+        gap: 30px;
+        margin: 10px 0 28px;
+      }
+      .heading h1 {
+        margin: 0;
+        max-width: 720px;
+        font-family: Georgia, serif;
+        font-size: 46px;
+        line-height: 1.02;
+        letter-spacing: -0.035em;
+      }
+      .heading p {
+        max-width: 420px;
+        margin: 0;
+        color: #687b6d;
+        line-height: 1.55;
+      }
+      .grid {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 16px;
+      }
+      .card {
+        --c: #3f6fb5;
+        position: relative;
+        min-height: 250px;
+        overflow: hidden;
+        border: 1px solid #cfdbd0;
+        border-radius: 26px;
+        background: #fff;
+        box-shadow: 0 10px 32px rgba(15, 47, 28, 0.06);
+        isolation: isolate;
+        transition: 0.25s ease;
+      }
+      .card:hover,
+      .card.active {
+        transform: translateY(-5px);
+        border-color: var(--c);
+        box-shadow: 0 22px 48px color-mix(in srgb, var(--c) 22%, transparent);
+      }
+      .card img {
+        position: absolute;
+        right: -4%;
+        bottom: -8%;
+        width: 69%;
+        height: 108%;
+        object-fit: contain;
+        filter: saturate(0.98);
+        transition: 0.28s ease;
+      }
+      .card:hover img,
+      .card.active img {
+        right: -1%;
+        transform: scale(1.05);
+      }
+      .wash {
+        position: absolute;
+        inset: 0;
+        background: linear-gradient(
+          90deg,
+          color-mix(in srgb, var(--c) 94%, #102d1d) 0 47%,
+          transparent 82%
+        );
+        opacity: 0;
+        transition: 0.22s;
+      }
+      .card:hover .wash,
+      .card.active .wash {
+        opacity: 1;
+      }
+      .number {
+        position: absolute;
+        top: 20px;
+        left: 21px;
+        width: 29px;
+        height: 29px;
+        border-radius: 50%;
+        display: grid;
+        place-items: center;
+        background: color-mix(in srgb, var(--c) 14%, white);
+        color: var(--c);
+        font-weight: 850;
+        font-size: 12px;
+        z-index: 2;
+      }
+      .copy {
+        position: absolute;
+        left: 22px;
+        bottom: 20px;
+        z-index: 3;
+        width: 58%;
+      }
+      .copy h2 {
+        margin: 0;
+        font-size: 23px;
+        line-height: 1.05;
+      }
+      .copy .competency {
+        margin: 8px 0 0;
+        color: #63766a;
+        font-size: 12px;
+        line-height: 1.35;
+      }
+      .keywords {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 6px;
+        margin-top: 13px;
+        opacity: 0;
+        transform: translateY(8px);
+        transition: 0.24s;
+      }
+      .keywords span {
+        padding: 5px 8px;
+        border: 1px solid rgba(255, 255, 255, 0.3);
+        border-radius: 999px;
+        color: #fff;
+        font-size: 10px;
+        font-weight: 750;
+      }
+      .card:hover .copy,
+      .card.active .copy {
+        color: white;
+      }
+      .card:hover .competency,
+      .card.active .competency {
+        color: rgba(255, 255, 255, 0.72);
+      }
+      .card:hover .keywords,
+      .card.active .keywords {
+        opacity: 1;
+        transform: none;
+      }
+      .note {
+        margin-top: 22px;
+        color: #6b7a70;
+        font-size: 12px;
+      }
+      .note b {
+        color: #10301d;
+      }
+      .pf {
+        --c: #3f6fb5;
+      }
+      .pn {
+        --c: #282b30;
+      }
+      .tc {
+        --c: #e3b341;
+      }
+      .pb {
+        --c: #d97832;
+      }
+      .pe {
+        --c: #4f8f63;
+      }
+      .ss {
+        --c: #7656a8;
+      }
+      @media (max-width: 900px) {
+        .grid {
+          grid-template-columns: 1fr 1fr;
+        }
+        .heading {
+          display: block;
+        }
+        .heading p {
+          margin-top: 16px;
+        }
+      }
+      @media (max-width: 600px) {
+        .page {
+          padding: 30px 18px;
+        }
+        .grid {
+          grid-template-columns: 1fr;
+        }
+        .heading h1 {
+          font-size: 34px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <main class="page">
+      <div class="eyebrow">Six current engineering roles</div>
+      <div class="heading">
+        <h1>Different strengths become useful at different moments.</h1>
+        <p>
+          Hover over a role to meet its character and see the contribution it
+          represents. These are directions to explore—not fixed personality
+          types.
+        </p>
+      </div>
+      <section class="grid">
+        <article class="card pf active">
+          <span class="number">01</span
+          ><img src="../public/modes-v2/problem-framer-a.png" alt="" />
+          <div class="wash"></div>
+          <div class="copy">
+            <h2>Problem Framer</h2>
+            <p class="competency">Problem Identification</p>
+            <div class="keywords">
+              <span>Analytical</span><span>Calm</span><span>Evidence-led</span
+              ><span>Clarifies the problem</span>
+            </div>
+          </div>
+        </article>
+        <article class="card pn">
+          <span class="number">02</span
+          ><img src="../public/modes-v2/project-navigator-a.png" alt="" />
+          <div class="wash"></div>
+          <div class="copy">
+            <h2>Project Navigator</h2>
+            <p class="competency">Proposal with Plan</p>
+            <div class="keywords">
+              <span>Structured</span><span>Directional</span
+              ><span>Prioritises</span><span>Decisive</span>
+            </div>
+          </div>
+        </article>
+        <article class="card tc">
+          <span class="number">03</span
+          ><img src="../public/modes-v2/team-connector-a.png" alt="" />
+          <div class="wash"></div>
+          <div class="copy">
+            <h2>Team Connector</h2>
+            <p class="competency">Interdisciplinary Collaboration</p>
+            <div class="keywords">
+              <span>Warm</span><span>Connective</span><span>Communicative</span
+              ><span>Brings people together</span>
+            </div>
+          </div>
+        </article>
+        <article class="card pb">
+          <span class="number">04</span
+          ><img src="../public/modes-v2/practical-builder-a.png" alt="" />
+          <div class="wash"></div>
+          <div class="copy">
+            <h2>Practical Builder</h2>
+            <p class="competency">Hands-on Skills</p>
+            <div class="keywords">
+              <span>Hands-on</span><span>Tool-minded</span><span>Energetic</span
+              ><span>Makes things work</span>
+            </div>
+          </div>
+        </article>
+        <article class="card pe">
+          <span class="number">05</span
+          ><img src="../public/modes-v2/prototype-explorer-a.png" alt="" />
+          <div class="wash"></div>
+          <div class="copy">
+            <h2>Prototype Explorer</h2>
+            <p class="competency">Design Thinking &amp; Prototyping</p>
+            <div class="keywords">
+              <span>Experimental</span><span>Growth-minded</span
+              ><span>Iterative</span><span>Improves continuously</span>
+            </div>
+          </div>
+        </article>
+        <article class="card ss">
+          <span class="number">06</span
+          ><img src="../public/modes-v2/solution-storyteller-a.png" alt="" />
+          <div class="wash"></div>
+          <div class="copy">
+            <h2>Solution Storyteller</h2>
+            <p class="competency">Pitch for Engineering Solutions</p>
+            <div class="keywords">
+              <span>Expressive</span><span>Narrative</span><span>Creative</span
+              ><span>Communicates value</span>
+            </div>
+          </div>
+        </article>
+      </section>
+      <p class="note">
+        <b>Gallery reveal:</b> the role colour becomes the stage only when a
+        student hovers or focuses the card.
+      </p>
+    </main>
+  </body>
+</html>

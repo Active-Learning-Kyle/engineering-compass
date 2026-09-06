@@ -129,6 +129,14 @@ import {
   serializeCompletedProfile,
   type CompletedProfile,
 } from '@/lib/assessment/completed-profile';
+import {
+  addRoleToCollection,
+  hiddenRoles,
+  readRoleCollection,
+  roleCollectionStorageKey,
+  type HiddenRoleId,
+  type RoleDiscovery,
+} from '@/lib/assessment/role-collection';
 const assetPath = (path: string) => `${import.meta.env.BASE_URL}${path}`;
 const phases: Array<{ key: PhaseKey; label: string; range: string }> = [
   { key: 'behaviour', label: 'common.howYouWork', range: '01–15' },
@@ -407,6 +415,9 @@ function HomeContent() {
   const [latestProfile, setLatestProfile] = useState<CompletedProfile | null>(
     null,
   );
+  const [roleDiscoveries, setRoleDiscoveries] = useState<RoleDiscovery[]>([]);
+  const [newlyUnlockedRoleId, setNewlyUnlockedRoleId] =
+    useState<HiddenRoleId | null>(null);
   const [responseMs, setResponseMs] = useState<number | null>(null);
   const [showNudge, setShowNudge] = useState(false);
   const [hasLegacyDraft, setHasLegacyDraft] = useState(false);
@@ -427,6 +438,11 @@ function HomeContent() {
         ? readCompletedProfile(completedRaw)
         : null;
       if (completed) queueMicrotask(() => setLatestProfile(completed));
+      const collection = readRoleCollection(
+        window.localStorage.getItem(roleCollectionStorageKey),
+      );
+      if (collection.length)
+        queueMicrotask(() => setRoleDiscoveries(collection));
       const hasOld =
         Boolean(window.localStorage.getItem(legacyStorageKey)) ||
         result?.status === 'legacy';
@@ -538,6 +554,7 @@ function HomeContent() {
     fastStreak.current = 0;
     lastNudgeAt.current = -10;
     setShowNudge(false);
+    setNewlyUnlockedRoleId(null);
     questionStarted.current = Date.now();
     setStep('assessment');
   }
@@ -605,6 +622,31 @@ function HomeContent() {
     setResponseMs(null);
     if (current === questions.length - 1) {
       const completed = createCompletedProfile(edition, year, completedAnswers);
+      const completedScores = calculateResults(completedAnswers);
+      const completedRole = deriveRolePresentation(
+        completedScores.competencyScores,
+      );
+      if (completedRole.hidden) {
+        setRoleDiscoveries((previous) => {
+          const next = addRoleToCollection(
+            previous,
+            completedRole,
+            completedRole.keys,
+          );
+          if (next !== previous) {
+            setNewlyUnlockedRoleId(completedRole.id);
+            try {
+              window.localStorage.setItem(
+                roleCollectionStorageKey,
+                JSON.stringify(next),
+              );
+            } catch {
+              // The discovery still remains available for this session.
+            }
+          }
+          return next;
+        });
+      }
       setLatestProfile(completed);
       setStep('results');
       setSavedDraft(null);
@@ -663,6 +705,7 @@ function HomeContent() {
     setYear(latestProfile.year);
     setCurrent(getQuestions(latestProfile.edition).length - 1);
     setAnswers(latestProfile.answers);
+    setNewlyUnlockedRoleId(null);
     setStep('results');
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }
@@ -721,6 +764,7 @@ function HomeContent() {
           hasLegacyDraft={hasLegacyDraft}
           latestProfile={latestProfile}
           onViewLatest={viewLatestProfile}
+          roleDiscoveries={roleDiscoveries}
         />
       )}
       {step === 'year' && (
@@ -758,8 +802,8 @@ function HomeContent() {
           year={year}
           proReflection={edition === 'pro' ? interpretPro(answers) : null}
           modeKey={modeKey}
-          profileSeed={latestProfile?.completedAt ?? JSON.stringify(answers)}
           growthStageKey={growthStageKey}
+          newlyUnlockedRoleId={newlyUnlockedRoleId}
           onRestart={restart}
           onDownload={downloadProfilePdf}
         />
@@ -829,6 +873,7 @@ function Welcome({
   hasLegacyDraft,
   latestProfile,
   onViewLatest,
+  roleDiscoveries = [],
 }: {
   edition: AssessmentEdition;
   onEditionChange: (edition: AssessmentEdition) => void;
@@ -838,8 +883,14 @@ function Welcome({
   hasLegacyDraft: boolean;
   latestProfile: CompletedProfile | null;
   onViewLatest: () => void;
+  roleDiscoveries?: RoleDiscovery[];
 }) {
   const [compassHover, setCompassHover] = useState<number | null>(null);
+  const [autoPreviewActive, setAutoPreviewActive] = useState(false);
+  const [hoveredPreviewIndex, setHoveredPreviewIndex] = useState<number | null>(
+    null,
+  );
+  const rolePreviewRef = useRef<HTMLDivElement | null>(null);
   const { locale, t } = useLanguage();
   const latestCompletedDate = latestProfile
     ? new Intl.DateTimeFormat(locale, {
@@ -847,6 +898,36 @@ function Welcome({
         timeStyle: 'short',
       }).format(new Date(latestProfile.completedAt))
     : null;
+  useEffect(() => {
+    const preview = rolePreviewRef.current;
+    if (!preview) return;
+    let timer: number | null = null;
+    let showing = false;
+    const stop = () => {
+      if (timer !== null) window.clearInterval(timer);
+      timer = null;
+      showing = false;
+      setAutoPreviewActive(false);
+    };
+    const start = () => {
+      if (timer !== null || hoveredPreviewIndex !== null) return;
+      const tick = () => {
+        showing = !showing;
+        setAutoPreviewActive(showing);
+      };
+      tick();
+      timer = window.setInterval(tick, 2800);
+    };
+    const observer = new IntersectionObserver(
+      ([entry]) => (entry.isIntersecting ? start() : stop()),
+      { threshold: 0.24 },
+    );
+    observer.observe(preview);
+    return () => {
+      stop();
+      observer.disconnect();
+    };
+  }, [hoveredPreviewIndex]);
   return (
     <LocalizedContent>
       {
@@ -970,37 +1051,6 @@ function Welcome({
                     : 'common.yourCoreEngineeringProfile'}
                 </div>
               </div>
-              {latestProfile && latestCompletedDate && (
-                <button
-                  type="button"
-                  className="group mt-5 flex w-full items-center justify-between gap-5 rounded-3xl border border-primary/25 bg-card/95 p-5 text-left shadow-sm transition hover:-translate-y-0.5 hover:border-primary/55 hover:shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
-                  onClick={onViewLatest}
-                >
-                  <span className="min-w-0">
-                    <span className="panel-eyebrow flex items-center gap-2">
-                      <BookOpenCheck className="size-4" />
-                      {'home.latest.eyebrow'}
-                    </span>
-                    <span className="mt-2 block font-serif text-xl font-semibold text-primary">
-                      {'home.latest.title'}
-                    </span>
-                    <span className="mt-1 block text-sm text-muted-foreground">
-                      {t('home.latest.meta', {
-                        edition:
-                          latestProfile.edition === 'pro' ? 'Pro' : 'Standard',
-                        date: latestCompletedDate,
-                      })}
-                    </span>
-                    <span className="mt-2 block text-xs leading-5 text-muted-foreground">
-                      {'home.latest.note'}
-                    </span>
-                  </span>
-                  <span className="flex shrink-0 items-center gap-2 rounded-full bg-primary px-4 py-2.5 text-sm font-semibold text-primary-foreground transition group-hover:bg-primary/90">
-                    {'home.latest.action'}
-                    <ArrowRight className="size-4" />
-                  </span>
-                </button>
-              )}
               {hasLegacyDraft && (
                 <output className="block mt-4 text-sm leading-6 text-muted-foreground">
                   {'draft.previous'}
@@ -1087,6 +1137,37 @@ function Welcome({
               <div className="home-assessment-notes">
                 <p>{'common.yourResponsesArePrivateAndStayOnThisDevice'}</p>
               </div>
+              {latestProfile && latestCompletedDate && (
+                <button
+                  type="button"
+                  className="home-latest-result group"
+                  onClick={onViewLatest}
+                >
+                  <span className="min-w-0">
+                    <span className="panel-eyebrow flex items-center gap-2">
+                      <BookOpenCheck className="size-4" />
+                      {'home.latest.eyebrow'}
+                    </span>
+                    <span className="mt-2 block font-serif text-xl font-semibold text-primary">
+                      {'home.latest.title'}
+                    </span>
+                    <span className="mt-1 block text-sm text-muted-foreground">
+                      {t('home.latest.meta', {
+                        edition:
+                          latestProfile.edition === 'pro' ? 'Pro' : 'Standard',
+                        date: latestCompletedDate,
+                      })}
+                    </span>
+                    <span className="mt-2 block text-xs leading-5 text-muted-foreground">
+                      {'home.latest.note'}
+                    </span>
+                  </span>
+                  <span className="home-latest-result-action">
+                    {'home.latest.action'}
+                    <ArrowRight className="size-4" />
+                  </span>
+                </button>
+              )}
             </div>
           </div>
           <div className="relative mx-auto max-w-7xl px-6 pb-14 lg:px-12">
@@ -1108,7 +1189,7 @@ function Welcome({
                 {'common.differentRolesAreUsefulInDifferentMomentsNotHigher'}
               </span>
             </div>
-            <div className="modes-preview-grid">
+            <div className="modes-preview-grid" ref={rolePreviewRef}>
               {(
                 Object.entries(engineeringModes) as Array<
                   [
@@ -1116,12 +1197,19 @@ function Welcome({
                     (typeof engineeringModes)[EngineeringModeKey],
                   ]
                 >
-              ).map(([key, mode]) => (
+              ).map(([key, mode], index) => (
                 <button
                   type="button"
-                  className="role-preview-card"
+                  className={`role-preview-card ${autoPreviewActive && hoveredPreviewIndex === null ? 'is-auto-preview' : ''}`}
                   key={key}
                   aria-label={t('role.preview', { name: t(mode.name) })}
+                  onPointerEnter={(event) => {
+                    if (event.pointerType !== 'touch')
+                      setHoveredPreviewIndex(index);
+                  }}
+                  onPointerLeave={() => setHoveredPreviewIndex(null)}
+                  onFocus={() => setHoveredPreviewIndex(index)}
+                  onBlur={() => setHoveredPreviewIndex(null)}
                   style={
                     {
                       '--role-accent': mode.accent,
@@ -1172,6 +1260,92 @@ function Welcome({
                 </button>
               ))}
             </div>
+            <section
+              className="role-collection"
+              aria-labelledby="role-collection-title"
+            >
+              <div className="role-collection-heading">
+                <div>
+                  <div className="panel-eyebrow">
+                    {'home.collection.eyebrow'}
+                  </div>
+                  <h2 id="role-collection-title">{'home.collection.title'}</h2>
+                </div>
+                <p>{'home.collection.note'}</p>
+              </div>
+              <div className="role-collection-grid">
+                {hiddenRoles.map((role) => {
+                  const discovery = roleDiscoveries.find(
+                    (item) => item.id === role.id,
+                  );
+                  const unlocked = Boolean(discovery);
+                  return (
+                    <article
+                      className={`hidden-role-card ${unlocked ? 'is-unlocked' : 'is-locked'}`}
+                      key={role.id}
+                      style={
+                        {
+                          '--hidden-role-accent': role.accent,
+                          '--hidden-role-tint': role.tint,
+                        } as React.CSSProperties
+                      }
+                      aria-label={t(
+                        unlocked
+                          ? 'home.collection.unlocked'
+                          : 'home.collection.locked',
+                      )}
+                    >
+                      {role.image ? (
+                        <div
+                          className="hidden-role-image-wrap"
+                          aria-hidden="true"
+                        >
+                          {/* oxlint-disable-next-line next/no-img-element */}
+                          <img
+                            className={`hidden-role-image ${unlocked ? '' : 'is-silhouette'}`}
+                            src={assetPath(role.image)}
+                            alt=""
+                          />
+                          {!unlocked && <strong>?</strong>}
+                        </div>
+                      ) : (
+                        <div
+                          className="hidden-role-silhouette"
+                          aria-hidden="true"
+                        >
+                          <span className="hidden-role-head" />
+                          <span className="hidden-role-body" />
+                          <strong>?</strong>
+                        </div>
+                      )}
+                      <div className="hidden-role-copy">
+                        <span>
+                          {unlocked
+                            ? 'home.collection.unlocked'
+                            : 'home.collection.locked'}
+                        </span>
+                        {unlocked ? <h3>{role.name}</h3> : <h3>???</h3>}
+                        {unlocked && discovery && discovery.keys.length > 0 && (
+                          <div
+                            className="hidden-role-palette"
+                            aria-hidden="true"
+                          >
+                            {discovery.keys.map((key) => (
+                              <i
+                                key={key}
+                                style={{
+                                  background: engineeringModes[key].accent,
+                                }}
+                              />
+                            ))}
+                          </div>
+                        )}
+                      </div>
+                    </article>
+                  );
+                })}
+              </div>
+            </section>
             <div id="toolkit" className="home-toolkit scroll-mt-24">
               <div>
                 <div className="panel-eyebrow">{'home.toolkit.eyebrow'}</div>
@@ -1738,8 +1912,8 @@ function Results({
   year,
   proReflection,
   modeKey,
-  profileSeed = 'engineering-compass-profile',
   growthStageKey,
+  newlyUnlockedRoleId = null,
   onRestart,
   onDownload,
 }: {
@@ -1749,8 +1923,8 @@ function Results({
   year: string | null;
   proReflection: ReturnType<typeof interpretPro> | null;
   modeKey: EngineeringModeKey;
-  profileSeed?: string;
   growthStageKey: GrowthStageKey;
+  newlyUnlockedRoleId?: HiddenRoleId | null;
   onRestart: () => void;
   onDownload: () => Promise<void>;
 }) {
@@ -1771,17 +1945,21 @@ function Results({
   const supporting = rankedCompetencies[1];
   const growthEdge = rankedCompetencies.at(-1);
   const modes = deriveLeadingModes(competencyScores);
-  const rolePresentation = deriveRolePresentation(competencyScores);
-  const characterVariant = useMemo(() => {
-    let hash = 0;
-    for (const character of profileSeed) {
-      hash = (hash * 31 + character.charCodeAt(0)) >>> 0;
-    }
-    return hash % 2 === 0 ? 'a' : 'b';
-  }, [profileSeed]);
-  const portraitPath =
-    rolePresentation.image ?? mode.image[characterVariant];
-  const roleKeysSignature = rolePresentation.keys.join('|');
+  const rolePresentation = useMemo(
+    () => deriveRolePresentation(competencyScores),
+    [competencyScores],
+  );
+  const portraitPaths = useMemo(
+    () =>
+      rolePresentation.hidden
+        ? [rolePresentation.image ?? 'compass.svg']
+        : [mode.image.a],
+    [mode.image.a, rolePresentation],
+  );
+  const roleKeysSignature = useMemo(
+    () => rolePresentation.keys.join('|'),
+    [rolePresentation],
+  );
   const shareCardData = useMemo<RoleShareCardData>(() => {
     const roleKeys = roleKeysSignature.split('|') as EngineeringModeKey[];
     const competency = roleKeys
@@ -1793,6 +1971,7 @@ function Results({
       .join(' · ');
     return {
       brand: translate('brand.name', locale),
+      roleLabel: translate('result.role.typeLabel', locale),
       code: rolePresentation.code,
       role: translate(rolePresentation.name, locale),
       competency,
@@ -1802,8 +1981,10 @@ function Results({
         .join(' · '),
       scope: `${translate('result.scope.label', locale)} · ${translate(stage.name, locale)}`,
       disclaimer: translate('result.role.disclaimer', locale),
-      imageUrl: assetPath(portraitPath),
+      imageUrls: portraitPaths.map(assetPath),
       logoUrl: assetPath('compass.svg'),
+      qrUrl: assetPath('engineering-compass-qr.svg'),
+      qrCaption: translate('result.qr.caption', locale),
       accent: rolePresentation.accent,
       tint: rolePresentation.tint,
       siteUrl: 'https://active-learning-kyle.github.io/engineering-compass/',
@@ -1811,12 +1992,8 @@ function Results({
   }, [
     competencyScores,
     locale,
-    portraitPath,
-    rolePresentation.accent,
-    rolePresentation.code,
-    rolePresentation.description,
-    rolePresentation.name,
-    rolePresentation.tint,
+    portraitPaths,
+    rolePresentation,
     roleKeysSignature,
     stage.name,
   ]);
@@ -1874,10 +2051,15 @@ function Results({
             >
               <div className="mode-copy">
                 <div className="mode-eyebrow">
-                  <Sparkles className="size-4" />{' '}
-                  {'result.signature.label'}
+                  <Sparkles className="size-4" /> {'result.signature.label'}
                 </div>
-                <div className="role-signature-code">{rolePresentation.code}</div>
+                {rolePresentation.hidden &&
+                  newlyUnlockedRoleId === rolePresentation.roleId && (
+                    <div className="hidden-role-discovery-badge">
+                      <Sparkles className="size-3.5" />
+                      {'result.discovery.new'}
+                    </div>
+                  )}
                 <div className="mode-stage-row">
                   <span className="growth-stage-pill">
                     {'result.scope.label'} · {stage.name}
@@ -1905,9 +2087,7 @@ function Results({
                     )}
                   </>
                 )}
-                <p className="mode-lead">
-                  {rolePresentation.description}
-                </p>
+                <p className="mode-lead">{rolePresentation.description}</p>
                 <p className="mode-keywords">
                   {rolePresentation.keys
                     .map((key) => t(engineeringModes[key].keywords))
@@ -2035,17 +2215,64 @@ function Results({
                   name: t(rolePresentation.name),
                 })}
               >
-                {/* oxlint-disable-next-line next/no-img-element */}
-                <img
-                  className="result-character-first result-character-static"
-                  data-export-portrait="first"
-                  src={assetPath(
-                    portraitPath,
-                  )}
-                  alt=""
-                  width={1200}
-                  height={1200}
-                />
+                {rolePresentation.hidden && !rolePresentation.image ? (
+                  <>
+                    {/* oxlint-disable-next-line next/no-img-element */}
+                    <img
+                      className="hidden-role-placeholder-export"
+                      data-export-portrait="first"
+                      src={assetPath('compass.svg')}
+                      alt=""
+                      width={512}
+                      height={512}
+                    />
+                    <div
+                      className="result-hidden-role-pending"
+                      aria-hidden="true"
+                    >
+                      <span className="result-hidden-role-head" />
+                      <span className="result-hidden-role-body" />
+                      <strong>?</strong>
+                    </div>
+                  </>
+                ) : (
+                  <>
+                    {/* oxlint-disable-next-line next/no-img-element */}
+                    <img
+                      className="result-character-first result-character-static"
+                      data-export-portrait="first"
+                      src={assetPath(portraitPaths[0])}
+                      alt=""
+                      width={1200}
+                      height={1200}
+                    />
+                  </>
+                )}
+                <div className="mode-art-identity" aria-hidden="true">
+                  <span className="mode-art-role-label">
+                    {'result.role.typeLabel'}
+                  </span>
+                  <strong data-export-role-name="true">
+                    {rolePresentation.name}
+                  </strong>
+                  <b data-export-role-code="true">({rolePresentation.code})</b>
+                </div>
+                <a
+                  className="mode-art-qr"
+                  href="https://active-learning-kyle.github.io/engineering-compass/"
+                  target="_blank"
+                  rel="noreferrer"
+                  aria-label="Engineering Compass"
+                >
+                  {/* oxlint-disable-next-line next/no-img-element -- Static QR asset must remain exact. */}
+                  <img
+                    src={assetPath('engineering-compass-qr.svg')}
+                    alt=""
+                    width={120}
+                    height={120}
+                  />
+                  <span>{'result.qr.caption'}</span>
+                </a>
               </div>
             </div>
             <p className="mt-3 text-xs leading-5 text-muted-foreground">

@@ -55,6 +55,8 @@ Behaviour questions use a five-point frequency scale. Technical questions use a 
 
 The summary connects a leading current mode with experience scope and a next step. Exact displayed-score ties can produce joint modes; equal scores across all six dimensions produce a balanced profile.
 
+Classic results present one approved character for each role. Some exact multi-competency ties can reveal one of ten hidden roles. Hidden-role discoveries, including the competencies involved, are saved only in the current browser and appear in the home-page gallery.
+
 ![Example results summary card with a current profile and an illustrated engineering role](docs/images/profile.jpg)
 
 ### Behaviour and technical experience, side by side
@@ -72,19 +74,19 @@ These are **current ways of contributing**, not fixed personality types or assig
 <table>
 <tr>
 <td width="33%" valign="top">
-<img src="public/modes-v2/problem-framer-a.png" alt="Problem Framer illustration" width="240"><br>
+<img src="public/modes/problem-framer.png" alt="Problem Framer illustration" width="240"><br>
 <strong>Problem Framer</strong><br>
 Understand what is happening before choosing what to solve.<br><br>
 <em>Problem Identification</em>
 </td>
 <td width="33%" valign="top">
-<img src="public/modes-v2/project-navigator-b.png" alt="Project Navigator illustration" width="240"><br>
+<img src="public/modes/project-navigator.png" alt="Project Navigator illustration" width="240"><br>
 <strong>Project Navigator</strong><br>
 Turn an idea into a practical plan with steps, priorities, and dependencies.<br><br>
 <em>Proposal with Plan</em>
 </td>
 <td width="33%" valign="top">
-<img src="public/modes-v2/team-connector-a.png" alt="Team Connector illustration" width="240"><br>
+<img src="public/modes/team-connector.png" alt="Team Connector illustration" width="240"><br>
 <strong>Team Connector</strong><br>
 Help people with different skills coordinate their work and understand each other.<br><br>
 <em>Interdisciplinary Collaboration</em>
@@ -92,19 +94,19 @@ Help people with different skills coordinate their work and understand each othe
 </tr>
 <tr>
 <td width="33%" valign="top">
-<img src="public/modes-v2/practical-builder-b.png" alt="Practical Builder illustration" width="240"><br>
+<img src="public/modes/practical-builder.png" alt="Practical Builder illustration" width="240"><br>
 <strong>Practical Builder</strong><br>
 Bring practical technical experience to building, testing, and troubleshooting.<br><br>
 <em>Hands-on Skills</em>
 </td>
 <td width="33%" valign="top">
-<img src="public/modes-v2/prototype-explorer-a.png" alt="Prototype Explorer illustration" width="240"><br>
+<img src="public/modes/prototype-explorer.png" alt="Prototype Explorer illustration" width="240"><br>
 <strong>Prototype Explorer</strong><br>
 Try ideas in a simple form, learn from tests, and improve what you make.<br><br>
 <em>Design Thinking &amp; Prototyping</em>
 </td>
 <td width="33%" valign="top">
-<img src="public/modes-v2/solution-storyteller-b.png" alt="Solution Storyteller illustration" width="240"><br>
+<img src="public/modes/solution-storyteller.png" alt="Solution Storyteller illustration" width="240"><br>
 <strong>Solution Storyteller</strong><br>
 Explain an idea clearly, including its value, evidence, and limitations.<br><br>
 <em>Pitch for Engineering Solutions</em>
@@ -169,15 +171,16 @@ Static output is written to `dist/client`. The [GitHub Pages workflow](.github/w
 
 ### Where to find things
 
-| Location                                               | Contents                                                                  |
-| ------------------------------------------------------ | ------------------------------------------------------------------------- |
-| [app/page.tsx](app/page.tsx)                           | Home, study-year step, assessment flow, and results                       |
-| [app/globals.css](app/globals.css)                     | Visual system, responsive layouts, and export styling                     |
-| [lib/assessment](lib/assessment)                       | Questions, scoring, interpretation, saved drafts, and PDF export          |
-| [lib/i18n](lib/i18n)                                   | English and Traditional Chinese messages with stable translation keys     |
-| [public/modes-v2](public/modes-v2)                     | Approved geometric role illustrations, with two variants for each role    |
-| [tests/assessment.test.mjs](tests/assessment.test.mjs) | Question, language, scoring, interpretation, and export regression checks |
-| [docs](docs)                                           | Design notes and assessment development history                           |
+| Location                                                               | Contents                                                                                  |
+| ---------------------------------------------------------------------- | ----------------------------------------------------------------------------------------- |
+| [app/page.tsx](app/page.tsx)                                           | Home, study-year step, assessment flow, and results                                       |
+| [app/globals.css](app/globals.css)                                     | Visual system, responsive layouts, and export styling                                     |
+| [lib/assessment](lib/assessment)                                       | Questions, scoring, interpretation, saved drafts, and PDF export                          |
+| [lib/i18n](lib/i18n)                                                   | English and Traditional Chinese messages with stable translation keys                     |
+| [public/modes](public/modes)                                           | Approved transparent geometric illustrations for the six classic and six hidden roles     |
+| [docs/hidden-role-art-direction.md](docs/hidden-role-art-direction.md) | Locked content and visual requirements for the ten hidden roles before final art approval |
+| [tests/assessment.test.mjs](tests/assessment.test.mjs)                 | Question, language, scoring, interpretation, and export regression checks                 |
+| [docs](docs)                                                           | Design notes and assessment development history                                           |
 
 The current question sets are **Standard v1.8 / Pro v0.4**. Older documents mentioning a Pro pilot describe development history; the current interface presents Standard and Pro. Revisions that change question meanings are versioned so older drafts are not silently reinterpreted. Passing software tests does not establish assessment validity.
 

@@ -265,6 +265,15 @@ export const en = {
   'result.blend.deliveryArchitect.name': 'Delivery Architect',
   'result.blend.deliveryArchitect.description':
     'You connect a workable plan with the practical steps needed to deliver it.',
+  'result.blend.systemsSynthesist.name': 'Systems Synthesist',
+  'result.blend.systemsSynthesist.description':
+    'Three ways of contributing meet in how you understand, connect and shape a system.',
+  'result.blend.crossDisciplinaryCatalyst.name': 'Cross-Disciplinary Catalyst',
+  'result.blend.crossDisciplinaryCatalyst.description':
+    'You activate several forms of contribution and help them reinforce one another.',
+  'result.blend.versatileIntegrator.name': 'Versatile Integrator',
+  'result.blend.versatileIntegrator.description':
+    'Five current strengths stand together, giving you several credible ways to contribute.',
   'result.blend.adaptiveIntegrator.name': 'Adaptive Integrator',
   'result.blend.adaptiveIntegrator.description':
     'Several ways of contributing share your highest displayed score. You can draw on different modes as the situation changes.',
@@ -1079,6 +1088,15 @@ export const zhHant: Record<MessageKey, string> = {
   'result.blend.deliveryArchitect.name': '實現架構者',
   'result.blend.deliveryArchitect.description':
     '你把可行計劃與真正落實方案所需的實作步驟連結起來。',
+  'result.blend.systemsSynthesist.name': '系統綜合者',
+  'result.blend.systemsSynthesist.description':
+    '三種貢獻方式在你理解、連結及塑造系統的方法中匯合。',
+  'result.blend.crossDisciplinaryCatalyst.name': '跨領域催化者',
+  'result.blend.crossDisciplinaryCatalyst.description':
+    '你能同時啟動多種貢獻方式，並讓它們彼此加強。',
+  'result.blend.versatileIntegrator.name': '多面整合者',
+  'result.blend.versatileIntegrator.description':
+    '五項目前優勢並列，讓你能以多種可信的方式為團隊作出貢獻。',
   'result.blend.adaptiveIntegrator.name': '靈活整合者',
   'result.blend.adaptiveIntegrator.description':
     '多種貢獻方式同時取得最高顯示分數；你可以因應情境靈活運用不同模式。',

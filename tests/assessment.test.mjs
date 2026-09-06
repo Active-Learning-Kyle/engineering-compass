@@ -76,6 +76,12 @@ const { createAttemptSeed, stableOptionOrder } =
   await import('../lib/assessment/option-order.ts');
 const { roleShareFilename, roleShareSize } =
   await import('../lib/assessment/profile-share.ts');
+const {
+  hiddenRoles,
+  hiddenRoleForKeys,
+  readRoleCollection,
+  addRoleToCollection,
+} = await import('../lib/assessment/role-collection.ts');
 
 test('unordered choices are shuffled stably while the unsure choice stays last', () => {
   const interest = questions.find((q) => q.kind === 'interest');
@@ -105,6 +111,71 @@ test('unordered choices are shuffled stably while the unsure choice stays last',
     createAttemptSeed(() => 0.5),
     2147483648,
   );
+});
+
+test('hidden-role collection has ten stable discovery slots', () => {
+  assert.equal(hiddenRoles.length, 10);
+  assert.deepEqual(
+    hiddenRoles.map((role) => role.code),
+    [
+      'ECEE',
+      'ECCC',
+      'ECIM',
+      'ECIT',
+      'ECCA',
+      'ECDA',
+      'ECSS',
+      'ECXC',
+      'ECVI',
+      'ECAI',
+    ],
+  );
+  assert.equal(new Set(hiddenRoles.map((role) => role.code)).size, 10);
+  assert.ok(
+    hiddenRoles.every(
+      (role) => role.code.length === 4 && role.code.startsWith('EC'),
+    ),
+  );
+  assert.equal(
+    hiddenRoleForKeys(['problem', 'design'])?.id,
+    'evidence-experimenter',
+  );
+  assert.equal(
+    hiddenRoleForKeys(['problem', 'planning', 'pitch'])?.id,
+    'systems-synthesist',
+  );
+  assert.equal(
+    hiddenRoleForKeys([
+      'problem',
+      'planning',
+      'collaboration',
+      'handsOn',
+      'design',
+      'pitch',
+    ])?.id,
+    'adaptive-integrator',
+  );
+  assert.equal(hiddenRoleForKeys(['problem']), null);
+});
+
+test('hidden-role discoveries are local, deduplicated and safely parsed', () => {
+  const role = hiddenRoles[0];
+  const first = addRoleToCollection([], role, ['problem', 'design']);
+  assert.deepEqual(first, [{ id: role.id, keys: ['problem', 'design'] }]);
+  assert.deepEqual(addRoleToCollection(first, role), first);
+  assert.deepEqual(
+    readRoleCollection(
+      JSON.stringify([
+        { id: role.id, keys: ['problem', 'design', 'not-a-key'] },
+        'not-a-role',
+      ]),
+    ),
+    [{ id: role.id, keys: ['problem', 'design'] }],
+  );
+  assert.deepEqual(readRoleCollection(JSON.stringify([role.id])), [
+    { id: role.id, keys: [] },
+  ]);
+  assert.deepEqual(readRoleCollection('{broken'), []);
 });
 test('unsure choice leaves concrete cards visible but disabled', async () => {
   const { createElement } = await import('react');
@@ -492,6 +563,7 @@ test('Standard has 30 items; Pro has 60 sequential, unique, fully answerable ite
 
 test('role sharing uses a mobile-friendly card and safe filenames', () => {
   assert.deepEqual(roleShareSize, { width: 1080, height: 1350 });
+  assert.equal(roleShareFilename('ECPB'), 'engineering-compass-ecpb.png');
   assert.equal(
     roleShareFilename('PFR · EXP'),
     'engineering-compass-pfr-exp.png',
@@ -577,6 +649,15 @@ test('Growth choices each have a distinct action, including an unlimited full se
 });
 
 test('Home and results use the requested starting portraits, and all assets exist', () => {
+  assert.deepEqual(
+    Object.values(engineeringModes).map((mode) => mode.code),
+    ['ECPF', 'ECPN', 'ECTC', 'ECPB', 'ECPE', 'ECST'],
+  );
+  assert.ok(
+    Object.values(engineeringModes).every(
+      (mode) => mode.code.length === 4 && mode.code.startsWith('EC'),
+    ),
+  );
   const expected = {
     problem: 'a',
     planning: 'b',
@@ -877,10 +958,7 @@ test('Behaviour items keep five numeric frequency anchors tied to recent actual 
 test('Question voice stays consistent and visible prompts remain concise', () => {
   for (const item of questions.filter((q) => q.kind === 'behaviour')) {
     assert.match(translate(item.prompt, 'en'), /\bI\b/);
-    assert.ok(
-      translate(item.prompt, 'en').split(/\s+/).length <= 20,
-      item.id,
-    );
+    assert.ok(translate(item.prompt, 'en').split(/\s+/).length <= 20, item.id);
   }
   for (const item of questions.filter((q) => q.kind === 'technical'))
     assert.match(translate(item.prompt, 'en'), /\byou\b/i);
@@ -1197,10 +1275,12 @@ test('Result components render complete single, joint and balanced profiles with
       assert.ok(html.includes(currentVersion(pro ? 'pro' : 'standard')));
       if (pro) assert.ok(html.includes('not externally verified'));
       if (pattern === 'balanced')
-        assert.ok(html.includes('A balanced current profile'));
+        assert.ok(html.includes('Adaptive Integrator'));
       if (pattern === 'joint') assert.ok(html.includes('Joint leading modes'));
       if (pattern === 'single')
         assert.ok(html.includes('Next-highest current mode(s)'));
+      assert.ok(!html.includes('data-export-portrait="second"'));
+      assert.ok(html.includes('data-export-role-code="true"'));
       assert.doesNotMatch(
         html,
         /(?:question\.(?:PS|PE|B)\d+|result\.(?:role|scope|quick|evidence)|common\.)/,

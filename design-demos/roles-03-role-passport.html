@@ -1,0 +1,315 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Engineering Roles — Role Passport</title>
+    <style>
+      * {
+        box-sizing: border-box;
+      }
+      body {
+        margin: 0;
+        background: #eef3eb;
+        color: #102f1d;
+        font-family: Inter, Arial, sans-serif;
+      }
+      .page {
+        min-height: 100vh;
+        padding: 52px 5vw 70px;
+      }
+      .hero {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 34px;
+        margin-bottom: 28px;
+      }
+      .hero h1 {
+        margin: 5px 0 0;
+        font-family: Georgia, serif;
+        font-size: 46px;
+        line-height: 1;
+        letter-spacing: -0.04em;
+      }
+      .hero .tag {
+        font-size: 12px;
+        font-weight: 850;
+        letter-spacing: 0.18em;
+        text-transform: uppercase;
+      }
+      .hero p {
+        max-width: 430px;
+        margin: 0;
+        color: #64756a;
+        line-height: 1.55;
+      }
+      .rail {
+        display: flex;
+        flex-direction: column;
+        gap: 13px;
+      }
+      .card {
+        --c: #3f6fb5;
+        position: relative;
+        display: grid;
+        grid-template-columns: 185px 1fr auto;
+        align-items: center;
+        min-height: 132px;
+        overflow: hidden;
+        border: 1px solid #cfdbd0;
+        border-radius: 22px;
+        background: #fff;
+        transition: 0.24s;
+      }
+      .card::before {
+        content: '';
+        position: absolute;
+        inset: 0 auto 0 0;
+        width: 8px;
+        background: var(--c);
+      }
+      .portrait {
+        position: relative;
+        align-self: stretch;
+        background: color-mix(in srgb, var(--c) 13%, white);
+      }
+      .portrait img {
+        position: absolute;
+        left: 8px;
+        bottom: -13px;
+        width: 172px;
+        height: 157px;
+        object-fit: contain;
+        transition: 0.25s;
+      }
+      .identity {
+        padding: 19px 24px;
+      }
+      .identity small {
+        color: var(--c);
+        font-weight: 900;
+        letter-spacing: 0.14em;
+        text-transform: uppercase;
+      }
+      .identity h2 {
+        margin: 5px 0 5px;
+        font-size: 24px;
+      }
+      .identity p {
+        margin: 0;
+        color: #66786c;
+        font-size: 12px;
+      }
+      .keywords {
+        display: flex;
+        gap: 7px;
+        flex-wrap: wrap;
+        justify-content: flex-end;
+        max-width: 390px;
+        padding: 18px 22px;
+      }
+      .keywords span {
+        padding: 7px 10px;
+        border: 1px solid color-mix(in srgb, var(--c) 35%, #dce4dc);
+        border-radius: 9px;
+        color: #405448;
+        font-size: 11px;
+        font-weight: 700;
+        background: color-mix(in srgb, var(--c) 6%, white);
+      }
+      .card:hover,
+      .card.active {
+        grid-template-columns: 230px 1fr auto;
+        transform: translateX(5px);
+        border-color: var(--c);
+        box-shadow: 0 14px 32px color-mix(in srgb, var(--c) 16%, transparent);
+      }
+      .card:hover .portrait img,
+      .card.active .portrait img {
+        left: 35px;
+        transform: scale(1.13);
+      }
+      .pf {
+        --c: #3f6fb5;
+      }
+      .pn {
+        --c: #282b30;
+      }
+      .tc {
+        --c: #e3b341;
+      }
+      .pb {
+        --c: #d97832;
+      }
+      .pe {
+        --c: #4f8f63;
+      }
+      .ss {
+        --c: #7656a8;
+      }
+      .disclaimer {
+        margin: 22px 0 0;
+        padding: 15px 18px;
+        border: 1px dashed #bdcabd;
+        border-radius: 14px;
+        color: #65756a;
+        font-size: 12px;
+      }
+      .disclaimer b {
+        color: #123621;
+      }
+      @media (max-width: 850px) {
+        .hero {
+          display: block;
+        }
+        .hero p {
+          margin-top: 15px;
+        }
+        .card,
+        .card:hover,
+        .card.active {
+          grid-template-columns: 145px 1fr;
+        }
+        .keywords {
+          grid-column: 1/-1;
+          justify-content: flex-start;
+          padding: 0 18px 18px;
+        }
+        .portrait img {
+          width: 140px;
+        }
+        .card:hover .portrait img,
+        .card.active .portrait img {
+          left: 8px;
+        }
+      }
+      @media (max-width: 540px) {
+        .page {
+          padding: 28px 16px;
+        }
+        .hero h1 {
+          font-size: 35px;
+        }
+        .card,
+        .card:hover,
+        .card.active {
+          grid-template-columns: 112px 1fr;
+        }
+        .portrait img {
+          width: 116px;
+        }
+        .identity {
+          padding: 17px 15px;
+        }
+        .identity h2 {
+          font-size: 20px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <main class="page">
+      <header class="hero">
+        <div>
+          <span class="tag">Six role passports</span>
+          <h1>Meet your possible ways of contributing.</h1>
+        </div>
+        <p>
+          A calmer, editorial presentation: hover expands the portrait while the
+          competency and working cues stay easy to scan.
+        </p>
+      </header>
+      <section class="rail">
+        <article class="card pf active">
+          <div class="portrait">
+            <img src="../public/modes-v2/problem-framer-a.png" alt="" />
+          </div>
+          <div class="identity">
+            <small>Problem Identification</small>
+            <h2>Problem Framer</h2>
+            <p>Looks closely before deciding what the real problem is.</p>
+          </div>
+          <div class="keywords">
+            <span>Analytical</span><span>Calm</span><span>Evidence-led</span
+            ><span>Clarifies the problem</span>
+          </div>
+        </article>
+        <article class="card pn">
+          <div class="portrait">
+            <img src="../public/modes-v2/project-navigator-a.png" alt="" />
+          </div>
+          <div class="identity">
+            <small>Proposal with Plan</small>
+            <h2>Project Navigator</h2>
+            <p>Turns an idea into a route with priorities and next steps.</p>
+          </div>
+          <div class="keywords">
+            <span>Structured</span><span>Directional</span
+            ><span>Prioritises</span><span>Decisive</span>
+          </div>
+        </article>
+        <article class="card tc">
+          <div class="portrait">
+            <img src="../public/modes-v2/team-connector-a.png" alt="" />
+          </div>
+          <div class="identity">
+            <small>Interdisciplinary Collaboration</small>
+            <h2>Team Connector</h2>
+            <p>Helps different perspectives connect and move together.</p>
+          </div>
+          <div class="keywords">
+            <span>Warm</span><span>Connective</span><span>Communicative</span
+            ><span>Brings people together</span>
+          </div>
+        </article>
+        <article class="card pb">
+          <div class="portrait">
+            <img src="../public/modes-v2/practical-builder-a.png" alt="" />
+          </div>
+          <div class="identity">
+            <small>Hands-on Skills</small>
+            <h2>Practical Builder</h2>
+            <p>Uses tools and practical action to make ideas real.</p>
+          </div>
+          <div class="keywords">
+            <span>Hands-on</span><span>Tool-minded</span><span>Energetic</span
+            ><span>Makes things work</span>
+          </div>
+        </article>
+        <article class="card pe">
+          <div class="portrait">
+            <img src="../public/modes-v2/prototype-explorer-a.png" alt="" />
+          </div>
+          <div class="identity">
+            <small>Design Thinking &amp; Prototyping</small>
+            <h2>Prototype Explorer</h2>
+            <p>Learns by trying, testing and improving a first version.</p>
+          </div>
+          <div class="keywords">
+            <span>Experimental</span><span>Growth-minded</span
+            ><span>Iterative</span><span>Improves continuously</span>
+          </div>
+        </article>
+        <article class="card ss">
+          <div class="portrait">
+            <img src="../public/modes-v2/solution-storyteller-a.png" alt="" />
+          </div>
+          <div class="identity">
+            <small>Pitch for Engineering Solutions</small>
+            <h2>Solution Storyteller</h2>
+            <p>Makes the value of an engineering idea clear to others.</p>
+          </div>
+          <div class="keywords">
+            <span>Expressive</span><span>Narrative</span><span>Creative</span
+            ><span>Communicates value</span>
+          </div>
+        </article>
+      </section>
+      <p class="disclaimer">
+        <b>Current contribution, not fixed identity.</b> These roles are
+        directions to explore and can change with experience and context.
+      </p>
+    </main>
+  </body>
+</html>

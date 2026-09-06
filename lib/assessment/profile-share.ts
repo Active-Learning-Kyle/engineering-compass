@@ -2,6 +2,7 @@ export const roleShareSize = { width: 1080, height: 1350 } as const;
 
 export type RoleShareCardData = {
   brand: string;
+  roleLabel: string;
   code: string;
   role: string;
   competency: string;
@@ -9,8 +10,10 @@ export type RoleShareCardData = {
   keywords: string;
   scope: string;
   disclaimer: string;
-  imageUrl: string;
+  imageUrls: string[];
   logoUrl: string;
+  qrUrl: string;
+  qrCaption: string;
   accent: string;
   tint: string;
   siteUrl: string;
@@ -37,7 +40,10 @@ function wrapText(
   maxWidth: number,
 ) {
   const tokens = /\s/.test(text)
-    ? text.trim().split(/\s+/).map((token) => `${token} `)
+    ? text
+        .trim()
+        .split(/\s+/)
+        .map((token) => `${token} `)
     : Array.from(text);
   const lines: string[] = [];
   let line = '';
@@ -105,17 +111,95 @@ function drawContainedImage(
   y: number,
   width: number,
   height: number,
+  flip = false,
 ) {
-  const scale = Math.min(width / image.naturalWidth, height / image.naturalHeight);
+  const scale = Math.min(
+    width / image.naturalWidth,
+    height / image.naturalHeight,
+  );
   const drawWidth = image.naturalWidth * scale;
   const drawHeight = image.naturalHeight * scale;
-  context.drawImage(
-    image,
-    x + (width - drawWidth) / 2,
-    y + (height - drawHeight) / 2,
-    drawWidth,
-    drawHeight,
+  const drawX = x + (width - drawWidth) / 2;
+  const drawY = y + (height - drawHeight) / 2;
+  context.save();
+  if (flip) {
+    context.translate(drawX + drawWidth, 0);
+    context.scale(-1, 1);
+    context.drawImage(image, 0, drawY, drawWidth, drawHeight);
+  } else {
+    context.drawImage(image, drawX, drawY, drawWidth, drawHeight);
+  }
+  context.restore();
+}
+
+function drawCoveredImage(
+  context: CanvasRenderingContext2D,
+  image: HTMLImageElement,
+  x: number,
+  y: number,
+  width: number,
+  height: number,
+  flip = false,
+) {
+  const scale = Math.max(
+    width / image.naturalWidth,
+    height / image.naturalHeight,
   );
+  const sourceWidth = width / scale;
+  const sourceHeight = height / scale;
+  const sourceX = (image.naturalWidth - sourceWidth) / 2;
+  const sourceY = Math.max(0, (image.naturalHeight - sourceHeight) * 0.24);
+  context.save();
+  context.beginPath();
+  context.rect(x, y, width, height);
+  context.clip();
+  if (flip) {
+    context.translate(x + width, 0);
+    context.scale(-1, 1);
+    context.drawImage(
+      image,
+      sourceX,
+      sourceY,
+      sourceWidth,
+      sourceHeight,
+      0,
+      y,
+      width,
+      height,
+    );
+  } else {
+    context.drawImage(
+      image,
+      sourceX,
+      sourceY,
+      sourceWidth,
+      sourceHeight,
+      x,
+      y,
+      width,
+      height,
+    );
+  }
+  context.restore();
+}
+
+function drawPortraitGroup(
+  context: CanvasRenderingContext2D,
+  images: HTMLImageElement[],
+  x: number,
+  y: number,
+  width: number,
+  height: number,
+) {
+  if (images.length === 1) {
+    drawContainedImage(context, images[0], x, y, width, height);
+    return;
+  }
+  const cellWidth = width / 2;
+  drawCoveredImage(context, images[0], x, y, cellWidth, height, true);
+  drawCoveredImage(context, images[1], x + cellWidth, y, cellWidth, height);
+  context.fillStyle = 'rgba(18, 52, 33, 0.14)';
+  context.fillRect(x + cellWidth, y, 1, height);
 }
 
 export function roleShareFilename(code: string) {
@@ -128,100 +212,111 @@ export function roleShareFilename(code: string) {
 
 export async function createRoleShareFile(data: RoleShareCardData) {
   await document.fonts.ready;
-  const [portrait, logo] = await Promise.all([
-    loadImage(data.imageUrl),
+  const [portraits, logo, qr] = await Promise.all([
+    Promise.all(data.imageUrls.slice(0, 2).map(loadImage)),
     loadImage(data.logoUrl),
+    loadImage(data.qrUrl),
   ]);
+  if (!portraits.length) throw new Error('The role illustration is missing.');
   const canvas = document.createElement('canvas');
   canvas.width = roleShareSize.width;
   canvas.height = roleShareSize.height;
   const context = canvas.getContext('2d');
   if (!context) throw new Error('Could not prepare the share card.');
 
-  context.fillStyle = '#f4f8f2';
+  context.fillStyle = '#eef4ef';
   context.fillRect(0, 0, canvas.width, canvas.height);
 
-  context.fillStyle = '#123a24';
-  roundedRect(context, 48, 48, 984, 1254, 44);
-  context.fill();
-
   context.fillStyle = '#ffffff';
-  roundedRect(context, 78, 565, 924, 650, 32);
+  roundedRect(context, 40, 30, 1000, 1290, 44);
+  context.fill();
+  context.save();
+  roundedRect(context, 40, 30, 1000, 1290, 44);
+  context.clip();
+  context.fillStyle = data.accent;
+  context.fillRect(40, 30, 1000, 14);
+  context.restore();
+
+  context.fillStyle = '#f8faf8';
+  roundedRect(context, 76, 156, 928, 744, 32);
   context.fill();
 
-  context.drawImage(logo, 86, 88, 74, 74);
-  context.fillStyle = '#edf5ee';
-  context.font = '700 30px Arial, sans-serif';
-  context.fillText(data.brand, 180, 136);
+  context.drawImage(logo, 78, 66, 62, 62);
+  context.fillStyle = '#173d28';
+  context.font = '700 28px Arial, sans-serif';
+  context.fillText(data.brand, 158, 108);
+
+  context.save();
+  roundedRect(context, 90, 170, 900, 716, 24);
+  context.clip();
+  context.fillStyle = data.tint;
+  context.fillRect(90, 170, 900, 716);
+  context.fillStyle = 'rgba(255,255,255,.98)';
+  context.beginPath();
+  context.ellipse(530, 690, 610, 300, -0.035, Math.PI, Math.PI * 2);
+  context.lineTo(1140, 930);
+  context.lineTo(-80, 930);
+  context.closePath();
+  context.fill();
 
   context.fillStyle = data.accent;
-  roundedRect(context, 86, 205, 250, 58, 29);
-  context.fill();
-  context.fillStyle = '#ffffff';
-  context.font = '700 25px Arial, sans-serif';
+  context.font = '800 18px Arial, sans-serif';
   context.textAlign = 'center';
-  context.fillText(data.code, 211, 243);
-  context.textAlign = 'left';
-
-  context.fillStyle = '#d7f43c';
+  context.fillText(data.roleLabel.toUpperCase(), 540, 228);
+  context.fillStyle = '#183326';
   const roleFont = fitFont(
     context,
     data.role,
-    900,
-    78,
-    58,
-    'Georgia, serif',
+    770,
+    52,
+    38,
+    'Arial, sans-serif',
   );
-  context.font = `700 ${roleFont}px Georgia, serif`;
-  const roleBottom = drawWrappedText(
-    context,
-    data.role,
-    86,
-    350,
-    900,
-    roleFont * 1.04,
-    2,
-  );
+  context.font = `800 ${roleFont}px Arial, sans-serif`;
+  context.fillText(data.role, 540, 288);
+  context.fillStyle = data.accent;
+  context.font = '900 28px Arial, sans-serif';
+  context.fillText(`(${data.code})`, 540, 330);
+  context.textAlign = 'left';
 
-  context.fillStyle = '#b9d0c0';
-  context.font = '700 24px Arial, sans-serif';
-  context.fillText(data.competency.toUpperCase(), 88, roleBottom + 22);
-  context.fillStyle = '#ffffff';
-  context.font = '400 29px Arial, sans-serif';
-  drawWrappedText(
-    context,
-    data.description,
-    88,
-    roleBottom + 70,
-    890,
-    41,
-    2,
-  );
-
-  context.save();
-  roundedRect(context, 98, 585, 884, 610, 24);
-  context.clip();
-  context.fillStyle = data.tint;
-  context.fillRect(98, 585, 884, 610);
-  drawContainedImage(context, portrait, 128, 602, 824, 520);
+  drawPortraitGroup(context, portraits, 150, 322, 780, 520);
   context.restore();
 
+  context.fillStyle = '#ffffff';
+  roundedRect(context, 108, 718, 138, 155, 18);
+  context.fill();
+  context.strokeStyle = data.accent;
+  context.lineWidth = 2;
+  context.stroke();
+  context.drawImage(qr, 119, 729, 116, 116);
   context.fillStyle = '#173d28';
-  context.font = '700 25px Arial, sans-serif';
+  context.font = '800 12px Arial, sans-serif';
   context.textAlign = 'center';
-  context.fillText(data.keywords, 540, 1160);
+  context.fillText(data.qrCaption.toUpperCase(), 177, 862);
   context.textAlign = 'left';
 
-  context.fillStyle = '#b9d0c0';
-  context.font = '700 22px Arial, sans-serif';
-  context.fillText(data.scope, 88, 1260);
+  context.fillStyle = data.accent;
+  context.font = '800 19px Arial, sans-serif';
+  context.fillText(data.competency.toUpperCase(), 86, 950);
+  context.fillStyle = '#173d28';
+  context.font = '700 24px Arial, sans-serif';
+  context.fillText(data.keywords, 86, 994);
+  context.fillStyle = '#4f6758';
+  context.font = '400 26px Arial, sans-serif';
+  drawWrappedText(context, data.description, 86, 1045, 908, 37, 3);
+
+  context.fillStyle = '#173d28';
+  context.font = '700 19px Arial, sans-serif';
+  context.fillText(data.scope, 86, 1187);
+  context.fillStyle = '#64796c';
+  context.font = '600 17px Arial, sans-serif';
   context.textAlign = 'right';
-  context.fillText(data.siteUrl.replace(/^https?:\/\//, ''), 992, 1260);
+  context.fillText(data.siteUrl.replace(/^https?:\/\//, ''), 994, 1187);
   context.textAlign = 'left';
 
-  context.fillStyle = '#698374';
-  context.font = '400 17px Arial, sans-serif';
-  drawWrappedText(context, data.disclaimer, 88, 1290, 904, 24, 2);
+  context.fillStyle = '#72857a';
+  context.font = '400 16px Arial, sans-serif';
+  drawWrappedText(context, data.disclaimer, 86, 1237, 908, 22, 2);
 
   const blob = await new Promise<Blob | null>((resolve) =>
     canvas.toBlob(resolve, 'image/png'),

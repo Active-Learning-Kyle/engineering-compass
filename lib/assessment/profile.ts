@@ -1,5 +1,6 @@
 import type { AssessmentAnswers, CompetencyKey } from './types';
 import type { CompetencyResult, ToolkitResult } from './scoring';
+import { hiddenRoleForKeys } from './role-collection';
 
 export type EngineeringModeKey = CompetencyKey;
 export type CharacterVariant = 'a' | 'b';
@@ -31,78 +32,78 @@ export const engineeringModes: Record<
     name: 'role.problem.name',
     shortDescription: 'role.problem.shortDescription',
     contribution: 'role.problem.contribution',
-    code: 'PFR',
+    code: 'ECPF',
     keywords: 'role.problem.keywords',
     accent: '#3f6fb5',
     tint: '#eaf0f9',
     image: {
-      a: 'modes-v2/problem-framer-a.png',
-      b: 'modes-v2/problem-framer-b.png',
+      a: 'modes/problem-framer.png',
+      b: 'modes/problem-framer.png',
     },
   },
   planning: {
     name: 'role.planning.name',
     shortDescription: 'role.planning.shortDescription',
     contribution: 'role.planning.contribution',
-    code: 'NAV',
+    code: 'ECPN',
     keywords: 'role.planning.keywords',
     accent: '#282b30',
     tint: '#ececee',
     image: {
-      a: 'modes-v2/project-navigator-a.png',
-      b: 'modes-v2/project-navigator-b.png',
+      a: 'modes/project-navigator.png',
+      b: 'modes/project-navigator.png',
     },
   },
   collaboration: {
     name: 'role.collaboration.name',
     shortDescription: 'role.collaboration.shortDescription',
     contribution: 'role.collaboration.contribution',
-    code: 'CON',
+    code: 'ECTC',
     keywords: 'role.collaboration.keywords',
     accent: '#e3b341',
     tint: '#fbf4dc',
     image: {
-      a: 'modes-v2/team-connector-a.png',
-      b: 'modes-v2/team-connector-b.png',
+      a: 'modes/team-connector.png',
+      b: 'modes/team-connector.png',
     },
   },
   handsOn: {
     name: 'role.handsOn.name',
     shortDescription: 'role.handsOn.shortDescription',
     contribution: 'role.handsOn.contribution',
-    code: 'BLD',
+    code: 'ECPB',
     keywords: 'role.handsOn.keywords',
     accent: '#d97832',
     tint: '#faeee4',
     image: {
-      a: 'modes-v2/practical-builder-a.png',
-      b: 'modes-v2/practical-builder-b.png',
+      a: 'modes/practical-builder.png',
+      b: 'modes/practical-builder.png',
     },
   },
   design: {
     name: 'role.design.name',
     shortDescription: 'role.design.shortDescription',
     contribution: 'role.design.contribution',
-    code: 'EXP',
+    code: 'ECPE',
     keywords: 'role.design.keywords',
     accent: '#4f8f63',
     tint: '#e8f2eb',
     image: {
-      a: 'modes-v2/prototype-explorer-a.png',
-      b: 'modes-v2/prototype-explorer-b.png',
+      a: 'modes/prototype-explorer.png',
+      b: 'modes/prototype-explorer.png',
     },
   },
   pitch: {
     name: 'role.pitch.name',
     shortDescription: 'role.pitch.shortDescription',
     contribution: 'role.pitch.contribution',
-    code: 'STR',
+    code: 'ECST',
     keywords: 'role.pitch.keywords',
     accent: '#7656a8',
     tint: '#f0ebf7',
     image: {
-      a: 'modes-v2/solution-storyteller-a.png',
-      b: 'modes-v2/solution-storyteller-b.png',
+      a: 'modes/solution-storyteller.png',
+      b: 'modes/solution-storyteller.png',
     },
   },
 };
@@ -154,63 +155,6 @@ export function deriveLeadingModes(scores: CompetencyResult[]) {
   return { leading, supporting, balanced };
 }
 
-type BlendedRole = {
-  name: string;
-  description: string;
-  image: null;
-  accent: string;
-  tint: string;
-};
-
-const blendedRoles: Record<string, BlendedRole> = {
-  'design+problem': {
-    name: 'result.blend.evidenceExperimenter.name',
-    description: 'result.blend.evidenceExperimenter.description',
-    image: null,
-    accent: '#356f73',
-    tint: '#e7f1ef',
-  },
-  'collaboration+planning': {
-    name: 'result.blend.collaborativeCoordinator.name',
-    description: 'result.blend.collaborativeCoordinator.description',
-    image: null,
-    accent: '#665a31',
-    tint: '#f4efd9',
-  },
-  'design+handsOn': {
-    name: 'result.blend.iterativeMaker.name',
-    description: 'result.blend.iterativeMaker.description',
-    image: null,
-    accent: '#8b6a35',
-    tint: '#f4eee2',
-  },
-  'pitch+problem': {
-    name: 'result.blend.insightTranslator.name',
-    description: 'result.blend.insightTranslator.description',
-    image: null,
-    accent: '#5a63a8',
-    tint: '#ececf7',
-  },
-  'collaboration+pitch': {
-    name: 'result.blend.communityAdvocate.name',
-    description: 'result.blend.communityAdvocate.description',
-    image: null,
-    accent: '#8d6c72',
-    tint: '#f6eedf',
-  },
-  'handsOn+planning': {
-    name: 'result.blend.deliveryArchitect.name',
-    description: 'result.blend.deliveryArchitect.description',
-    image: null,
-    accent: '#5e4a3e',
-    tint: '#f2ece7',
-  },
-};
-
-function pairKey(keys: EngineeringModeKey[]) {
-  return [...keys].sort().join('+');
-}
-
 /** A display identity derived only from exact top-score ties. */
 export function deriveRolePresentation(scores: CompetencyResult[]) {
   const modes = deriveLeadingModes(scores);
@@ -222,6 +166,8 @@ export function deriveRolePresentation(scores: CompetencyResult[]) {
     const base = engineeringModes[key];
     return {
       kind: 'single' as const,
+      roleId: `classic-${key}` as const,
+      hidden: false as const,
       keys,
       code,
       name: base.name,
@@ -232,26 +178,20 @@ export function deriveRolePresentation(scores: CompetencyResult[]) {
     };
   }
 
-  if (keys.length === 2) {
-    const blend = blendedRoles[pairKey(keys)];
-    if (blend) return { kind: 'blend' as const, keys, code, ...blend };
-  }
-
-  if (modes.balanced) {
+  const hiddenRole = hiddenRoleForKeys(keys);
+  if (hiddenRole)
     return {
-      kind: 'integrated' as const,
+      kind: keys.length === 2 ? ('blend' as const) : ('integrated' as const),
+      roleId: hiddenRole.id,
+      hidden: true as const,
       keys,
-      code,
-      name: 'result.role.balanced',
-      description: 'result.role.balancedNote',
-      image: null,
-      accent: '#276347',
-      tint: '#e7f1ea',
+      ...hiddenRole,
     };
-  }
 
   return {
     kind: 'integrated' as const,
+    roleId: 'integrated-unlisted' as const,
+    hidden: false as const,
     keys,
     code,
     name: 'result.blend.adaptiveIntegrator.name',

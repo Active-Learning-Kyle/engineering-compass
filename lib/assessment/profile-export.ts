@@ -124,18 +124,28 @@ export function pdfPortraitPlacement(
 }
 
 async function rasterizePortrait(
-  image: HTMLImageElement,
+  images: HTMLImageElement[],
+  qrImage: HTMLImageElement | null,
   frameWidth: number,
   frameHeight: number,
+  background: string,
+  roleCode: string,
+  roleName: string,
+  roleLabel: string,
+  qrCaption: string,
+  accent: string,
 ) {
-  image.loading = 'eager';
-  if (!image.complete) await image.decode();
-  if (!image.naturalWidth || !image.naturalHeight)
-    throw new Error('A profile illustration has not loaded.');
+  if (!images.length) throw new Error('A profile illustration is missing.');
+  for (const image of images) {
+    image.loading = 'eager';
+    if (!image.complete) await image.decode();
+    if (!image.naturalWidth || !image.naturalHeight)
+      throw new Error('A profile illustration has not loaded.');
+  }
+  if (qrImage && !qrImage.complete) await qrImage.decode();
   const scale = Math.min(
     1100 / Math.max(frameWidth, frameHeight),
-    image.naturalWidth / frameWidth,
-    image.naturalHeight / frameHeight,
+    ...images.map((image) => image.naturalHeight / frameHeight),
   );
   const canvas = document.createElement('canvas');
   canvas.width = Math.max(1, Math.round(frameWidth * scale));
@@ -159,19 +169,142 @@ async function rasterizePortrait(
   context.lineTo(0, canvas.height);
   context.closePath();
   context.clip();
-  const containScale = Math.min(
-    canvas.width / image.naturalWidth,
-    canvas.height / image.naturalHeight,
+  context.fillStyle = background;
+  context.fillRect(0, 0, canvas.width, canvas.height);
+  context.fillStyle = accent || '#276347';
+  context.fillRect(0, 0, canvas.width, Math.max(4, 7 * scale));
+  context.fillStyle = 'rgba(255,255,255,.97)';
+  context.beginPath();
+  context.moveTo(-canvas.width * 0.1, canvas.height * 0.49);
+  context.quadraticCurveTo(
+    canvas.width * 0.48,
+    canvas.height * 0.39,
+    canvas.width * 1.1,
+    canvas.height * 0.48,
   );
-  const drawWidth = image.naturalWidth * containScale;
-  const drawHeight = image.naturalHeight * containScale;
-  context.drawImage(
-    image,
-    (canvas.width - drawWidth) / 2,
-    (canvas.height - drawHeight) / 2,
-    drawWidth,
-    drawHeight,
-  );
+  context.lineTo(canvas.width * 1.1, canvas.height * 1.1);
+  context.lineTo(-canvas.width * 0.1, canvas.height * 1.1);
+  context.closePath();
+  context.fill();
+  context.textAlign = 'center';
+  context.fillStyle = accent || '#276347';
+  context.font = `800 ${11 * scale}px Arial, sans-serif`;
+  context.fillText(roleLabel.toUpperCase(), canvas.width / 2, 34 * scale);
+  let roleSize = 27 * scale;
+  do {
+    context.font = `800 ${roleSize}px Arial, sans-serif`;
+    if (context.measureText(roleName).width <= canvas.width * 0.86) break;
+    roleSize -= 1 * scale;
+  } while (roleSize > 17 * scale);
+  context.fillStyle = '#183326';
+  context.fillText(roleName, canvas.width / 2, 67 * scale);
+  context.fillStyle = accent || '#276347';
+  context.font = `900 ${16 * scale}px Arial, sans-serif`;
+  context.fillText(`(${roleCode})`, canvas.width / 2, 91 * scale);
+  context.textAlign = 'left';
+  const portraitTop = 102 * scale;
+  const portraitBottom = 14 * scale;
+  const portraitHeight = canvas.height - portraitTop - portraitBottom;
+  const cellWidth = canvas.width / Math.min(images.length, 2);
+  images.slice(0, 2).forEach((image, index) => {
+    const drawX = index * cellWidth;
+    context.save();
+    if (images.length > 1 && index === 0) {
+      const coverScale = Math.max(
+        cellWidth / image.naturalWidth,
+        portraitHeight / image.naturalHeight,
+      );
+      const sourceWidth = cellWidth / coverScale;
+      const sourceHeight = portraitHeight / coverScale;
+      const sourceX = (image.naturalWidth - sourceWidth) / 2;
+      const sourceY = Math.max(0, (image.naturalHeight - sourceHeight) * 0.24);
+      context.translate(drawX + cellWidth, 0);
+      context.scale(-1, 1);
+      context.drawImage(
+        image,
+        sourceX,
+        sourceY,
+        sourceWidth,
+        sourceHeight,
+        0,
+        portraitTop,
+        cellWidth,
+        portraitHeight,
+      );
+    } else if (images.length > 1) {
+      const coverScale = Math.max(
+        cellWidth / image.naturalWidth,
+        portraitHeight / image.naturalHeight,
+      );
+      const sourceWidth = cellWidth / coverScale;
+      const sourceHeight = portraitHeight / coverScale;
+      const sourceX = (image.naturalWidth - sourceWidth) / 2;
+      const sourceY = Math.max(0, (image.naturalHeight - sourceHeight) * 0.24);
+      context.drawImage(
+        image,
+        sourceX,
+        sourceY,
+        sourceWidth,
+        sourceHeight,
+        drawX,
+        portraitTop,
+        cellWidth,
+        portraitHeight,
+      );
+    } else {
+      const containScale = Math.min(
+        cellWidth / image.naturalWidth,
+        portraitHeight / image.naturalHeight,
+      );
+      const drawWidth = image.naturalWidth * containScale;
+      const drawHeight = image.naturalHeight * containScale;
+      context.drawImage(
+        image,
+        (cellWidth - drawWidth) / 2,
+        portraitTop + (portraitHeight - drawHeight) / 2,
+        drawWidth,
+        drawHeight,
+      );
+    }
+    context.restore();
+  });
+  if (images.length > 1) {
+    context.fillStyle = 'rgba(18, 52, 33, 0.14)';
+    context.fillRect(cellWidth, 0, 1, canvas.height);
+  }
+  if (qrImage?.naturalWidth && qrImage.naturalHeight) {
+    const qrSize = Math.min(76 * scale, canvas.width * 0.2);
+    const inset = 14 * scale;
+    const boxWidth = qrSize + 12 * scale;
+    const boxHeight = qrSize + 24 * scale;
+    const boxX = inset;
+    const boxY = canvas.height - inset - boxHeight;
+    context.fillStyle = 'rgba(255, 255, 255, 0.94)';
+    context.beginPath();
+    context.roundRect(boxX, boxY, boxWidth, boxHeight, 12 * scale);
+    context.fill();
+    context.strokeStyle = accent || '#276347';
+    context.lineWidth = Math.max(1, 2 * scale);
+    context.stroke();
+    context.drawImage(
+      qrImage,
+      boxX + 6 * scale,
+      boxY + 6 * scale,
+      qrSize,
+      qrSize,
+    );
+    context.fillStyle = '#17351f';
+    context.font = `800 ${7 * scale}px Arial, sans-serif`;
+    context.textAlign = 'center';
+    context.textBaseline = 'middle';
+    context.fillText(
+      qrCaption.toUpperCase(),
+      boxX + boxWidth / 2,
+      boxY + boxHeight - 9 * scale,
+    );
+    context.textAlign = 'left';
+    context.textBaseline = 'alphabetic';
+  }
   return canvas.toDataURL('image/png');
 }
 
@@ -181,15 +314,28 @@ export async function exportProfilePdf(root: HTMLElement, filename: string) {
   const livePortraits = Array.from(
     root.querySelectorAll<HTMLImageElement>('[data-export-portrait]'),
   );
+  const liveModeArt = root.querySelector<HTMLElement>('.mode-art');
+  const roleCode =
+    liveModeArt
+      ?.querySelector<HTMLElement>('[data-export-role-code]')
+      ?.textContent?.trim() ?? '';
+  const roleName =
+    liveModeArt
+      ?.querySelector<HTMLElement>('[data-export-role-name]')
+      ?.textContent?.trim() ?? '';
+  const roleLabel =
+    liveModeArt
+      ?.querySelector<HTMLElement>('.mode-art-role-label')
+      ?.textContent?.trim() ?? '';
+  const liveQr =
+    liveModeArt?.querySelector<HTMLImageElement>('.mode-art-qr img') ?? null;
+  const qrCaption =
+    liveModeArt
+      ?.querySelector<HTMLElement>('.mode-art-qr span')
+      ?.textContent?.trim() ?? '';
+  const modeArtStyle = liveModeArt ? getComputedStyle(liveModeArt) : null;
   if (livePortraits.length < 1)
     throw new Error('The profile portraits are missing.');
-  const selectedIndex =
-    livePortraits.length > 1 &&
-    visiblePortraitVariant(
-      Number.parseFloat(getComputedStyle(livePortraits[1]).opacity),
-    ) === 'second'
-      ? 1
-      : 0;
   // A separate, fixed-width report prevents the phone's responsive layout and
   // crossfade timing from changing the downloaded artifact.
   const card = root.cloneNode(true) as HTMLElement;
@@ -202,6 +348,8 @@ export async function exportProfilePdf(root: HTMLElement, filename: string) {
   // foreignObject used by html-to-image. Capture the card without either
   // portrait and add the selected raster directly to the PDF instead.
   clonedPortraits.forEach((image) => image.remove());
+  card.querySelector('.mode-art-identity')?.remove();
+  card.querySelector('.mode-art-qr')?.remove();
   card
     .querySelectorAll('[data-capture-exclude="true"]')
     .forEach((node) => node.remove());
@@ -266,9 +414,17 @@ export async function exportProfilePdf(root: HTMLElement, filename: string) {
       height: modeArtBounds.height,
     };
     const selectedPortrait = await rasterizePortrait(
-      livePortraits[selectedIndex],
+      livePortraits,
+      liveQr,
       portraitBox.width,
       portraitBox.height,
+      getComputedStyle(root.querySelector<HTMLElement>('.mode-art')!)
+        .backgroundColor,
+      roleCode,
+      roleName,
+      roleLabel,
+      qrCaption,
+      modeArtStyle?.getPropertyValue('--mode-accent').trim() || '#276347',
     );
     const blocks = Array.from(
       card.querySelectorAll(

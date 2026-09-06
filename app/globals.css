@@ -1474,8 +1474,8 @@
 }
 .role-preview-card.is-auto-preview .role-preview-default,
 .role-preview-card.is-auto-preview .role-hover-preview {
-  transition-duration: 0.85s;
-  transition-timing-function: ease-in-out;
+  transition-duration: 1.3s;
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
 }
 .role-preview-default {
   display: flex;
@@ -1483,7 +1483,7 @@
   align-items: flex-start;
   gap: 1rem;
   padding: 1.25rem;
-  transition: opacity 0.2s ease;
+  transition: opacity 1.45s cubic-bezier(0.4, 0, 0.2, 1);
 }
 .role-preview-icon {
   display: grid;
@@ -1516,7 +1516,7 @@
   inset: 0;
   opacity: 0;
   pointer-events: none;
-  transition: opacity 0.22s ease;
+  transition: opacity 1.65s cubic-bezier(0.4, 0, 0.2, 1);
   background: var(--role-tint, #f6f0df);
 }
 .role-hover-preview::after {
@@ -1600,6 +1600,12 @@
 .role-preview-card:focus-visible .role-preview-default,
 .role-preview-card.is-auto-preview .role-preview-default {
   opacity: 0;
+}
+.role-preview-card:hover .role-preview-default,
+.role-preview-card:focus-visible .role-preview-default,
+.role-preview-card:hover .role-hover-preview,
+.role-preview-card:focus-visible .role-hover-preview {
+  transition-duration: 0.24s;
 }
 .role-preview-card:hover .role-hover-preview,
 .role-preview-card:focus-visible .role-hover-preview,

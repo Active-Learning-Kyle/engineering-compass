@@ -916,7 +916,7 @@ function Welcome({
         setAutoPreviewActive(showing);
       };
       tick();
-      timer = window.setInterval(tick, 2800);
+      timer = window.setInterval(tick, 4800);
     };
     const observer = new IntersectionObserver(
       ([entry]) => (entry.isIntersecting ? start() : stop()),

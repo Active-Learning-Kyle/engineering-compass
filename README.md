@@ -4,11 +4,13 @@ Explore how you work, what you have practised, and what you want to develop next
 
 Engineering Compass is a bilingual self-reflection tool for engineering learners, from first-year students to experienced project teams. It brings together six competencies, nine technical experience areas, and practical next steps in a personal profile.
 
+Its current celestial-navigation interface keeps the interactive compass at the centre, with a layered star field and slowly drifting engineering worlds adding depth around the assessment journey.
+
 **[Open Engineering Compass →](https://active-learning-kyle.github.io/engineering-compass/)** · [Browse the source](https://github.com/Active-Learning-Kyle/engineering-compass)
 
 English / 繁體中文 · No account required · Responses stay in your browser · Full results PDF
 
-![Engineering Compass homepage with Standard and Pro choices and an interactive compass](docs/images/home.jpg)
+![Engineering Compass celestial homepage with Standard and Pro choices, an interactive compass, and layered engineering worlds](docs/images/home.jpg)
 
 ## Start here
 
@@ -16,7 +18,7 @@ English / 繁體中文 · No account required · Responses stay in your browser 
 2. Select your undergraduate year, or skip this optional step.
 3. Answer one question at a time. Go back, switch language, or resume saved progress in the same browser.
 4. Explore your current strengths, technical experience, and chosen growth directions.
-5. Save the complete profile as a PDF, or share a compact role card from a supported phone or browser.
+5. Save the complete profile as a PDF, or share or download a compact role card with a QR link back to the site.
 
 The questions use plain language. You do not need formal engineering project or presentation experience to answer the behavioural items.
 

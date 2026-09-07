@@ -405,6 +405,13 @@
   filter: brightness(1.24) saturate(0.72);
 }
 
+.home-celestial-shell .needle-south {
+  background: linear-gradient(90deg, #789487 0%, #bed0c7 48%, #89a295 100%);
+  filter:
+    drop-shadow(0 0 1px rgba(239, 248, 243, 0.56))
+    drop-shadow(0 4px 6px rgba(5, 25, 16, 0.34));
+}
+
 .home-background-grid {
   position: absolute;
   inset: 0;
@@ -1309,6 +1316,7 @@
 }
 .profile-pdf-document .mode-art {
   min-height: 100% !important;
+  aspect-ratio: auto !important;
 }
 .profile-pdf-document .mode-quick-insights,
 .profile-pdf-document .result-summary-columns,
@@ -1390,6 +1398,7 @@
 }
 .profile-export-card .mode-art {
   min-height: 100% !important;
+  aspect-ratio: auto !important;
 }
 .profile-export-card .mode-art img {
   opacity: 1 !important;
@@ -1556,7 +1565,7 @@
 }
 .mode-art img.result-character-static {
   z-index: 2;
-  inset: clamp(7.2rem, 22cqw, 8.8rem) 2.5% clamp(0.8rem, 2cqw, 1.5rem);
+  inset: clamp(6.25rem, 20cqw, 7.9rem) 2.5% clamp(0.8rem, 2cqw, 1.5rem);
   width: 95%;
   height: auto;
   padding: 0;
@@ -1564,15 +1573,16 @@
   object-position: center center;
   opacity: 1;
   animation: none;
+  transform: translateY(-2.5%);
 }
 .mode-art-identity {
   position: absolute;
   z-index: 4;
-  top: clamp(1.1rem, 5cqw, 2rem);
+  top: clamp(0.8rem, 3.5cqw, 1.35rem);
   left: 50%;
   display: grid;
-  width: min(92%, 31rem);
-  gap: 0.12rem;
+  width: min(95%, 35rem);
+  gap: 0.16rem;
   color: #123421;
   text-align: center;
   transform: translateX(-50%);
@@ -1580,14 +1590,15 @@
 .mode-art-identity strong {
   color: #172b20;
   font-family: var(--font-sans);
-  font-size: clamp(1.28rem, 6.2cqw, 2rem);
+  font-size: clamp(1.55rem, 7.4cqw, 2.5rem);
   font-weight: 790;
-  letter-spacing: -0.035em;
-  line-height: 1.08;
+  letter-spacing: -0.04em;
+  line-height: 1.04;
+  text-wrap: balance;
 }
 .mode-art-identity .mode-art-role-label {
   color: color-mix(in srgb, var(--mode-accent) 78%, #17351f);
-  font-size: 0.62rem;
+  font-size: clamp(0.64rem, 2.3cqw, 0.78rem);
   font-weight: 850;
   letter-spacing: 0.15em;
   line-height: 1.4;
@@ -1595,7 +1606,7 @@
 }
 .mode-art-identity b {
   color: var(--mode-accent, #276347);
-  font-size: clamp(0.88rem, 3.6cqw, 1.15rem);
+  font-size: clamp(1rem, 4.2cqw, 1.4rem);
   font-weight: 900;
   letter-spacing: 0.14em;
 }
@@ -2185,6 +2196,10 @@
   .assessment-version-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
+  .mode-art {
+    min-height: 480px;
+    aspect-ratio: 0.9 / 1;
+  }
   .modes-preview-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
@@ -2193,6 +2208,10 @@
   }
 }
 @media (max-width: 639px) {
+  .mode-art {
+    min-height: 480px;
+    aspect-ratio: 0.9 / 1;
+  }
   .home-contour-cluster {
     width: 560px;
     opacity: 0.6;

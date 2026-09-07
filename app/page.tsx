@@ -426,6 +426,13 @@ function HomeContent() {
   const lastNudgeAt = useRef(-10);
 
   useEffect(() => {
+    // Each in-page route and question should open from its own top on mobile.
+    // Otherwise a button scrolled into view on the previous screen leaves the
+    // next screen starting halfway down beneath the sticky header.
+    window.scrollTo({ top: 0, behavior: 'auto' });
+  }, [current, step]);
+
+  useEffect(() => {
     try {
       const raw = window.localStorage.getItem(progressStorageKey);
       const result = raw ? readDraft(raw) : null;

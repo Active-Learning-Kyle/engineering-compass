@@ -36,7 +36,7 @@ function roundedRect(
   context.roundRect(x, y, width, height, safeRadius);
 }
 
-function wrapText(
+export function wrapRoleShareText(
   context: CanvasRenderingContext2D,
   text: string,
   maxWidth: number,
@@ -62,6 +62,25 @@ function wrapText(
   return lines;
 }
 
+function fitWrappedFont(
+  context: CanvasRenderingContext2D,
+  text: string,
+  maxWidth: number,
+  preferredSize: number,
+  minimumSize: number,
+  maxLines: number,
+  family: string,
+) {
+  let size = preferredSize;
+  do {
+    context.font = `700 ${size}px ${family}`;
+    if (wrapRoleShareText(context, text, maxWidth).length <= maxLines)
+      return size;
+    size -= 1;
+  } while (size >= minimumSize);
+  return minimumSize;
+}
+
 function drawWrappedText(
   context: CanvasRenderingContext2D,
   text: string,
@@ -71,7 +90,7 @@ function drawWrappedText(
   lineHeight: number,
   maxLines = Number.POSITIVE_INFINITY,
 ) {
-  const lines = wrapText(context, text, maxWidth).slice(0, maxLines);
+  const lines = wrapRoleShareText(context, text, maxWidth).slice(0, maxLines);
   lines.forEach((line, index) =>
     context.fillText(line, x, y + lineHeight * index),
   );
@@ -230,11 +249,20 @@ export async function createRoleShareFile(data: RoleShareCardData) {
   context.font = '800 19px Arial, sans-serif';
   context.fillText(data.competency.toUpperCase(), 86, 950);
   context.fillStyle = '#173d28';
-  context.font = '700 24px Arial, sans-serif';
-  context.fillText(data.keywords, 86, 994);
+  const keywordFont = fitWrappedFont(
+    context,
+    data.keywords,
+    908,
+    24,
+    18,
+    2,
+    'Arial, sans-serif',
+  );
+  context.font = `700 ${keywordFont}px Arial, sans-serif`;
+  drawWrappedText(context, data.keywords, 86, 994, 908, 30, 2);
   context.fillStyle = '#4f6758';
   context.font = '400 26px Arial, sans-serif';
-  drawWrappedText(context, data.description, 86, 1045, 908, 37, 3);
+  drawWrappedText(context, data.description, 86, 1060, 908, 37, 3);
 
   context.fillStyle = '#173d28';
   context.font = '700 19px Arial, sans-serif';

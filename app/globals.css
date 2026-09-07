@@ -2614,6 +2614,8 @@ html:lang(zh-Hant) .toolkit-score-meta {
   padding: 0;
   margin: 0;
   max-width: none;
+  /* Assessment controls scroll beneath the sticky header on small screens. */
+  z-index: 1;
 }
 .radar-axis-label {
   font-family: var(--font-sans);

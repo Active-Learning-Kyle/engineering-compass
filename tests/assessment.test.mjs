@@ -74,7 +74,7 @@ const { exclusiveSelectionId, toggleSelection } =
   await import('../lib/assessment/selections.ts');
 const { createAttemptSeed, stableOptionOrder } =
   await import('../lib/assessment/option-order.ts');
-const { roleShareFilename, roleShareSize } =
+const { roleShareFilename, roleShareSize, wrapRoleShareText } =
   await import('../lib/assessment/profile-share.ts');
 const {
   hiddenRoles,
@@ -431,6 +431,24 @@ test('PDF export normalizes the displayed role code before drawing parentheses',
   assert.equal(normalizeExportRoleCode('(ECXC)'), 'ECXC');
   assert.equal(normalizeExportRoleCode('((ECXC))'), 'ECXC');
   assert.equal(normalizeExportRoleCode('ECXC'), 'ECXC');
+});
+test('Role share card wraps long keyword combinations within its safe width', () => {
+  const context = {
+    measureText(text) {
+      return { width: text.length * 12 };
+    },
+  };
+  const lines = wrapRoleShareText(
+    context,
+    'Analytical · calm · evidence-led · Hands-on · tools · making · Experiment · iterate · improve · impact',
+    520,
+  );
+  assert.ok(lines.length > 1);
+  assert.ok(lines.every((line) => context.measureText(line).width <= 520));
+  assert.equal(
+    lines.join(' ').replaceAll('  ', ' '),
+    'Analytical · calm · evidence-led · Hands-on · tools · making · Experiment · iterate · improve · impact',
+  );
 });
 test('PDF export selects whichever crossfading portrait is visually dominant', () => {
   assert.equal(visiblePortraitVariant(0), 'first');
@@ -1118,6 +1136,18 @@ test('Language controls sit inside year and assessment pages while results keep 
   assert.match(
     pageSource,
     /<LanguageSwitcher embedded \/>[\s\S]*assessment-progress-badge/,
+  );
+  assert.match(
+    pageSource,
+    /window\.scrollTo\(\{ top: 0, behavior: 'auto' \}\);[\s\S]*\[current, step\]/,
+  );
+  const css = readFileSync(
+    new URL('../app/globals.css', import.meta.url),
+    'utf8',
+  );
+  assert.match(
+    css,
+    /\.language-toolbar\.language-toolbar-inline\s*\{[^}]*z-index: 1;/s,
   );
   assert.match(pageSource, /common\.saveProgressAndReturnHome/);
 });

@@ -81,6 +81,25 @@ The radar shows six competencies. The Technical Toolkit shows nine separate self
 
 _These screenshots use synthetic example responses, not student data. Your results depend on your own answers._
 
+## Mobile experience
+
+Engineering Compass is designed for both desktop and mobile browsers. Learners can complete the assessment, review their illustrated role profile, save the complete results as a PDF, and download or share a compact role card directly from a phone.
+
+<table>
+<tr>
+<th width="33%">Choose a version</th>
+<th width="33%">Complete the assessment</th>
+<th width="33%">Review your role</th>
+</tr>
+<tr>
+<td valign="top"><img src="docs/images/mobile-home.png" alt="Engineering Compass mobile homepage with Standard and Pro choices"></td>
+<td valign="top"><img src="docs/images/mobile-assessment.png" alt="Engineering Compass mobile assessment question with five response choices"></td>
+<td valign="top"><img src="docs/images/mobile-result.png" alt="Mobile Prototype Explorer role profile with illustration, role code, and QR link"></td>
+</tr>
+</table>
+
+_The mobile screenshots also use synthetic example responses._
+
 ## Meet the six engineering roles
 
 These are **current ways of contributing**, not fixed personality types or assigned team positions. Each role connects to one competency; the illustrations are visual representations, not part of scoring.

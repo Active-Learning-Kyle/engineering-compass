@@ -450,6 +450,20 @@ test('Role share card wraps long keyword combinations within its safe width', ()
     'Analytical · calm · evidence-led · Hands-on · tools · making · Experiment · iterate · improve · impact',
   );
 });
+test('Role share card wraps multi-competency hidden-role labels within its safe width', () => {
+  const context = {
+    measureText(text) {
+      return { width: text.length * 12 };
+    },
+  };
+  const lines = wrapRoleShareText(
+    context,
+    'Problem Identification · Proposal with Plan · Interdisciplinary Collaboration · Hands-on Skills · Design Thinking and Prototyping',
+    908,
+  );
+  assert.ok(lines.length > 1);
+  assert.ok(lines.every((line) => context.measureText(line).width <= 908));
+});
 test('PDF export selects whichever crossfading portrait is visually dominant', () => {
   assert.equal(visiblePortraitVariant(0), 'first');
   assert.equal(visiblePortraitVariant(0.49), 'first');

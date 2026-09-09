@@ -89,12 +89,12 @@ Engineering Compass is designed for both desktop and mobile browsers. Learners c
 <tr>
 <th width="33%">Choose a version</th>
 <th width="33%">Complete the assessment</th>
-<th width="33%">Review your role</th>
+<th width="33%">Save your full profile</th>
 </tr>
 <tr>
 <td valign="top"><img src="docs/images/mobile-home.png" alt="Engineering Compass mobile homepage with Standard and Pro choices"></td>
 <td valign="top"><img src="docs/images/mobile-assessment.png" alt="Engineering Compass mobile assessment question with five response choices"></td>
-<td valign="top"><img src="docs/images/mobile-result.png" alt="Mobile Prototype Explorer role profile with illustration, role code, and QR link"></td>
+<td valign="top"><img src="docs/images/mobile-profile.jpg" alt="Complete Engineering Compass profile saved as a four-page PDF from a mobile browser"></td>
 </tr>
 </table>
 

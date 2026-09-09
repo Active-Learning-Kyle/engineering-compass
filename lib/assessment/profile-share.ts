@@ -246,8 +246,25 @@ export async function createRoleShareFile(data: RoleShareCardData) {
   context.textAlign = 'left';
 
   context.fillStyle = data.accent;
-  context.font = '800 19px Arial, sans-serif';
-  context.fillText(data.competency.toUpperCase(), 86, 950);
+  const competencyFont = fitWrappedFont(
+    context,
+    data.competency.toUpperCase(),
+    908,
+    19,
+    15,
+    2,
+    'Arial, sans-serif',
+  );
+  context.font = `800 ${competencyFont}px Arial, sans-serif`;
+  const competencyBottom = drawWrappedText(
+    context,
+    data.competency.toUpperCase(),
+    86,
+    950,
+    908,
+    24,
+    2,
+  );
   context.fillStyle = '#173d28';
   const keywordFont = fitWrappedFont(
     context,
@@ -259,10 +276,26 @@ export async function createRoleShareFile(data: RoleShareCardData) {
     'Arial, sans-serif',
   );
   context.font = `700 ${keywordFont}px Arial, sans-serif`;
-  drawWrappedText(context, data.keywords, 86, 994, 908, 30, 2);
+  const keywordsBottom = drawWrappedText(
+    context,
+    data.keywords,
+    86,
+    competencyBottom + 14,
+    908,
+    28,
+    2,
+  );
   context.fillStyle = '#4f6758';
-  context.font = '400 26px Arial, sans-serif';
-  drawWrappedText(context, data.description, 86, 1060, 908, 37, 3);
+  context.font = '400 24px Arial, sans-serif';
+  drawWrappedText(
+    context,
+    data.description,
+    86,
+    keywordsBottom + 12,
+    908,
+    33,
+    2,
+  );
 
   context.fillStyle = '#173d28';
   context.font = '700 19px Arial, sans-serif';

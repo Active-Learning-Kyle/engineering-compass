@@ -1,5 +1,25 @@
 /** Pilot revision copy. Stable keys are shared by both languages. */
 export const refinementMessages = {
+  'scale.technical.short.0': ['New to this', '尚未嘗試'],
+  'scale.technical.short.1': ['Guided', '逐步指導'],
+  'scale.technical.short.2': ['Some help', '部分協助'],
+  'scale.technical.short.3': ['Independent', '獨立完成'],
+  'scale.technical.short.4': ['Adapt / guide', '應用或指導'],
+  'scale.technical.choose': ['Choose a level; its full meaning appears here.', '選擇一個等級，下方會顯示完整含義。'],
+  'scale.technical.explain': ['What do the five levels mean?', '五個等級分別代表甚麼？'],
+  'home.returning.label': [
+    'Continue where you left off',
+    '繼續上次進度或查看結果',
+  ],
+  'home.resume.eyebrow': ['YOUR SAVED PROGRESS', '已儲存的進度'],
+  'home.resume.meta': [
+    '{edition} · Question {current} of {total} · {progress}% complete',
+    '{edition} · 第 {current} 題，共 {total} 題 · 已完成 {progress}%',
+  ],
+  'assessment.interest.optional': [
+    'Optional — choose any that apply, or continue without selecting.',
+    '選填——可選擇任何適用項目，也可不選直接繼續。',
+  ],
   'assessment.exclusiveHint': [
     'Deselect this option to choose specific areas.',
     '取消此選項後，即可選擇具體範疇。',

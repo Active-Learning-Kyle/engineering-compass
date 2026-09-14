@@ -32,7 +32,7 @@ registerHooks({
             "'/'",
           ) +
             (url.endsWith('page.tsx?unit')
-              ? '\nexport { Results, Assessment, Welcome, Header, YearSelection, MultiChoices };'
+              ? '\nexport { Results, Assessment, Welcome, Header, YearSelection, MultiChoices, ScaleQuestion };'
               : ''),
           {
             compilerOptions: {
@@ -48,6 +48,108 @@ registerHooks({
 });
 const { questions, growthOptions } =
   await import('../lib/assessment/questions.ts');
+const { astronautCollision, astronautImpact, astronautMotionStep } = await import('../lib/assessment/astronaut-motion.ts');
+
+const floatingBody = { x: 400, y: 400, vx: 0, vy: 0, angle: 0, omega: 0, facing: -1 };
+const floatingBounds = { width: 900, height: 1080, radius: 90 };
+
+test('Head contact follows current facing: left CCW, right CW, both down when upright', () => {
+  const left = astronautImpact(floatingBody, 0, -30, 150);
+  const right = astronautImpact({ ...floatingBody, facing: 1 }, 0, -30, 150);
+  assert.ok(left.omega < 0 && left.vx < 0 && left.vy > 0);
+  assert.ok(right.omega > 0 && right.vx > 0 && right.vy > 0);
+  const rotated = astronautImpact({ ...floatingBody, angle: 180 }, 0, 30, 150);
+  assert.ok(rotated.omega > 0, 'spin uses current orientation, not original facing');
+});
+
+test('Astronaut contact excludes transparent margins and side contact pushes away', () => {
+  assert.equal(astronautImpact(floatingBody, 90, 0, 150), null);
+  const side = astronautImpact(floatingBody, 35, 5, 150);
+  assert.ok(side.vx < 0 && side.vy < 0);
+});
+
+test('Both page edges reflect travel and turn without clipping the character', () => {
+  const left = astronautMotionStep({ ...floatingBody, x: 90, vx: -170, omega: -68 }, 1 / 60, floatingBounds);
+  const right = astronautMotionStep({ ...floatingBody, x: 810, vx: 170, omega: 68 }, 1 / 60, floatingBounds);
+  assert.ok(left.vx > 0 && left.omega > 0);
+  assert.ok(right.vx < 0 && right.omega < 0);
+  assert.equal(left.x, 90);
+  assert.equal(right.x, 810);
+  assert.ok(Math.abs(left.vx) < 170 && Math.abs(left.omega) < 68);
+  const corner = astronautMotionStep({ ...floatingBody, x: 810, y: 990, vx: 170, vy: 170 }, 1 / 60, floatingBounds);
+  assert.equal(corner.x, 810);
+  assert.equal(corner.y, 990);
+  assert.ok(corner.vx < 0 && corner.vy < 0);
+});
+
+test('Inertial travel and rotation gradually settle without springing back home', () => {
+  let body = astronautImpact(floatingBody, 0, -30, 150);
+  const first = astronautMotionStep(body, 1 / 60, floatingBounds);
+  assert.ok(Math.abs(first.omega) < Math.abs(body.omega));
+  assert.ok(Math.hypot(first.vx, first.vy) < Math.hypot(body.vx, body.vy));
+  for (let i = 0; i < 60 * 60; i++) {
+    body = astronautMotionStep(body, 1 / 60, floatingBounds);
+    assert.ok(body.x >= 90 && body.x <= 810 && body.y >= 90 && body.y <= 990);
+  }
+  assert.equal(body.vx, 0);
+  assert.equal(body.vy, 0);
+  assert.equal(body.omega, 0);
+  assert.ok(Math.hypot(body.x - floatingBody.x, body.y - floatingBody.y) > 100);
+});
+
+test('Unattended astronauts continuously drift and reflect at page edges', () => {
+  let body = { ...floatingBody, driftX: 12, driftY: 9 };
+  for (let i = 0; i < 600; i++) body = astronautMotionStep(body, 1 / 60, floatingBounds);
+  assert.ok(body.x > 515 && body.y > 485);
+  assert.equal(body.driftX, 12);
+  assert.equal(body.vx, 0, 'ambient motion does not require a pointer impulse');
+  const wall = astronautMotionStep({ ...body, x: 810 }, 1 / 60, floatingBounds);
+  assert.equal(wall.driftX, -12);
+  assert.equal(wall.driftY, 9);
+});
+
+test('Suit-to-suit collision exchanges momentum, separates bodies and adds opposite spin', () => {
+  const a = { ...floatingBody, x: 400, driftX: 12, driftY: 0 };
+  const b = { ...floatingBody, x: 475, driftX: -12, driftY: 0, facing: 1 };
+  const [left, right] = astronautCollision(a, b, 40, 40);
+  assert.ok(left.vx + left.driftX < 0 && right.vx + right.driftX > 0);
+  assert.ok(left.driftX < 0 && right.driftX > 0, 'autonomous paths also turn away');
+  assert.ok(left.omega < 0 && right.omega > 0);
+  assert.ok(right.x - left.x >= 80);
+  assert.ok(Math.abs(left.vx + left.driftX + right.vx + right.driftX) < 0.001);
+  assert.equal(astronautCollision(left, right, 40, 40), null, 'no repeated impulse after separation');
+});
+
+test('Separating or coincident suits do not jitter or produce invalid physics', () => {
+  const a = { ...floatingBody, x: 400, vx: -12 };
+  const b = { ...floatingBody, x: 470, vx: 12 };
+  const [left, right] = astronautCollision(a, b, 40, 40);
+  assert.equal(left.vx, -12);
+  assert.equal(right.vx, 12);
+  assert.equal(left.omega, 0);
+  for (const body of astronautCollision(floatingBody, floatingBody, 40, 40)) {
+    assert.ok(Object.values(body).every(Number.isFinite));
+  }
+});
+
+test('Six autonomous astronauts stay finite, bounded and active after repeated mutual contacts', () => {
+  let bodies = Array.from({ length: 6 }, (_, i) => ({ ...floatingBody, x: 340 + i * 38, y: 450 + (i % 2) * 35, driftX: i % 2 ? -12 : 12, driftY: i % 3 ? -8 : 8 }));
+  let contacts = 0;
+  for (let frame = 0; frame < 2400; frame++) {
+    bodies = bodies.map(body => astronautMotionStep(body, 1 / 60, floatingBounds));
+    for (let i = 0; i < bodies.length; i++) for (let j = i + 1; j < bodies.length; j++) {
+      const collision = astronautCollision(bodies[i], bodies[j], 40, 40);
+      if (collision) { [bodies[i], bodies[j]] = collision; contacts++; }
+    }
+    bodies = bodies.map(body => astronautMotionStep(body, 0, floatingBounds));
+    for (const body of bodies) {
+      assert.ok(Object.values(body).every(Number.isFinite));
+      assert.ok(body.x >= 90 && body.x <= 810 && body.y >= 90 && body.y <= 990);
+    }
+  }
+  assert.ok(contacts > 5);
+  assert.ok(bodies.some(body => Math.hypot(body.driftX, body.driftY) > 5));
+});
 const {
   proChecks,
   proQuestions,
@@ -583,7 +685,7 @@ test('Standard has 30 items; Pro has 60 sequential, unique, fully answerable ite
   proQuestions.forEach((item, index) => assert.equal(item.number, index + 1));
   for (const item of proChecks) {
     const count = item.options.length;
-    if (item.phase === 'proScenarios') assert.ok(count === 2 || count === 3);
+    if (item.phase === 'proScenarios') assert.equal(count, 3);
     else assert.equal(count, 4);
     assert.equal(
       new Set(item.options.map((option) => option.value)).size,
@@ -595,8 +697,51 @@ test('Standard has 30 items; Pro has 60 sequential, unique, fully answerable ite
     proChecks.filter(
       (item) => item.phase === 'proScenarios' && item.options.length === 3,
     ).length,
-    6,
+    12,
   );
+});
+
+test('Practice evidence has the same four ordered response meanings in every item', () => {
+  for (const item of proChecks.filter((q) => q.phase === 'proEvidence')) {
+    assert.deepEqual(item.options.map((o) => o.id), ['not-yet', 'guided', 'contributed', 'verified']);
+    assert.deepEqual(item.options.map((o) => o.value), [1, 2, 3, 4]);
+    for (const locale of ['en', 'zh-Hant'])
+      assert.deepEqual(item.options.map((o) => translate(o.label, locale)), proChecks.find((q) => q.phase === 'proEvidence').options.map((o) => translate(o.label, locale)));
+  }
+});
+
+test('Technical scale uses external short anchors without losing full meanings', async () => {
+  const { technicalScale } = await import('../lib/assessment/questions.ts');
+  const { createElement } = await import('react');
+  const { renderToStaticMarkup } = await import('react-dom/server');
+  const { ScaleQuestion } = await import('../app/page.tsx?unit');
+  assert.equal(technicalScale.shortLabels.length, 5);
+  for (const locale of ['en', 'zh-Hant'])
+    for (const label of technicalScale.shortLabels)
+      assert.ok(translate(label, locale).length <= 14);
+  const html = renderToStaticMarkup(createElement(ScaleQuestion, { selected: 2, prompt: technicalScale.prompt, labels: technicalScale.details, shortLabels: technicalScale.shortLabels, onChoose() {} }));
+  assert.equal((html.match(/class="scale-choice-label"/g) || []).length, 5);
+  assert.match(html, /<details class="scale-explanations">/);
+  for (const label of technicalScale.details) assert.ok(html.includes(translate(label, 'en')));
+  assert.match(html, /aria-live="polite"/);
+  const source = readFileSync(new URL('../app/page.tsx', import.meta.url), 'utf8');
+  assert.match(source, /if \(activeQuestion.kind === 'technical'\) return;/);
+});
+
+test('Home keeps six original astronauts and only one satellite', async () => {
+  const { createElement } = await import('react');
+  const { renderToStaticMarkup } = await import('react-dom/server');
+  const { Welcome } = await import('../app/page.tsx?unit');
+  const html = renderToStaticMarkup(createElement(Welcome, { edition: 'standard', onEditionChange() {}, onBegin() {}, onResume() {}, savedDraft: null, hasLegacyDraft: false, latestProfile: null, onViewLatest() {} }));
+  assert.equal((html.match(/class="home-astronaut home-astronaut-\d"/g) || []).length, 6);
+  assert.equal((html.match(/class="home-satellite"/g) || []).length, 1);
+  for (const role of ['problem-framer', 'project-navigator', 'team-connector', 'practical-builder', 'prototype-explorer', 'solution-storyteller'])
+    assert.ok(existsSync(new URL(`../public/backgrounds/astronaut-${role}-compact.png`, import.meta.url)));
+  const source = readFileSync(new URL('../components/home-astronauts.tsx', import.meta.url), 'utf8');
+  assert.match(source, /prefers-reduced-motion/);
+  assert.match(source, /pointermove/);
+  assert.match(source, /passive: true/);
+  assert.match(source, /cancelAnimationFrame/);
 });
 
 test('role sharing uses a mobile-friendly card and safe filenames', () => {

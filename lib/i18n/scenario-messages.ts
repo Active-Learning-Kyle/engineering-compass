@@ -3,8 +3,8 @@
 export const scenarioMessages = {
   PS01: {
     prompt: [
-      'You have one hour to investigate a frustrating booking system. User observation and log review overlap, so you can do only one. Where do you start?',
-      '你有一小時調查令人困擾的預約系統。使用者觀察與紀錄查閱時段重疊，只能選一項。你會先做哪一項？',
+      'You have one hour to investigate a frustrating booking system. You can observe users, review logs, or interview support staff, but have time for only one. Where do you start?',
+      '你有一小時調查令人困擾的預約系統。你可觀察使用者、查閱紀錄或訪問支援人員，但只夠時間做一項。你會先做哪一項？',
     ],
     a: [
       'Observe three users booking and learn about their difficulties directly.',
@@ -17,6 +17,12 @@ export const scenarioMessages = {
       '查閱失敗預約及投訴，找出重複出現的模式。',
       'You prioritise coverage and recurring patterns. Existing records may miss unreported friction; later observe a case that could explain the pattern.',
       '你優先考慮覆蓋範圍及重複模式。現有紀錄可能遺漏未被反映的困難；之後可觀察一個有助解釋模式的個案。',
+    ],
+    c: [
+      'Interview support staff about recurring problems and their usual workarounds.',
+      '訪問支援人員，了解常見問題及平日的替代做法。',
+      'You prioritise accumulated operational knowledge. Staff accounts can reveal useful workarounds but may filter out users who never ask for help; later check an account against direct observation.',
+      '你優先利用累積的運作經驗。支援人員可提供有用的替代做法，但未必知道從不求助的使用者遇到甚麼；之後可用直接觀察核對一個例子。',
     ],
   },
   PS02: {
@@ -45,8 +51,8 @@ export const scenarioMessages = {
   },
   PS03: {
     prompt: [
-      'A sensor does not fit its enclosure. Both revisions are safe and functional, but only one team can revise its work before tomorrow. Which change would you prioritise?',
-      '感測器放不進外殼。兩種修改都安全可行，但明天前只能由一個團隊修改。你會優先改哪一部分？',
+      'A sensor does not fit its enclosure. Relocation, a new enclosure, and an available smaller sensor are all safe and viable. You have time for one revision before tomorrow. Which comes first?',
+      '感測器放不進外殼。移位、修改外殼及換用現有較小的感測器都安全可行。明天前只夠時間完成一項修改。你會先選哪個？',
     ],
     a: [
       'Keep the enclosure and relocate the sensor.',
@@ -59,6 +65,12 @@ export const scenarioMessages = {
       '保留感測器位置，修改外殼。',
       'You protect the sensing arrangement and move the change into mechanics. Agree on manufacturing time and the fit check rather than assuming the new enclosure is straightforward.',
       '你保留感測配置，把改動轉移到機械部分。應協定製作時間及配合檢查，而非假設新外殼很容易完成。',
+    ],
+    c: [
+      'Fit the available smaller sensor and recalibrate the readings.',
+      '換用較小感測器，重做校準。',
+      'You protect the enclosure and sensor position by changing the component. This introduces a new sensing response; check calibration and document what comparisons with earlier readings remain valid.',
+      '你透過更換零件保留外殼及感測位置，但會引入新的感測特性；應檢查校準，記錄哪些讀數仍可與先前結果比較。',
     ],
   },
   PS04: {
@@ -77,6 +89,12 @@ export const scenarioMessages = {
       '量度改動後的接線，嘗試隔離原因。',
       'You prioritise causal understanding before reverting. This may leave less time for recovery; agree on a safe, reduced demonstration if the diagnosis remains open.',
       '你優先了解原因，而非立即還原，但可能剩下較少恢復時間；若仍未找出原因，可預先協定安全、縮減範圍的示範。',
+    ],
+    c: [
+      'Verify an unaffected function and prepare a reduced demonstration.',
+      '核實未受影響的功能，準備縮減範圍的示範。',
+      'You prioritise a truthful, safe demonstration of a smaller scope. The fault remains unresolved; isolate the affected part, state the limitation, and reserve a later session for diagnosis.',
+      '你優先安全、如實地展示較小範圍的功能。故障仍未解決；應隔離受影響部分、說明限制，並預留之後診斷的時間。',
     ],
   },
   PS05: {
@@ -153,8 +171,8 @@ export const scenarioMessages = {
   },
   PS08: {
     prompt: [
-      'Both designs meet essential safety and performance needs. Your budget allows either an extra feature or easier repairs. Which would you prioritise?',
-      '兩個設計都符合必要的安全及性能要求。預算只夠增加一項功能，或選擇較易維修的裝置。你會優先選哪個？',
+      'Three packages meet essential safety and performance needs within budget: extra functionality, easier repairs, or a modular kit that takes longer to assemble. Which would you prioritise?',
+      '三個方案都在預算內，符合必要安全及性能要求：額外功能、較易維修，或需要較長組裝時間的模組套件。你會優先選哪個？',
     ],
     a: [
       'Choose the cheaper unit and include the extra feature.',
@@ -168,11 +186,17 @@ export const scenarioMessages = {
       'You prioritise maintainability over immediate feature breadth. The decision depends on expected use and repair needs; check whether users value that benefit more than the omitted feature.',
       '你優先考慮可維護性，而非眼前的功能廣度。決定取決於預期用途及維修需要；可確認使用者是否更重視這項好處。',
     ],
+    c: [
+      'Choose the modular kit, allowing later upgrades but more assembly time.',
+      '選擇可升級模組套件，投入較多組裝時間。',
+      'You prioritise flexibility over immediate readiness. Modular interfaces can support later changes but add assembly and checking work now; confirm that the schedule can absorb that effort.',
+      '你優先考慮彈性，而非立即可用。模組介面有助日後修改，卻增加當下組裝及檢查工作；應確認進度能承受這項投入。',
+    ],
   },
   PS09: {
     prompt: [
-      'A teammate is blocked on an integration task. You have two hours, and they agree that either form of help would work. Which would you choose?',
-      '隊友的整合任務受阻。你有兩小時，對方同意兩種支援方式都可行。你會選哪種？',
+      'A teammate is blocked on an integration task. You have two hours, and they agree that any of these forms of help could work. Which would you choose?',
+      '隊友的整合任務受阻。你有兩小時，對方同意以下三種支援方式都可能有效。你會選哪種？',
     ],
     a: [
       'Work through the blocker together while they keep ownership.',
@@ -185,6 +209,12 @@ export const scenarioMessages = {
       '協定小範圍交接，分開完成該部分。',
       'You prioritise distributing work to recover progress. The handover may leave knowledge fragmented; plan a short explanation when the two parts reconnect.',
       '你優先分配工作以恢復進度。交接可能令知識分散；可在重新整合時安排簡短說明。',
+    ],
+    c: [
+      'Prepare a diagnostic checklist they can use, then return to your task.',
+      '準備對方可自行使用的診斷清單，再返回自己的任務。',
+      'You prioritise reusable, asynchronous support while protecting your own work. A checklist may miss the live context; agree when to check back and switch to direct help if it is not enough.',
+      '你優先提供可重用、非同步的支援，同時保留自己的工作時間。清單可能未涵蓋實際情境；應協定跟進時點，必要時改為直接協助。',
     ],
   },
   PS10: {
@@ -213,8 +243,8 @@ export const scenarioMessages = {
   },
   PS11: {
     prompt: [
-      'A revised prototype performs worse after three changes. A review is tomorrow, and you have time either to restore the baseline or investigate one change. What comes first?',
-      '改了三處後，原型表現變差。明天要評審，你的時間只夠恢復基準版本或調查一項改動。你會先做甚麼？',
+      'A prototype performs worse after three changes. The review is tomorrow. You have time to restore the baseline, test one change, or analyse existing test records. What comes first?',
+      '改了三處後，原型表現變差。明天要評審，你只夠時間做一項工作：恢復基準、測試一項改動，或分析現有測試紀錄。你會先做甚麼？',
     ],
     a: [
       'Restore and verify the baseline for the review.',
@@ -227,6 +257,12 @@ export const scenarioMessages = {
       '評審前隔離並測試其中一項改動。',
       'You prioritise learning from iteration. A focused result may be more informative but less complete; clearly separate what you tested from what the prototype can currently demonstrate.',
       '你優先從迭代中學習。聚焦的結果可能更有啟發但不夠完整；應清楚區分已測試內容與原型目前能示範的內容。',
+    ],
+    c: [
+      'Compare test records and identify a useful follow-up test.',
+      '比較現有測試紀錄，找出需要跟進測試的地方。',
+      'You prioritise making the existing evidence useful before changing the prototype again. Records can narrow the next investigation but do not establish a cause; present the finding as a hypothesis, not a verified fix.',
+      '你優先利用現有證據，再決定下一步改動。紀錄可縮小調查範圍，但不能確立原因；評審時應把結果當作假設，而非已驗證的修復。',
     ],
   },
   PS12: {

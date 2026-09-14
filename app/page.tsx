@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useMemo, useRef, useState } from 'react';
+import { HomeAstronauts } from '@/components/home-astronauts';
 import {
   LanguageProvider,
   LanguageSwitcher,
@@ -99,6 +100,13 @@ import type {
 } from '@/lib/assessment/types';
 
 type Step = 'welcome' | 'year' | 'assessment' | 'results';
+type SavedDraft = {
+  edition: AssessmentEdition;
+  year: string | null;
+  current: number;
+  answers: AssessmentAnswers;
+  optionOrderSeed: number;
+};
 declare global {
   interface Document {
     modelContext?: {
@@ -405,13 +413,7 @@ function HomeContent() {
   const [current, setCurrent] = useState(0);
   const [answers, setAnswers] = useState<AssessmentAnswers>({ I01: [] });
   const [optionOrderSeed, setOptionOrderSeed] = useState(0);
-  const [savedDraft, setSavedDraft] = useState<{
-    edition: AssessmentEdition;
-    year: string | null;
-    current: number;
-    answers: AssessmentAnswers;
-    optionOrderSeed: number;
-  } | null>(null);
+  const [savedDraft, setSavedDraft] = useState<SavedDraft | null>(null);
   const [latestProfile, setLatestProfile] = useState<CompletedProfile | null>(
     null,
   );
@@ -584,6 +586,8 @@ function HomeContent() {
     setAnswers(nextAnswers);
     setResponseMs(elapsed);
     setShowNudge(false);
+    // Let learners read the complete independence description before confirming.
+    if (activeQuestion.kind === 'technical') return;
     advance(false, elapsed, true, nextAnswers);
   }
   function toggleSelection(id: string) {
@@ -618,7 +622,7 @@ function HomeContent() {
       reflective && (timingOverride ?? responseMs ?? 99999) < 4000
         ? fastStreak.current + 1
         : 0;
-    if (!force && nextStreak >= 2 && current - lastNudgeAt.current >= 6) {
+    if (!force && nextStreak >= 3 && current - lastNudgeAt.current >= 6) {
       fastStreak.current = nextStreak;
       lastNudgeAt.current = current;
       setShowNudge(true);
@@ -756,7 +760,7 @@ function HomeContent() {
           showLanguage={step === 'results'}
           progress={
             step === 'assessment'
-              ? ((current + 1) / questions.length) * 100
+              ? (current / questions.length) * 100
               : null
           }
         />
@@ -767,7 +771,7 @@ function HomeContent() {
           onEditionChange={setEdition}
           onBegin={() => setStep('year')}
           onResume={resumeAssessment}
-          hasSavedProgress={Boolean(savedDraft)}
+          savedDraft={savedDraft}
           hasLegacyDraft={hasLegacyDraft}
           latestProfile={latestProfile}
           onViewLatest={viewLatestProfile}
@@ -876,7 +880,7 @@ function Welcome({
   onEditionChange,
   onBegin,
   onResume,
-  hasSavedProgress,
+  savedDraft,
   hasLegacyDraft,
   latestProfile,
   onViewLatest,
@@ -886,7 +890,7 @@ function Welcome({
   onEditionChange: (edition: AssessmentEdition) => void;
   onBegin: () => void;
   onResume: () => void;
-  hasSavedProgress: boolean;
+  savedDraft: SavedDraft | null;
   hasLegacyDraft: boolean;
   latestProfile: CompletedProfile | null;
   onViewLatest: () => void;
@@ -905,6 +909,12 @@ function Welcome({
         timeStyle: 'short',
       }).format(new Date(latestProfile.completedAt))
     : null;
+  const savedDraftTotal = savedDraft
+    ? getQuestions(savedDraft.edition).length
+    : 0;
+  const savedDraftProgress = savedDraft
+    ? Math.round((savedDraft.current / savedDraftTotal) * 100)
+    : 0;
   useEffect(() => {
     const preview = rolePreviewRef.current;
     if (!preview) return;
@@ -943,6 +953,17 @@ function Welcome({
             <div className="home-background-grid" />
             <div className="home-star-field" />
             <div className="home-celestial-horizon" />
+            <div className="home-satellite-system">
+              {[1].map((orbit) => (
+                <div key={orbit} className={`home-satellite-orbit home-satellite-orbit-${orbit}`}>
+                  <div className="home-satellite-arm">
+                    {/* oxlint-disable-next-line next/no-img-element -- Transparent rendered satellite matches the engineering worlds. */}
+                    <img src={assetPath('backgrounds/engineering-satellite.png')} className="home-satellite" alt="" decoding="async" />
+                  </div>
+                </div>
+              ))}
+            </div>
+            <HomeAstronauts baseUrl={assetPath('')} />
             <div className="home-contour-cluster home-contour-cluster-1">
               <span />
               <span />
@@ -987,12 +1008,16 @@ function Welcome({
               className="engineering-world engineering-world-3"
               src={assetPath('backgrounds/engineering-world-systems.png')}
               alt=""
+              loading="lazy"
+              decoding="async"
             />
             {/* oxlint-disable-next-line next/no-img-element -- Reused at a distant scale for parallax depth. */}
             <img
               className="engineering-world engineering-world-4"
               src={assetPath('backgrounds/engineering-world-fabrication.png')}
               alt=""
+              loading="lazy"
+              decoding="async"
             />
           </div>
           <div className="relative mx-auto grid max-w-7xl items-center gap-12 px-6 py-14 lg:min-h-[610px] lg:grid-cols-[1.04fr_.96fr] lg:px-12">
@@ -1016,6 +1041,54 @@ function Welcome({
               <p className="mt-7 max-w-xl text-lg leading-8 text-muted-foreground sm:text-xl">
                 {'home.hero.description'}
               </p>
+              {(savedDraft || (latestProfile && latestCompletedDate)) && (
+                <div className="home-returning-actions mt-7" aria-label={t('home.returning.label')}>
+                  {savedDraft && (
+                    <button
+                      type="button"
+                      className="home-returning-card is-primary"
+                      onClick={onResume}
+                    >
+                      <span>
+                        <span className="panel-eyebrow">{'home.resume.eyebrow'}</span>
+                        <strong>{'common.resumeSavedProgress'}</strong>
+                        <small>
+                          {t('home.resume.meta', {
+                            edition: savedDraft.edition === 'pro' ? 'Pro' : 'Standard',
+                            current: savedDraft.current + 1,
+                            total: savedDraftTotal,
+                            progress: savedDraftProgress,
+                          })}
+                        </small>
+                      </span>
+                      <ArrowRight className="size-5" />
+                    </button>
+                  )}
+                  {latestProfile && latestCompletedDate && (
+                    <button
+                      type="button"
+                      className="home-returning-card"
+                      onClick={onViewLatest}
+                    >
+                      <span>
+                        <span className="panel-eyebrow">{'home.latest.eyebrow'}</span>
+                        <strong>{'home.latest.title'}</strong>
+                        <small>
+                          {t('home.latest.meta', {
+                            edition: latestProfile.edition === 'pro' ? 'Pro' : 'Standard',
+                            date: latestCompletedDate,
+                          })}
+                        </small>
+                        <small>{'home.latest.note'}</small>
+                      </span>
+                      <span className="inline-flex items-center gap-2">
+                        <span className="sr-only">{'home.latest.action'}</span>
+                        <ArrowRight className="size-5" />
+                      </span>
+                    </button>
+                  )}
+                </div>
+              )}
               <div className="assessment-version-grid mt-8">
                 <button
                   className={`assessment-version-card ${edition === 'standard' ? 'is-available is-selected' : ''}`}
@@ -1067,16 +1140,6 @@ function Welcome({
                   })}{' '}
                   <ArrowRight className="size-4" />
                 </Button>
-                {hasSavedProgress && (
-                  <Button
-                    variant="outline"
-                    size="lg"
-                    className="h-13 rounded-full px-6"
-                    onClick={onResume}
-                  >
-                    {'common.resumeSavedProgress'}
-                  </Button>
-                )}
                 <div className="flex items-center gap-2 px-3 text-sm text-muted-foreground">
                   <Gauge className="size-4" />{' '}
                   {edition === 'pro'
@@ -1170,37 +1233,6 @@ function Welcome({
               <div className="home-assessment-notes">
                 <p>{'common.yourResponsesArePrivateAndStayOnThisDevice'}</p>
               </div>
-              {latestProfile && latestCompletedDate && (
-                <button
-                  type="button"
-                  className="home-latest-result group"
-                  onClick={onViewLatest}
-                >
-                  <span className="min-w-0">
-                    <span className="panel-eyebrow flex items-center gap-2">
-                      <BookOpenCheck className="size-4" />
-                      {'home.latest.eyebrow'}
-                    </span>
-                    <span className="mt-2 block font-serif text-xl font-semibold text-primary">
-                      {'home.latest.title'}
-                    </span>
-                    <span className="mt-1 block text-sm text-muted-foreground">
-                      {t('home.latest.meta', {
-                        edition:
-                          latestProfile.edition === 'pro' ? 'Pro' : 'Standard',
-                        date: latestCompletedDate,
-                      })}
-                    </span>
-                    <span className="mt-2 block text-xs leading-5 text-muted-foreground">
-                      {'home.latest.note'}
-                    </span>
-                  </span>
-                  <span className="home-latest-result-action">
-                    {'home.latest.action'}
-                    <ArrowRight className="size-4" />
-                  </span>
-                </button>
-              )}
             </div>
           </div>
           <div className="relative mx-auto max-w-7xl px-6 pb-14 lg:px-12">
@@ -1270,6 +1302,8 @@ function Welcome({
                       className="role-preview-character role-preview-character-a"
                       src={assetPath(mode.image[initialCharacterVariant(key)])}
                       alt=""
+                      loading="lazy"
+                      decoding="async"
                     />
                     {/* oxlint-disable-next-line next/no-img-element */}
                     <img
@@ -1280,6 +1314,8 @@ function Welcome({
                         ],
                       )}
                       alt=""
+                      loading="lazy"
+                      decoding="async"
                     />
                     <div className="role-hover-copy">
                       <span>
@@ -1338,6 +1374,8 @@ function Welcome({
                             className={`hidden-role-image ${unlocked ? '' : 'is-silhouette'}`}
                             src={assetPath(role.image)}
                             alt=""
+                            loading="lazy"
+                            decoding="async"
                           />
                           {!unlocked && <strong>?</strong>}
                         </div>
@@ -1466,6 +1504,15 @@ function YearSelection({
             <p className="mt-4 text-lg leading-7 text-muted-foreground">
               {'common.thisHelpsYouRevisitTheCompassAcrossDifferentYears'}
             </p>
+            <button
+              className="year-skip-link"
+              onClick={() => {
+                onChange(null);
+                onContinue();
+              }}
+            >
+              {'common.skipThisStep'} <ArrowRight className="size-4" />
+            </button>
           </div>
           <div className="year-options mt-9 grid gap-4 md:grid-cols-2">
             {studyYears.map((option) => {
@@ -1499,21 +1546,11 @@ function YearSelection({
               );
             })}
           </div>
-          <div className="mt-4">
-            <button
-              className="compact-choice w-full"
-              onClick={() => {
-                onChange(null);
-                onContinue();
-              }}
-            >
-              {'common.skipThisStep'}
-            </button>
-          </div>
           <div className="mt-9 flex justify-end">
             <Button
               size="lg"
               className="h-12 rounded-full px-7"
+              disabled={!year}
               onClick={onContinue}
             >
               {'common.continue'}
@@ -1564,11 +1601,19 @@ function Assessment({
   const PhaseIcon = phase.icon;
   const scale = question.kind === 'behaviour' ? behaviourScale : technicalScale;
   const [revealedQuestionId, setRevealedQuestionId] = useState('');
+  const questionHeadingRef = useRef<HTMLHeadingElement | null>(null);
+  const previousQuestionId = useRef(question.id);
   useEffect(() => {
-    const timer = window.setTimeout(
-      () => setRevealedQuestionId(question.id),
-      900,
-    );
+    const reducedMotion = window.matchMedia(
+      '(prefers-reduced-motion: reduce)',
+    ).matches;
+    const timer = window.setTimeout(() => {
+      setRevealedQuestionId(question.id);
+      if (previousQuestionId.current !== question.id) {
+        questionHeadingRef.current?.focus({ preventScroll: true });
+        previousQuestionId.current = question.id;
+      }
+    }, reducedMotion ? 0 : 320);
     return () => window.clearTimeout(timer);
   }, [question.id]);
   const answersReady = revealedQuestionId === question.id;
@@ -1643,12 +1688,12 @@ function Assessment({
               <div className="flex items-center gap-2">
                 <LanguageSwitcher embedded />
                 <div className="assessment-progress-badge">
-                  {Math.round(((current + 1) / total) * 100)}%
+                  {Math.round((current / total) * 100)}%
                 </div>
               </div>
             </div>
             <Progress
-              value={((current + 1) / total) * 100}
+              value={(current / total) * 100}
               className="mb-9 h-1.5"
             />
             {showNudge && (
@@ -1699,7 +1744,11 @@ function Assessment({
                   ? toolkit[question.toolkit].label
                   : phase.eyebrow}
               </div>
-              <h1 className="mt-6 font-serif text-3xl font-semibold leading-tight tracking-tight sm:text-[2.35rem]">
+              <h1
+                ref={questionHeadingRef}
+                tabIndex={-1}
+                className="mt-6 font-serif text-3xl font-semibold leading-tight tracking-tight outline-none sm:text-[2.35rem]"
+              >
                 {question.prompt}
               </h1>
               {question.id === 'C01' && question.helper && (
@@ -1719,13 +1768,12 @@ function Assessment({
                       typeof selected === 'number' ? selected : undefined
                     }
                     prompt={scale.prompt}
-                    low={scale.low}
-                    high={scale.high}
                     labels={
                       question.kind === 'behaviour'
                         ? behaviourScale.details
-                        : undefined
+                        : technicalScale.details
                     }
+                    shortLabels={question.kind === 'technical' ? technicalScale.shortLabels : undefined}
                     onChoose={onChooseNumber}
                   />
                 )}
@@ -1748,13 +1796,20 @@ function Assessment({
                   )}
                 {(question.kind === 'interest' || question.kind === 'growth') &&
                   displayedMultiOptions.length > 0 && (
-                    <MultiChoices
-                      disabled={!answersReady}
-                      exclusiveId={exclusiveSelectionId(question.kind)}
-                      options={displayedMultiOptions}
-                      selected={Array.isArray(selected) ? selected : []}
-                      onToggle={onToggle}
-                    />
+                    <>
+                      {question.kind === 'interest' && (
+                        <p className="multi-choice-guidance">
+                          {'assessment.interest.optional'}
+                        </p>
+                      )}
+                      <MultiChoices
+                        disabled={!answersReady}
+                        exclusiveId={exclusiveSelectionId(question.kind)}
+                        options={displayedMultiOptions}
+                        selected={Array.isArray(selected) ? selected : []}
+                        onToggle={onToggle}
+                      />
+                    </>
                   )}
               </div>
               <div className="assessment-navigation mt-8 border-t pt-6">
@@ -1789,17 +1844,15 @@ function ScaleQuestion({
   disabled,
   selected,
   prompt,
-  low,
-  high,
   labels,
+  shortLabels,
   onChoose,
 }: {
   disabled?: boolean;
   selected?: number;
   prompt: string;
-  low: string;
-  high: string;
   labels?: readonly string[];
+  shortLabels?: readonly string[];
   onChoose: (value: number) => void;
 }) {
   const { t } = useLanguage();
@@ -1808,29 +1861,43 @@ function ScaleQuestion({
       {
         <fieldset className="mt-9">
           <legend className="sr-only">{prompt}</legend>
-          <div className="mt-4 flex justify-between gap-4 text-sm text-muted-foreground">
-            <span>{low}</span>
-            <span className="text-right">{high}</span>
-          </div>
-          <div className="mt-4 grid grid-cols-5 gap-2.5">
+          <div className="scale-choice-grid mt-4">
             {[1, 2, 3, 4, 5].map((value) => (
-              <button
-                type="button"
-                key={value}
+              <div key={value} className="scale-choice">
+              <label
                 className={`scale-position ${selected === value ? 'scale-position-selected' : ''}`}
-                disabled={disabled}
-                onClick={() => onChoose(value)}
-                aria-label={
-                  labels
-                    ? t(labels[value - 1])
-                    : t('assessment.scaleValue', { value })
-                }
-                aria-pressed={selected === value}
               >
-                {value}
-              </button>
+                <input
+                  className="sr-only"
+                  type="radio"
+                  name="assessment-scale"
+                  value={value}
+                  disabled={disabled}
+                  checked={selected === value}
+                  onChange={() => onChoose(value)}
+                  aria-label={
+                    labels
+                      ? t(labels[value - 1])
+                      : t('assessment.scaleValue', { value })
+                  }
+                />
+                <span className="scale-choice-number">{value}</span>
+              </label>
+                <span className="scale-choice-label">
+                  {shortLabels ? shortLabels[value - 1] : labels ? labels[value - 1] : t('assessment.scaleValue', { value })}
+                </span>
+              </div>
             ))}
           </div>
+          {shortLabels && labels && <div className="scale-description">
+            <p aria-live="polite" aria-atomic="true">
+              {selected ? <><strong>{selected}</strong><span>{labels[selected - 1]}</span></> : 'scale.technical.choose'}
+            </p>
+            <details className="scale-explanations">
+              <summary>{'scale.technical.explain'}</summary>
+              <ol>{labels.map((label, index) => <li key={label}><strong>{index + 1}</strong><span>{label}</span></li>)}</ol>
+            </details>
+          </div>}
         </fieldset>
       }
     </LocalizedContent>
@@ -1850,12 +1917,14 @@ function OrderedChoices({
   onChoose: (value: number) => void;
   scenario: boolean;
 }) {
+  const { t } = useLanguage();
+  const longChoices = scenario || options.some((option) => t(option.label).length > 45);
   return (
     <LocalizedContent>
       {
         <fieldset className="mt-8">
           <legend className="sr-only">{'common.chooseOneResponse'}</legend>
-          <div className={`grid gap-2.5 ${!scenario ? 'sm:grid-cols-2' : ''}`}>
+          <div className={`grid gap-2.5 ${!longChoices ? 'sm:grid-cols-2' : ''}`}>
             {options.map((option) => (
               <button
                 type="button"
@@ -2063,6 +2132,63 @@ function Results({
       (growthEdge && growthEdge.score < supporting.score
         ? ' ' + t('result.analysis.practice', { area: t(growthEdge.fullLabel) })
         : '');
+  const resultActions = (
+    <div className="mode-actions" data-capture-exclude="true">
+      <Button
+        variant="outline"
+        className="rounded-full"
+        disabled={isSaving}
+        onClick={async () => {
+          setIsSaving(true);
+          setSaveError(null);
+          try {
+            await onDownload();
+          } catch {
+            setSaveError('result.export.error');
+          } finally {
+            setIsSaving(false);
+          }
+        }}
+      >
+        <Download className="mr-1 size-4" />
+        {isSaving ? 'result.export.preparing' : 'result.export.save'}
+      </Button>
+      <Button
+        variant="outline"
+        className="mode-share-button rounded-full"
+        disabled={isPreparingShare || isSharing || !shareFile}
+        onClick={async () => {
+          if (!shareFile) return;
+          setIsSharing(true);
+          setShareStatus(null);
+          try {
+            const outcome = await shareRoleFile(
+              shareFile,
+              t('result.share.title', { role: t(rolePresentation.name) }),
+              t('result.share.text', { role: t(rolePresentation.name) }),
+            );
+            if (outcome === 'downloaded')
+              setShareStatus('result.share.downloaded');
+          } catch {
+            setShareStatus('result.share.error');
+          } finally {
+            setIsSharing(false);
+          }
+        }}
+      >
+        <Share2 className="mr-1 size-4" />
+        {isPreparingShare
+          ? 'result.share.preparing'
+          : isSharing
+            ? 'result.share.sharing'
+            : 'result.share.save'}
+      </Button>
+      <Button variant="ghost" className="rounded-full" onClick={onRestart}>
+        <RefreshCw className="mr-1 size-4" />{' '}
+        {'common.takeAssessmentAgain'}
+      </Button>
+    </div>
+  );
 
   return (
     <LocalizedContent>
@@ -2104,6 +2230,7 @@ function Results({
                   )}
                 </div>
                 <h1>{rolePresentation.name}</h1>
+                {resultActions}
                 {modes.leading.length > 1 && !modes.balanced && (
                   <>
                     <p className="mode-secondary">
@@ -2159,71 +2286,6 @@ function Results({
                   </div>
                 </div>
                 <p className="mode-disclaimer">{'result.role.disclaimer'}</p>
-                <div className="mode-actions" data-capture-exclude="true">
-                  <Button
-                    variant="outline"
-                    className="rounded-full"
-                    disabled={isSaving}
-                    onClick={async () => {
-                      setIsSaving(true);
-                      setSaveError(null);
-                      try {
-                        await onDownload();
-                      } catch {
-                        setSaveError('result.export.error');
-                      } finally {
-                        setIsSaving(false);
-                      }
-                    }}
-                  >
-                    <Download className="mr-1 size-4" />
-                    {isSaving
-                      ? 'result.export.preparing'
-                      : 'result.export.save'}
-                  </Button>
-                  <Button
-                    variant="outline"
-                    className="mode-share-button rounded-full"
-                    disabled={isPreparingShare || isSharing || !shareFile}
-                    onClick={async () => {
-                      if (!shareFile) return;
-                      setIsSharing(true);
-                      setShareStatus(null);
-                      try {
-                        const outcome = await shareRoleFile(
-                          shareFile,
-                          t('result.share.title', {
-                            role: t(rolePresentation.name),
-                          }),
-                          t('result.share.text', {
-                            role: t(rolePresentation.name),
-                          }),
-                        );
-                        if (outcome === 'downloaded')
-                          setShareStatus('result.share.downloaded');
-                      } catch {
-                        setShareStatus('result.share.error');
-                      } finally {
-                        setIsSharing(false);
-                      }
-                    }}
-                  >
-                    <Share2 className="mr-1 size-4" />
-                    {isPreparingShare
-                      ? 'result.share.preparing'
-                      : isSharing
-                        ? 'result.share.sharing'
-                        : 'result.share.save'}
-                  </Button>
-                  <Button
-                    variant="ghost"
-                    className="rounded-full"
-                    onClick={onRestart}
-                  >
-                    <RefreshCw className="mr-1 size-4" />{' '}
-                    {'common.takeAssessmentAgain'}
-                  </Button>
-                </div>
                 {saveError && (
                   <p
                     role="alert"

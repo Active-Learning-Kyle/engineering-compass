@@ -4,13 +4,13 @@ Explore how you work, what you have practised, and what you want to develop next
 
 Engineering Compass is a bilingual self-reflection tool for engineering learners, from first-year students to experienced project teams. It brings together six competencies, nine technical experience areas, and practical next steps in a personal profile.
 
-Its current celestial-navigation interface keeps the interactive compass at the centre, with a layered star field and slowly drifting engineering worlds adding depth around the assessment journey.
+Its celestial-navigation interface keeps the interactive compass at the centre, with a layered star field, one orbiting satellite, and six illustrated astronauts that drift, turn and bounce off one another or respond to your pointer. Reduced-motion preferences are respected.
 
 **[Open Engineering Compass →](https://active-learning-kyle.github.io/engineering-compass/)** · [Browse the source](https://github.com/Active-Learning-Kyle/engineering-compass)
 
 English / 繁體中文 · No account required · Responses stay in your browser · Full results PDF
 
-![Engineering Compass celestial homepage with Standard and Pro choices, an interactive compass, and layered engineering worlds](docs/images/home.jpg)
+![Engineering Compass homepage with Standard and Pro choices, an interactive compass, and drifting astronauts](docs/images/home-latest.png)
 
 ## Start here
 
@@ -37,7 +37,7 @@ Answer tiles appear after a brief pause. If several answers are entered unusuall
 | Additional reflection | Two engineering-judgment scenarios                               | Also includes 12 team-decision trade-offs and 18 practice-evidence items       |
 | Results               | Current modes, experience scope, strengths, and next steps       | All Standard results, plus decision feedback and practice-evidence reflections |
 
-**Pro adds context, not extra points.** Its additional questions do not change the Standard core scores. Team decisions offer two or three defensible approaches with different benefits and costs, rather than a textbook “best answer.”
+**Pro adds context, not extra points.** Its additional questions do not change the Standard core scores. Each Pro team-decision scenario offers three defensible approaches with different benefits and costs, rather than a textbook “best answer.” Its 18 practice-evidence items consistently offer four experience levels.
 
 ## A look inside
 
@@ -49,9 +49,9 @@ Study year is optional and never changes your scores.
 
 ### One question at a time
 
-Behaviour questions use a five-point frequency scale. Technical questions use a separate experience and independence scale. Language switching preserves your answers.
+Behaviour questions use a five-point frequency scale. Technical questions use a separate experience and independence scale, with concise meanings below the numbered tiles and full explanations available separately. Language switching preserves your answers. Technical answers wait for you to choose Next.
 
-![Assessment screen with section navigation, a plain-language question, and five numeric answer tiles](docs/images/assessment.jpg)
+![Technical assessment screen with five numeric answer tiles and concise meanings below them](docs/images/assessment-latest.png)
 
 ### Your current profile
 
@@ -215,7 +215,7 @@ Static output is written to `dist/client`. The [GitHub Pages workflow](.github/w
 | [tests/assessment.test.mjs](tests/assessment.test.mjs)                 | Question, language, scoring, interpretation, and export regression checks                 |
 | [docs](docs)                                                           | Design notes and assessment development history                                           |
 
-The current question sets are **Standard v1.8 / Pro v0.4**. Older documents mentioning a Pro pilot describe development history; the current interface presents Standard and Pro. Revisions that change question meanings are versioned so older drafts are not silently reinterpreted. Passing software tests does not establish assessment validity.
+The current question sets are **Standard v1.8 / Pro v0.5**. Older documents mentioning a Pro pilot describe development history; the current interface presents Standard and Pro. Revisions that change question meanings are versioned so older drafts are not silently reinterpreted. Passing software tests does not establish assessment validity.
 
 ## Licence and permitted use
 

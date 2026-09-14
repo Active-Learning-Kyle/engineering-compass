@@ -14,20 +14,10 @@ const areas: CompetencyKey[] = [
   'design',
   'pitch',
 ];
-const threeChoiceScenarios = new Set([
-  'PS02',
-  'PS05',
-  'PS06',
-  'PS07',
-  'PS10',
-  'PS12',
-]);
 // Values are choice identifiers, never an ordered merit scale.
 export const tradeoffScenarios: ProCheckItem[] = areas.map((area, index) => {
   const id = `PS${String(index + 1).padStart(2, '0')}`;
-  const optionIds = threeChoiceScenarios.has(id)
-    ? ['a', 'b', 'c']
-    : ['a', 'b'];
+  const optionIds = ['a', 'b', 'c'];
   return {
     id,
     number: 25 + index,

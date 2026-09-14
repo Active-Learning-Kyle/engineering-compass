@@ -19,6 +19,13 @@ export const technicalScale = {
   prompt: 'scale.technical.prompt',
   low: 'scale.technical.low',
   high: 'scale.technical.high',
+  shortLabels: [
+    'scale.technical.short.0',
+    'scale.technical.short.1',
+    'scale.technical.short.2',
+    'scale.technical.short.3',
+    'scale.technical.short.4',
+  ],
   details: [
     'scale.technical.details.0',
     'scale.technical.details.1',

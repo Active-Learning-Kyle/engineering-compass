@@ -83,20 +83,30 @@ _These screenshots use synthetic example responses, not student data. Your resul
 
 ## Mobile experience
 
-Engineering Compass is designed for both desktop and mobile browsers. Learners can complete the assessment, review their illustrated role profile, save the complete results as a PDF, and download or share a compact role card directly from a phone.
+Engineering Compass is designed for both desktop and mobile browsers. Learners can choose a version, complete the assessment, review their illustrated role profile, save the complete results as a PDF, and download or share a compact role card directly from a phone.
 
 <table>
 <tr>
-<th width="33%">Choose a version</th>
-<th width="33%">Complete the assessment</th>
-<th width="33%">Save your full profile</th>
+<th width="50%">Choose a version</th>
+<th width="50%">Complete the assessment</th>
 </tr>
 <tr>
-<td valign="top"><img src="docs/images/mobile-home.png" alt="Engineering Compass mobile homepage with Standard and Pro choices"></td>
-<td valign="top"><img src="docs/images/mobile-assessment.png" alt="Engineering Compass mobile assessment question with five response choices"></td>
-<td valign="top"><img src="docs/images/mobile-profile.jpg" alt="Complete Engineering Compass profile saved as a four-page PDF from a mobile browser"></td>
+<td valign="top"><img src="docs/images/mobile-home-latest.png" alt="Engineering Compass mobile homepage with the complete Standard and Pro choices and start button"></td>
+<td valign="top"><img src="docs/images/mobile-assessment-latest.png" alt="Engineering Compass mobile technical assessment with all five response choices, their meanings, navigation, and save-progress control"></td>
 </tr>
 </table>
+
+### Review and share your result
+
+The mobile result keeps the illustrated role, title, code, experience scope, and profile actions together in one readable card.
+
+<p align="center"><img src="docs/images/mobile-profile-latest.png" alt="Complete Engineering Compass mobile result card for an Adaptive Integrator profile" width="390"></p>
+
+### Save the complete profile as a PDF
+
+The PDF uses a fixed-width layout so the full profile stays readable whether it is downloaded from a phone or desktop browser.
+
+<p align="center"><img src="docs/images/mobile-profile.jpg" alt="First page of a complete four-page Engineering Compass PDF exported from a mobile browser" width="700"></p>
 
 _The mobile screenshots also use synthetic example responses._
 

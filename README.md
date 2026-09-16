@@ -91,8 +91,8 @@ Engineering Compass is designed for both desktop and mobile browsers. Learners c
 <th width="50%">Complete the assessment</th>
 </tr>
 <tr>
-<td valign="top"><img src="docs/images/mobile-home-latest.png" alt="Engineering Compass mobile homepage with the complete Standard and Pro choices and start button"></td>
-<td valign="top"><img src="docs/images/mobile-assessment-latest.png" alt="Engineering Compass mobile technical assessment with all five response choices, their meanings, navigation, and save-progress control"></td>
+<td valign="top" align="center"><img src="docs/images/mobile-home-latest.png" alt="Engineering Compass mobile homepage with the complete Standard and Pro choices and start button" width="82%"></td>
+<td valign="top" align="center"><img src="docs/images/mobile-assessment-latest.png" alt="Engineering Compass mobile technical assessment with all five response choices, their meanings, navigation, and save-progress control" width="82%"></td>
 </tr>
 </table>
 
@@ -100,7 +100,7 @@ Engineering Compass is designed for both desktop and mobile browsers. Learners c
 
 The mobile result keeps the illustrated role, title, code, experience scope, and profile actions together in one readable card.
 
-<p align="center"><img src="docs/images/mobile-profile-latest.png" alt="Complete Engineering Compass mobile result card for an Adaptive Integrator profile" width="390"></p>
+<p align="center"><img src="docs/images/mobile-profile-latest.png" alt="Engineering Compass mobile result for a Practical Builder profile" width="330"></p>
 
 ### Save the complete profile as a PDF
 
